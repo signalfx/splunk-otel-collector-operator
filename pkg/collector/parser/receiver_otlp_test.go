@@ -65,7 +65,6 @@ func TestOTLPExposeDefaultPorts(t *testing.T) {
 		seen       bool
 	}{
 		"otlp-grpc":        {portNumber: 4317},
-		"otlp-grpc-legacy": {portNumber: 55680},
 	}
 
 	// test
@@ -73,7 +72,7 @@ func TestOTLPExposeDefaultPorts(t *testing.T) {
 
 	// verify
 	assert.NoError(t, err)
-	assert.Len(t, ports, 2)
+	assert.Len(t, ports, 1)
 
 	for _, port := range ports {
 		r := expectedResults[port.Name]
