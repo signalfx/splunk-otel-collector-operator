@@ -64,7 +64,7 @@ func TestOTLPExposeDefaultPorts(t *testing.T) {
 		portNumber int32
 		seen       bool
 	}{
-		"otlp-grpc":        {portNumber: 4317},
+		"otlp-grpc": {portNumber: 4317},
 	}
 
 	// test
