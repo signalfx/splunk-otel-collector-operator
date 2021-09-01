@@ -45,7 +45,7 @@ func TestNewConfig(t *testing.T) {
 func TestOverrideVersion(t *testing.T) {
 	// prepare
 	v := version.Version{
-		OpenTelemetryCollector: "the-version",
+		SplunkCollector: "the-version",
 	}
 	cfg := config.New(config.WithVersion(v))
 
