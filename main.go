@@ -33,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	opentelemetryiov1alpha1 "github.com/signalfx/splunk-otel-operator/api/v1alpha1"
+	corev1beta1 "github.com/signalfx/splunk-otel-operator/api/v1beta1"
 	"github.com/signalfx/splunk-otel-operator/controllers"
 	"github.com/signalfx/splunk-otel-operator/internal/config"
 	"github.com/signalfx/splunk-otel-operator/internal/podinjector"
@@ -51,6 +52,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(opentelemetryiov1alpha1.AddToScheme(scheme))
+	utilruntime.Must(corev1beta1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -166,6 +168,14 @@ func main() {
 		mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{
 			Handler: podinjector.NewPodSidecarInjector(cfg, ctrl.Log.WithName("sidecar"), mgr.GetClient()),
 		})
+	}
+	if err = (&controllers.SplunkOtelClusterReceiverReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("SplunkOtelClusterReceiver"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "SplunkOtelClusterReceiver")
+		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
 
