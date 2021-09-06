@@ -19,16 +19,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/record"
 
 	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 	"github.com/signalfx/splunk-otel-operator/internal/config"
-	ta "github.com/signalfx/splunk-otel-operator/pkg/targetallocator/adapters"
 )
 
 func TestDefaultConfigMap(t *testing.T) {
@@ -119,51 +116,16 @@ service:
 		assert.Equal(t, expectedData, actual.Data)
 
 	})
-
-	t.Run("should return expected target allocator config map", func(t *testing.T) {
-		expectedLables["app.kubernetes.io/component"] = "opentelemetry-targetallocator"
-		expectedLables["app.kubernetes.io/name"] = "test-targetallocator"
-
-		expectedData := map[string]string{
-			"targetallocator.yaml": `config:
-  scrape_configs:
-    job_name: otel-collector
-    scrape_interval: 10s
-    static_configs:
-    - targets:
-      - 0.0.0.0:8888
-      - 0.0.0.0:9999
-label_selector:
-  app.kubernetes.io/component: splunk-otel-collector
-  app.kubernetes.io/instance: default.test
-  app.kubernetes.io/managed-by: splunk-otel-operator
-`,
-		}
-
-		actual, err := desiredTAConfigMap(params())
-		assert.NoError(t, err)
-
-		assert.Equal(t, "test-targetallocator", actual.Name)
-		assert.Equal(t, expectedLables, actual.Labels)
-		assert.Equal(t, expectedData, actual.Data)
-
-	})
-
 }
 
 func TestExpectedConfigMap(t *testing.T) {
-	t.Run("should create collector and target allocator config maps", func(t *testing.T) {
+	t.Run("should create collector config maps", func(t *testing.T) {
 		configMap, err := desiredTAConfigMap(params())
 		assert.NoError(t, err)
 		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{desiredConfigMap(context.Background(), params()), configMap}, true)
 		assert.NoError(t, err)
 
 		exists, err := populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
-
-		assert.NoError(t, err)
-		assert.True(t, exists)
-
-		exists, err = populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-targetallocator"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
@@ -202,71 +164,6 @@ func TestExpectedConfigMap(t *testing.T) {
 		assert.True(t, exists)
 		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
 		assert.Equal(t, params().Instance.Spec.Config, actual.Data["collector.yaml"])
-	})
-
-	t.Run("should update target allocator config map", func(t *testing.T) {
-
-		param := Params{
-			Client: k8sClient,
-			Instance: v1alpha1.SplunkOtelAgent{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "splunk.com",
-					APIVersion: "v1",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test",
-					Namespace: "default",
-					UID:       instanceUID,
-				},
-				Spec: v1alpha1.SplunkOtelAgentSpec{
-					Mode: v1alpha1.ModeStatefulSet,
-					Ports: []v1.ServicePort{{
-						Name: "web",
-						Port: 80,
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.Int,
-							IntVal: 80,
-						},
-						NodePort: 0,
-					}},
-					TargetAllocator: v1alpha1.OpenTelemetryTargetAllocatorSpec{
-						Enabled: true,
-					},
-					Config: "",
-				},
-			},
-			Scheme: testScheme,
-			Log:    logger,
-		}
-		cm, err := desiredTAConfigMap(param)
-		assert.EqualError(t, err, "no receivers available as part of the configuration")
-		createObjectIfNotExists(t, "test-targetallocator", &cm)
-
-		configMap, err := desiredTAConfigMap(params())
-		assert.NoError(t, err)
-		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{configMap}, true)
-		assert.NoError(t, err)
-
-		actual := v1.ConfigMap{}
-		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-targetallocator"})
-
-		assert.NoError(t, err)
-		assert.True(t, exists)
-		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
-
-		parmConfig, err := ta.ConfigToPromConfig(params().Instance.Spec.Config)
-		assert.NoError(t, err)
-
-		taConfig := make(map[interface{}]interface{})
-		taConfig["label_selector"] = map[string]string{
-			"app.kubernetes.io/instance":   "default.test",
-			"app.kubernetes.io/managed-by": "splunk-otel-operator",
-			"app.kubernetes.io/component":  "splunk-otel-collector",
-		}
-		taConfig["config"] = parmConfig
-		taConfigYAML, _ := yaml.Marshal(taConfig)
-
-		assert.Equal(t, string(taConfigYAML), actual.Data["targetallocator.yaml"])
 	})
 
 	t.Run("should delete config map", func(t *testing.T) {

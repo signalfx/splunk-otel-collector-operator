@@ -23,15 +23,12 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 	"github.com/signalfx/splunk-otel-operator/pkg/collector"
 	"github.com/signalfx/splunk-otel-operator/pkg/collector/adapters"
 	"github.com/signalfx/splunk-otel-operator/pkg/naming"
-	"github.com/signalfx/splunk-otel-operator/pkg/targetallocator"
 )
 
 // +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
@@ -39,19 +36,13 @@ import (
 // Services reconciles the service(s) required for the instance in the current context.
 func Services(ctx context.Context, params Params) error {
 	desired := []corev1.Service{}
-	if params.Instance.Spec.Mode != v1alpha1.ModeSidecar {
-		type builder func(context.Context, Params) *corev1.Service
-		for _, builder := range []builder{desiredService, headless, monitoringService} {
-			svc := builder(ctx, params)
-			// add only the non-nil to the list
-			if svc != nil {
-				desired = append(desired, *svc)
-			}
+	type builder func(context.Context, Params) *corev1.Service
+	for _, builder := range []builder{desiredService, headless, monitoringService} {
+		svc := builder(ctx, params)
+		// add only the non-nil to the list
+		if svc != nil {
+			desired = append(desired, *svc)
 		}
-	}
-
-	if params.Instance.Spec.TargetAllocator.Enabled {
-		desired = append(desired, desiredTAService(params))
 	}
 
 	// first, handle the create/update parts
@@ -75,7 +66,7 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 	// whereas 'labels' refers to the service
 	selector := labels
 
-	config, err := adapters.ConfigFromString(params.Instance.Spec.Config)
+	config, err := adapters.ConfigFromString(params.Instance.Spec.Agent.Config)
 	if err != nil {
 		params.Log.Error(err, "couldn't extract the configuration from the context")
 		return nil
@@ -87,7 +78,7 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 		return nil
 	}
 
-	if len(params.Instance.Spec.Ports) > 0 {
+	if len(params.Instance.Spec.Agent.Ports) > 0 {
 		// we should add all the ports from the CR
 		// there are two cases where problems might occur:
 		// 1) when the port number is already being used by a receiver
@@ -95,7 +86,7 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 		//
 		// in the first case, we remove the port we inferred from the list
 		// in the second case, we rename our inferred port to something like "port-%d"
-		portNumbers, portNames := extractPortNumbersAndNames(params.Instance.Spec.Ports)
+		portNumbers, portNames := extractPortNumbersAndNames(params.Instance.Spec.Agent.Ports)
 		resultingInferredPorts := []corev1.ServicePort{}
 		for _, inferred := range ports {
 			if filtered := filterPort(params.Log, inferred, portNumbers, portNames); filtered != nil {
@@ -103,7 +94,7 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 			}
 		}
 
-		ports = append(params.Instance.Spec.Ports, resultingInferredPorts...)
+		ports = append(params.Instance.Spec.Agent.Ports, resultingInferredPorts...)
 	}
 
 	// if we have no ports, we don't need a service
@@ -123,30 +114,6 @@ func desiredService(ctx context.Context, params Params) *corev1.Service {
 			Selector:  selector,
 			ClusterIP: "",
 			Ports:     ports,
-		},
-	}
-}
-
-func desiredTAService(params Params) corev1.Service {
-	labels := targetallocator.Labels(params.Instance)
-	labels["app.kubernetes.io/name"] = naming.TAService(params.Instance)
-
-	selector := targetallocator.Labels(params.Instance)
-	selector["app.kubernetes.io/name"] = naming.TargetAllocator(params.Instance)
-
-	return corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      naming.TAService(params.Instance),
-			Namespace: params.Instance.Namespace,
-			Labels:    labels,
-		},
-		Spec: corev1.ServiceSpec{
-			Selector: selector,
-			Ports: []corev1.ServicePort{{
-				Name:       "targetallocation",
-				Port:       80,
-				TargetPort: intstr.FromInt(8080),
-			}},
 		},
 	}
 }

@@ -153,10 +153,6 @@ func newParams(containerImage string) (Params, error) {
 					},
 					NodePort: 0,
 				}},
-				TargetAllocator: v1alpha1.OpenTelemetryTargetAllocatorSpec{
-					Enabled: true,
-					Image:   containerImage,
-				},
 				Replicas: &replicas,
 				Config:   string(configYAML),
 			},

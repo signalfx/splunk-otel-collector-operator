@@ -45,9 +45,11 @@ func TestVolumeAllowsMoreToBeAdded(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.SplunkOtelAgent{
 		Spec: v1alpha1.SplunkOtelAgentSpec{
-			Volumes: []corev1.Volume{{
-				Name: "my-volume",
-			}},
+			Agent: v1alpha1.SplunkComponentSpec{
+				Volumes: []corev1.Volume{{
+					Name: "my-volume",
+				}},
+			},
 		},
 	}
 	cfg := config.New()

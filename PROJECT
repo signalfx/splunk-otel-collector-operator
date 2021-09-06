@@ -11,13 +11,4 @@ resources:
   kind: SplunkOtelAgent
   path: k8s.io/api/core/v1alpha1
   version: v1alpha1
-- api:
-    crdVersion: v1beta1
-    namespaced: true
-  controller: true
-  domain: splunk.com
-  group: core
-  kind: SplunkOtelClusterReceiver
-  path: github.com/signalfx/splunk-otel-operator/api/v1beta1
-  version: v1beta1
 version: "3"

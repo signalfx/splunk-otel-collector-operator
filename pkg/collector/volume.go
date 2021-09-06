@@ -38,8 +38,8 @@ func Volumes(cfg config.Config, otelcol v1alpha1.SplunkOtelAgent) []corev1.Volum
 		},
 	}}
 
-	if len(otelcol.Spec.Volumes) > 0 {
-		volumes = append(volumes, otelcol.Spec.Volumes...)
+	if len(otelcol.Spec.Agent.Volumes) > 0 {
+		volumes = append(volumes, otelcol.Spec.Agent.Volumes...)
 	}
 
 	return volumes

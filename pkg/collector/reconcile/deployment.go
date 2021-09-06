@@ -25,7 +25,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/signalfx/splunk-otel-operator/pkg/collector"
-	"github.com/signalfx/splunk-otel-operator/pkg/targetallocator"
 )
 
 // +kubebuilder:rbac:groups="apps",resources=deployments,verbs=get;list;watch;create;update;patch;delete
@@ -33,13 +32,8 @@ import (
 // Deployments reconciles the deployment(s) required for the instance in the current context.
 func Deployments(ctx context.Context, params Params) error {
 	desired := []appsv1.Deployment{}
-	if params.Instance.Spec.Mode == "deployment" {
-		desired = append(desired, collector.Deployment(params.Config, params.Log, params.Instance))
-	}
-
-	if params.Instance.Spec.TargetAllocator.Enabled {
-		desired = append(desired, targetallocator.Deployment(params.Config, params.Log, params.Instance))
-	}
+	// TODO(splunk): pass params.Instance.Spec.Gateway instead of params.Instance
+	desired = append(desired, collector.Deployment(params.Config, params.Log, params.Instance))
 
 	// first, handle the create/update parts
 	if err := expectedDeployments(ctx, params, desired); err != nil {
@@ -84,11 +78,7 @@ func expectedDeployments(ctx context.Context, params Params, expected []appsv1.D
 			updated.Labels = map[string]string{}
 		}
 
-		if desired.Labels["app.kubernetes.io/component"] == "opentelemetry-targetallocator" {
-			updated.Spec.Template.Spec.Containers[0].Image = desired.Spec.Template.Spec.Containers[0].Image
-		} else {
-			updated.Spec = desired.Spec
-		}
+		updated.Spec = desired.Spec
 		updated.ObjectMeta.OwnerReferences = desired.ObjectMeta.OwnerReferences
 
 		for k, v := range desired.ObjectMeta.Annotations {

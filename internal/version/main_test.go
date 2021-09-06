@@ -21,7 +21,7 @@ import (
 )
 
 func TestFallbackVersion(t *testing.T) {
-	assert.Equal(t, "0.0.0", SplunkOtelAgent())
+	assert.Equal(t, "0.0.0", SplunkOtelCollector())
 }
 
 func TestVersionFromBuild(t *testing.T) {
@@ -31,21 +31,6 @@ func TestVersionFromBuild(t *testing.T) {
 		otelCol = ""
 	}()
 
-	assert.Equal(t, otelCol, SplunkOtelAgent())
+	assert.Equal(t, otelCol, SplunkOtelCollector())
 	assert.Contains(t, Get().String(), otelCol)
-}
-
-func TestTargetAllocatorFallbackVersion(t *testing.T) {
-	assert.Equal(t, "0.0.0", TargetAllocator())
-}
-
-func TestTargetAllocatorVersionFromBuild(t *testing.T) {
-	// prepare
-	targetAllocator = "0.0.2" // set during the build
-	defer func() {
-		targetAllocator = ""
-	}()
-
-	assert.Equal(t, targetAllocator, TargetAllocator())
-	assert.Contains(t, Get().String(), targetAllocator)
 }

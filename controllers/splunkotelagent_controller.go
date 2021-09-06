@@ -97,11 +97,6 @@ func NewReconciler(p Params) *SplunkOtelAgentReconciler {
 				true,
 			},
 			{
-				"stateful sets",
-				reconcile.StatefulSets,
-				true,
-			},
-			{
 				"opentelemetry",
 				reconcile.Self,
 				true,
@@ -142,7 +137,7 @@ func (r *SplunkOtelAgentReconciler) Reconcile(_ context.Context, req ctrl.Reques
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	setAgentDefaults(&instance)
+	setDefaults(&instance)
 
 	params := reconcile.Params{
 		Config:   r.config,

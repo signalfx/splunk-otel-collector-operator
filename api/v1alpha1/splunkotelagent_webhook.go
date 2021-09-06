@@ -15,14 +15,10 @@
 package v1alpha1
 
 import (
-	"fmt"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
-
-	ta "github.com/signalfx/splunk-otel-operator/pkg/targetallocator/adapters"
 )
 
 // log is for logging in this package.
@@ -40,10 +36,7 @@ var _ webhook.Defaulter = &SplunkOtelAgent{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type.
 func (r *SplunkOtelAgent) Default() {
-	if len(r.Spec.Mode) == 0 {
-		r.Spec.Mode = ModeDeployment
-	}
-
+	// TODO(splunk): call defaults.go from here
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
 	}
@@ -78,33 +71,21 @@ func (r *SplunkOtelAgent) ValidateDelete() error {
 }
 
 func (r *SplunkOtelAgent) validateCRDSpec() error {
-	// validate volumeClaimTemplates
-	if r.Spec.Mode != ModeStatefulSet && len(r.Spec.VolumeClaimTemplates) > 0 {
-		return fmt.Errorf("the OpenTelemetry Collector mode is set to %s, which does not support the attribute 'volumeClaimTemplates'", r.Spec.Mode)
-	}
+	return r.validateCRDAgentSpec()
+	// TODO(splunk): validate all and return multi-error
+	// err = r.validateCRDAgentSpec()
+	// err = r.validateCRDClusterReceiverSpec()
+	// err = r.validateCRDGatewaySpec()
+}
 
-	// validate replicas
-	if (r.Spec.Mode == ModeSidecar || r.Spec.Mode == ModeDaemonSet) && r.Spec.Replicas != nil {
-		return fmt.Errorf("the OpenTelemetry Collector mode is set to %s, which does not support the attribute 'replicas'", r.Spec.Mode)
-	}
+func (r *SplunkOtelAgent) validateCRDAgentSpec() error {
+	return nil
+}
 
-	// validate tolerations
-	if r.Spec.Mode == ModeSidecar && len(r.Spec.Tolerations) > 0 {
-		return fmt.Errorf("the OpenTelemetry Collector mode is set to %s, which does not support the attribute 'tolerations'", r.Spec.Mode)
-	}
+func (r *SplunkOtelAgent) validateCRDClusterReceiverSpec() error {
+	return nil
+}
 
-	// validate target allocation
-	if r.Spec.TargetAllocator.Enabled && r.Spec.Mode != ModeStatefulSet {
-		return fmt.Errorf("the OpenTelemetry Collector mode is set to %s, which does not support the target allocation deployment", r.Spec.Mode)
-	}
-
-	// validate Prometheus config for target allocation
-	if r.Spec.TargetAllocator.Enabled {
-		_, err := ta.ConfigToPromConfig(r.Spec.Config)
-		if err != nil {
-			return fmt.Errorf("the OpenTelemetry Spec Prometheus configuration is incorrect, %s", err)
-		}
-	}
-
+func (r *SplunkOtelAgent) validateCRDGatewaySpec() error {
 	return nil
 }

@@ -39,7 +39,8 @@ func TestInfluxdbReceiverPropertyDrop(t *testing.T) {
 			},
 		},
 		Spec: v1alpha1.SplunkOtelAgentSpec{
-			Config: `
+			Agent: v1alpha1.SplunkComponentSpec{
+				Config: `
 receivers:
   influxdb:
     endpoint: 0.0.0.0:8080
@@ -55,8 +56,8 @@ service:
       receivers: [influxdb]
       exporters: [prometheusremotewrite]
 `,
-		},
-	}
+			},
+		}}
 	existing.Status.Version = "0.30.0"
 
 	// test
@@ -77,6 +78,6 @@ service:
       - prometheusremotewrite
       receivers:
       - influxdb
-`, res.Spec.Config)
+`, res.Spec.Agent.Config)
 	assert.Equal(t, "upgrade to v0.31.0 dropped the 'metrics_schema' field from \"influxdb\" receiver", res.Status.Messages[0])
 }

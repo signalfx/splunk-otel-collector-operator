@@ -24,11 +24,11 @@ import (
 
 // ServiceAccountName returns the name of the existing or self-provisioned service account to use for the given instance.
 func ServiceAccountName(instance v1alpha1.SplunkOtelAgent) string {
-	if len(instance.Spec.ServiceAccount) == 0 {
+	if len(instance.Spec.Agent.ServiceAccount) == 0 {
 		return naming.ServiceAccount(instance)
 	}
 
-	return instance.Spec.ServiceAccount
+	return instance.Spec.Agent.ServiceAccount
 }
 
 //ServiceAccount returns the service account for the given instance.

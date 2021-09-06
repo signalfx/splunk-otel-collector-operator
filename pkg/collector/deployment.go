@@ -40,7 +40,7 @@ func Deployment(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOt
 			Annotations: annotations,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: otelcol.Spec.Replicas,
+			Replicas: otelcol.Spec.Agent.Replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -53,7 +53,7 @@ func Deployment(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOt
 					ServiceAccountName: ServiceAccountName(otelcol),
 					Containers:         []corev1.Container{Container(cfg, logger, otelcol)},
 					Volumes:            Volumes(cfg, otelcol),
-					Tolerations:        otelcol.Spec.Tolerations,
+					Tolerations:        otelcol.Spec.Agent.Tolerations,
 				},
 			},
 		},

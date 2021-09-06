@@ -6,4 +6,6 @@ metadata:
 spec:
   clusterName: my-cluster-name
   splunkRealm: us0
-  #  image: quay.io/signalfx/splunk-otel-collector:latest
+  # agent: {}
+  # clusterReceiver: {}
+  # gateway: {}

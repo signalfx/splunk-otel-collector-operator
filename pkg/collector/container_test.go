@@ -44,9 +44,9 @@ func TestContainerNewDefault(t *testing.T) {
 func TestContainerWithImageOverridden(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Image: "overridden-image",
-		},
+		}},
 	}
 	cfg := config.New(config.WithCollectorImage("default-image"))
 
@@ -60,12 +60,12 @@ func TestContainerWithImageOverridden(t *testing.T) {
 func TestContainerConfigFlagIsIgnored(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Args: map[string]string{
 				"key":    "value",
 				"config": "/some-custom-file.yaml",
 			},
-		},
+		}},
 	}
 	cfg := config.New()
 
@@ -81,11 +81,11 @@ func TestContainerConfigFlagIsIgnored(t *testing.T) {
 func TestContainerCustomVolumes(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			VolumeMounts: []corev1.VolumeMount{{
 				Name: "custom-volume-mount",
 			}},
-		},
+		}},
 	}
 	cfg := config.New()
 
@@ -110,12 +110,12 @@ func TestContainerCustomSecurityContext(t *testing.T) {
 
 	// test
 	c2 := Container(config.New(), logger, v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			SecurityContext: &corev1.SecurityContext{
 				Privileged: &isPrivileged,
 				RunAsUser:  &uid,
 			},
-		},
+		}},
 	})
 
 	// verify
@@ -126,14 +126,14 @@ func TestContainerCustomSecurityContext(t *testing.T) {
 
 func TestContainerEnvVarsOverridden(t *testing.T) {
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Env: []corev1.EnvVar{
 				{
 					Name:  "foo",
 					Value: "bar",
 				},
 			},
-		},
+		}},
 	}
 
 	cfg := config.New()
@@ -163,7 +163,7 @@ func TestContainerEmptyEnvVarsByDefault(t *testing.T) {
 
 func TestContainerResourceRequirements(t *testing.T) {
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Resources: corev1.ResourceRequirements{
 				Limits: corev1.ResourceList{
 					corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -174,7 +174,7 @@ func TestContainerResourceRequirements(t *testing.T) {
 					corev1.ResourceMemory: resource.MustParse("256M"),
 				},
 			},
-		},
+		}},
 	}
 
 	cfg := config.New()
@@ -206,12 +206,12 @@ func TestContainerDefaultResourceRequirements(t *testing.T) {
 func TestContainerArgs(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Args: map[string]string{
 				"metrics-level": "detailed",
 				"log-level":     "debug",
 			},
-		},
+		}},
 	}
 	cfg := config.New()
 
@@ -226,9 +226,9 @@ func TestContainerArgs(t *testing.T) {
 func TestContainerImagePullPolicy(t *testing.T) {
 	// prepare
 	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			ImagePullPolicy: corev1.PullIfNotPresent,
-		},
+		}},
 	}
 	cfg := config.New()
 

@@ -38,7 +38,7 @@ func Annotations(instance v1alpha1.SplunkOtelAgent) map[string]string {
 		}
 	}
 	// make sure sha256 for configMap is always calculated
-	annotations["splunk-otel-operator-config/sha256"] = getConfigMapSHA(instance.Spec.Config)
+	annotations["splunk-otel-operator-config/sha256"] = getConfigMapSHA(instance.Spec.Agent.Config)
 
 	return annotations
 }

@@ -31,26 +31,6 @@ type otelcolVersion struct {
 var (
 	versions = []otelcolVersion{
 		{
-			Version: *semver.MustParse("0.2.10"),
-			upgrade: upgrade0_2_10,
-		},
-		{
-			Version: *semver.MustParse("0.9.0"),
-			upgrade: upgrade0_9_0,
-		},
-		{
-			Version: *semver.MustParse("0.15.0"),
-			upgrade: upgrade0_15_0,
-		},
-		{
-			Version: *semver.MustParse("0.19.0"),
-			upgrade: upgrade0_19_0,
-		},
-		{
-			Version: *semver.MustParse("0.24.0"),
-			upgrade: upgrade0_24_0,
-		},
-		{
 			Version: *semver.MustParse("0.31.0"),
 			upgrade: upgrade0_31_0,
 		},

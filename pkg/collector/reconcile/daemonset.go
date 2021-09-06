@@ -32,9 +32,8 @@ import (
 // DaemonSets reconciles the daemon set(s) required for the instance in the current context.
 func DaemonSets(ctx context.Context, params Params) error {
 	desired := []appsv1.DaemonSet{}
-	if params.Instance.Spec.Mode == "daemonset" {
-		desired = append(desired, collector.DaemonSet(params.Config, params.Log, params.Instance))
-	}
+	// TODO(splunk): pass params.Instance.Spec.Agent instead of params.Instance
+	desired = append(desired, collector.DaemonSet(params.Config, params.Log, params.Instance))
 
 	// first, handle the create/update parts
 	if err := expectedDaemonSets(ctx, params, desired); err != nil {

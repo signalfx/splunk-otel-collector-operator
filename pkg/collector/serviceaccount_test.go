@@ -45,9 +45,9 @@ func TestServiceAccountOverride(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my-instance",
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			ServiceAccount: "my-special-sa",
-		},
+		}},
 	}
 
 	// test

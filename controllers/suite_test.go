@@ -26,7 +26,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 
 	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
-	corev1beta1 "github.com/signalfx/splunk-otel-operator/api/v1beta1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -49,8 +48,6 @@ func TestMain(m *testing.M) {
 		fmt.Printf("failed to register scheme: %v", err)
 		os.Exit(1)
 	}
-	err = corev1beta1.AddToScheme(scheme.Scheme)
-	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:scheme
 

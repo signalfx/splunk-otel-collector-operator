@@ -26,11 +26,11 @@ import (
 )
 
 func upgrade0_31_0(cl client.Client, otelcol *v1alpha1.SplunkOtelAgent) (*v1alpha1.SplunkOtelAgent, error) {
-	if len(otelcol.Spec.Config) == 0 {
+	if len(otelcol.Spec.Agent.Config) == 0 {
 		return otelcol, nil
 	}
 
-	cfg, err := adapters.ConfigFromString(otelcol.Spec.Config)
+	cfg, err := adapters.ConfigFromString(otelcol.Spec.Agent.Config)
 	if err != nil {
 		return otelcol, fmt.Errorf("couldn't upgrade to v0.31.0, failed to parse configuration: %w", err)
 	}
@@ -68,6 +68,6 @@ func upgrade0_31_0(cl client.Client, otelcol *v1alpha1.SplunkOtelAgent) (*v1alph
 		return otelcol, fmt.Errorf("couldn't upgrade to v0.31.0, failed to marshall back configuration: %w", err)
 	}
 
-	otelcol.Spec.Config = string(res)
+	otelcol.Spec.Agent.Config = string(res)
 	return otelcol, nil
 }

@@ -20,18 +20,21 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-func setAgentDefaults(instance *v1alpha1.SplunkOtelAgent) {
+func setDefaults(instance *v1alpha1.SplunkOtelAgent) {
+	setAgentDefaults(instance.Spec.SplunkRealm, instance.Spec.ClusterName, &instance.Spec.Agent)
+	// setClusterReceiverDefaults(instance.Spec.SplunkRealm, instance.Spec.ClusterName, &instance.Spec.ClusterReceiver)
+	// setGatewayDefaults(instance.Spec.SplunkRealm, instance.Spec.ClusterName, &instance.Spec.Gateway)
+}
+
+func setAgentDefaults(realm, clusterName string, spec *v1alpha1.SplunkComponentSpec) {
 	// agent must be daemonset.
-	// TODO(splunk): add different API/controller for clusterreceiver (deployment)
-	// and gateway (deployment).
-	instance.Spec.Mode = "daemonset"
-	instance.Spec.HostNetwork = true
+	spec.HostNetwork = true
 
 	// TODO(splunk): OpenShift uses externally configured SecurityContextConstraints so doesn't need SecuirtyContext here
 	// Investigate if we need SecuirtyContext for non-openshift platforms
 
-	if instance.Spec.Volumes == nil {
-		instance.Spec.Volumes = []v1.Volume{
+	if spec.Volumes == nil {
+		spec.Volumes = []v1.Volume{
 			{
 				Name: "hostfs",
 				VolumeSource: v1.VolumeSource{
@@ -47,9 +50,9 @@ func setAgentDefaults(instance *v1alpha1.SplunkOtelAgent) {
 		}
 	}
 
-	if instance.Spec.VolumeMounts == nil {
+	if spec.VolumeMounts == nil {
 		hostToContainer := v1.MountPropagationHostToContainer
-		instance.Spec.VolumeMounts = []v1.VolumeMount{
+		spec.VolumeMounts = []v1.VolumeMount{
 			{
 				Name:             "hostfs",
 				MountPath:        "/hostfs",
@@ -64,8 +67,8 @@ func setAgentDefaults(instance *v1alpha1.SplunkOtelAgent) {
 		}
 	}
 
-	if instance.Spec.Tolerations == nil {
-		instance.Spec.Tolerations = []v1.Toleration{
+	if spec.Tolerations == nil {
+		spec.Tolerations = []v1.Toleration{
 			{
 				Key:      "node.alpha.kubernetes.io/role",
 				Effect:   v1.TaintEffectNoSchedule,
@@ -79,8 +82,8 @@ func setAgentDefaults(instance *v1alpha1.SplunkOtelAgent) {
 		}
 	}
 
-	if instance.Spec.Env == nil {
-		instance.Spec.Env = []v1.EnvVar{
+	if spec.Env == nil {
+		spec.Env = []v1.EnvVar{
 			{
 				Name: "SPLUNK_ACCESS_TOKEN",
 				ValueFrom: &v1.EnvVarSource{
@@ -103,16 +106,13 @@ func setAgentDefaults(instance *v1alpha1.SplunkOtelAgent) {
 			newEnvVar("HOST_RUN", "/hostfs/run"),
 			newEnvVar("HOST_DEV", "/hostfs/dev"),
 
-			// TODO(splunk): add Realm and Cluster config and use it them here
-			// newEnvVar("SPLUNK_REALM", "replace-with-signalfx-realm"),
-			// newEnvVar("MY_CLUSTER_NAME", "replace-with-cluster-name"),
-			newEnvVar("SPLUNK_REALM", instance.Spec.SplunkRealm),
-			newEnvVar("MY_CLUSTER_NAME", instance.Spec.CLusterName),
+			newEnvVar("SPLUNK_REALM", realm),
+			newEnvVar("MY_CLUSTER_NAME", clusterName),
 		}
 	}
 
-	if instance.Spec.Config == "" {
-		instance.Spec.Config = defaultAgentConfig
+	if spec.Config == "" {
+		spec.Config = defaultAgentConfig
 	}
 }
 

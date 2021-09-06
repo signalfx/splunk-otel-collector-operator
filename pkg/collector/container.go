@@ -27,12 +27,12 @@ import (
 
 // Container builds a container for the given collector.
 func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) corev1.Container {
-	image := otelcol.Spec.Image
+	image := otelcol.Spec.Agent.Image
 	if len(image) == 0 {
 		image = cfg.CollectorImage()
 	}
 
-	argsMap := otelcol.Spec.Args
+	argsMap := otelcol.Spec.Agent.Args
 	if argsMap == nil {
 		argsMap = map[string]string{}
 	}
@@ -54,28 +54,21 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOte
 		MountPath: "/conf",
 	}}
 
-	if len(otelcol.Spec.VolumeMounts) > 0 {
-		volumeMounts = append(volumeMounts, otelcol.Spec.VolumeMounts...)
-	} else if otelcol.Spec.Mode == "statefulset" {
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      "default-volume",
-			MountPath: "/usr/share/default-volume",
-		})
-	}
+	volumeMounts = append(volumeMounts, otelcol.Spec.Agent.VolumeMounts...)
 
-	var envVars = otelcol.Spec.Env
-	if otelcol.Spec.Env == nil {
+	var envVars = otelcol.Spec.Agent.Env
+	if otelcol.Spec.Agent.Env == nil {
 		envVars = []corev1.EnvVar{}
 	}
 
 	return corev1.Container{
 		Name:            naming.Container(),
 		Image:           image,
-		ImagePullPolicy: otelcol.Spec.ImagePullPolicy,
+		ImagePullPolicy: otelcol.Spec.Agent.ImagePullPolicy,
 		VolumeMounts:    volumeMounts,
 		Args:            args,
 		Env:             envVars,
-		Resources:       otelcol.Spec.Resources,
-		SecurityContext: otelcol.Spec.SecurityContext,
+		Resources:       otelcol.Spec.Agent.Resources,
+		SecurityContext: otelcol.Spec.Agent.SecurityContext,
 	}
 }

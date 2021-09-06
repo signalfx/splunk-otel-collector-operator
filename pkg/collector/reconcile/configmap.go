@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,8 +28,6 @@ import (
 
 	"github.com/signalfx/splunk-otel-operator/pkg/collector"
 	"github.com/signalfx/splunk-otel-operator/pkg/naming"
-	"github.com/signalfx/splunk-otel-operator/pkg/targetallocator"
-	ta "github.com/signalfx/splunk-otel-operator/pkg/targetallocator/adapters"
 )
 
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
@@ -39,14 +36,6 @@ import (
 func ConfigMaps(ctx context.Context, params Params) error {
 	desired := []corev1.ConfigMap{
 		desiredConfigMap(ctx, params),
-	}
-
-	if params.Instance.Spec.TargetAllocator.Enabled {
-		cm, err := desiredTAConfigMap(params)
-		if err != nil {
-			return fmt.Errorf("failed to parse config: %w", err)
-		}
-		desired = append(desired, cm)
 	}
 
 	// first, handle the create/update parts
@@ -75,44 +64,9 @@ func desiredConfigMap(_ context.Context, params Params) corev1.ConfigMap {
 			Annotations: params.Instance.Annotations,
 		},
 		Data: map[string]string{
-			"collector.yaml": params.Instance.Spec.Config,
+			"collector.yaml": params.Instance.Spec.Agent.Config,
 		},
 	}
-}
-
-func desiredTAConfigMap(params Params) (corev1.ConfigMap, error) {
-	name := naming.TAConfigMap(params.Instance)
-	labels := targetallocator.Labels(params.Instance)
-	labels["app.kubernetes.io/name"] = name
-
-	promConfig, err := ta.ConfigToPromConfig(params.Instance.Spec.Config)
-	if err != nil {
-		return corev1.ConfigMap{}, err
-	}
-
-	taConfig := make(map[interface{}]interface{})
-	taConfig["label_selector"] = map[string]string{
-		"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", params.Instance.Namespace, params.Instance.Name),
-		"app.kubernetes.io/managed-by": "splunk-otel-operator",
-		"app.kubernetes.io/component":  "splunk-otel-collector",
-	}
-	taConfig["config"] = promConfig
-	taConfigYAML, err := yaml.Marshal(taConfig)
-	if err != nil {
-		return corev1.ConfigMap{}, err
-	}
-
-	return corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        name,
-			Namespace:   params.Instance.Namespace,
-			Labels:      labels,
-			Annotations: params.Instance.Annotations,
-		},
-		Data: map[string]string{
-			"targetallocator.yaml": string(taConfigYAML),
-		},
-	}, nil
 }
 
 func expectedConfigMaps(ctx context.Context, params Params, expected []corev1.ConfigMap, retry bool) error {

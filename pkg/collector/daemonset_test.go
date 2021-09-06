@@ -31,9 +31,9 @@ func TestDaemonSetNewDefault(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my-instance",
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Tolerations: testTolerationValues,
-		},
+		}},
 	}
 	cfg := config.New()
 
@@ -66,9 +66,9 @@ func TestDaemonsetHostNetwork(t *testing.T) {
 
 	// verify custom
 	d2 := DaemonSet(config.New(), logger, v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			HostNetwork: true,
-		},
+		}},
 	})
 	assert.True(t, d2.Spec.Template.Spec.HostNetwork)
 }

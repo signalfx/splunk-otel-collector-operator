@@ -19,19 +19,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
-type SplunkOtelAgentSpec struct {
-	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
-	// +required
-	// +kubebuilder:validation:Required
+type SplunkComponentSpec struct {
+	// Disable determines whether this spec will be depoyed or not.
+	// +optional
 	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
-	CLusterName string `json:"clusterName"`
-
-	// SplunkRealm is the Splunk APM Realm your Splukn account exists in. For example, us0, us1, etc.
-	// +required
-	// +kubebuilder:validation:Required
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
-	SplunkRealm string `json:"splunkRealm"`
+	Disable string `json:"disable,omitempty"`
 
 	// Config is the raw JSON to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
 	// +optional
@@ -58,16 +50,6 @@ type SplunkOtelAgentSpec struct {
 	// +optional
 	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
 	Image string `json:"image,omitempty"`
-
-	// TargetAllocator indicates a value which determines whether to spawn a target allocation resource or not.
-	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
-	TargetAllocator OpenTelemetryTargetAllocatorSpec `json:"targetAllocator,omitempty"`
-
-	// Mode represents how the collector should be deployed (deployment, daemonset, statefulset or sidecar)
-	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
-	Mode Mode `json:"mode,omitempty"`
 
 	// ServiceAccount indicates the name of an existing service account to use with this instance.
 	// +optional
@@ -128,6 +110,35 @@ type SplunkOtelAgentSpec struct {
 	Tolerations []v1.Toleration `json:"tolerations,omitempty"`
 }
 
+// SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
+type SplunkOtelAgentSpec struct {
+	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
+	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	ClusterName string `json:"clusterName"`
+
+	// SplunkRealm is the Splunk APM Realm your Splukn account exists in. For example, us0, us1, etc.
+	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	SplunkRealm string `json:"splunkRealm"`
+
+	// TODO(splunk): may be have a common `Env` field here that is injected into all pods(Agent, ClusterReceiver, Gateway)
+
+	// Agent is a Splunk OpenTelemetry Collector instance deployed as an agent on every node.
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	Agent SplunkComponentSpec `json:"agent,omitempty"`
+
+	// ClusterReceiver is a single instance Splunk OpenTelemetry Collector deployement used to monitor the entire cluster.
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	ClusterReceiver SplunkComponentSpec `json:"clusterReceiver,omitempty"`
+
+	// ClusterReceiver is a Splunk OpenTelemetry Collector deployement used to export data to Splunk APM.
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	Gateway SplunkComponentSpec `json:"gateway,omitempty"`
+}
+
 // SplunkOtelAgentStatus defines the observed state of SplunkOtelAgent.
 type SplunkOtelAgentStatus struct {
 	// Replicas is currently not being set and might be removed in the next version.
@@ -144,22 +155,10 @@ type SplunkOtelAgentStatus struct {
 	Messages []string `json:"messages,omitempty"`
 }
 
-// OpenTelemetryTargetAllocatorSpec defines the configurations for the Prometheus target allocator.
-type OpenTelemetryTargetAllocatorSpec struct {
-	// Enabled indicates whether to use a target allocation mechanism for Prometheus targets or not.
-	// +optional
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Image indicates the container image to use for the OpenTelemetry TargetAllocator.
-	// +optional
-	Image string `json:"image,omitempty"`
-}
-
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:shortName=otelcol;otelcols
 // +kubebuilder:subresource:status
 // +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas
-// +kubebuilder:printcolumn:name="Mode",type="string",JSONPath=".spec.mode",description="Deployment Mode"
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".status.version",description="OpenTelemetry Version"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 // +operator-sdk:csv:customresourcedefinitions:displayName="OpenTelemetry Collector"
