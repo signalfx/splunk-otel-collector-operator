@@ -356,7 +356,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: quay.io/owais/opentelemetry-operator:v0.33.1630929151
+                image: quay.io/signalfx/opentelemetry-operator:v0.33.0
                 name: manager
                 ports:
                 - containerPort: 9443
