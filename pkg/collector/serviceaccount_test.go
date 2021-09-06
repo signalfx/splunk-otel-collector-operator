@@ -20,13 +20,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/open-telemetry/opentelemetry-operator/api/v1alpha1"
-	. "github.com/open-telemetry/opentelemetry-operator/pkg/collector"
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
+	. "github.com/signalfx/splunk-otel-operator/pkg/collector"
 )
 
 func TestServiceAccountNewDefault(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.OpenTelemetryCollector{
+	otelcol := v1alpha1.SplunkOtelAgent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my-instance",
 		},
@@ -41,11 +41,11 @@ func TestServiceAccountNewDefault(t *testing.T) {
 
 func TestServiceAccountOverride(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.OpenTelemetryCollector{
+	otelcol := v1alpha1.SplunkOtelAgent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my-instance",
 		},
-		Spec: v1alpha1.OpenTelemetryCollectorSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{
 			ServiceAccount: "my-special-sa",
 		},
 	}

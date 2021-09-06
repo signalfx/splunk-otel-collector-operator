@@ -1,14 +1,23 @@
-projectName: opentelemetry-operator
-domain: opentelemetry.io
-layout: go.kubebuilder.io/v2
-repo: github.com/open-telemetry/opentelemetry-operator
-resources:
--
-  controller: true
-  group: core
-  kind: OpenTelemetryCollector
-  path: k8s.io/api/core/v1alpha1
-  version: v1alpha1
-version: "3"
+domain: splunk.com
+layout:
+- go.kubebuilder.io/v2
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
+projectName: splunk-otel-operator
+repo: github.com/signalfx/splunk-otel-operator
+resources:
+- controller: true
+  group: core
+  kind: SplunkOtelAgent
+  path: k8s.io/api/core/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1beta1
+    namespaced: true
+  controller: true
+  domain: splunk.com
+  group: core
+  kind: SplunkOtelClusterReceiver
+  path: github.com/signalfx/splunk-otel-operator/api/v1beta1
+  version: v1beta1
+version: "3"

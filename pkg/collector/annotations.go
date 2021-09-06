@@ -18,11 +18,11 @@ import (
 	"crypto/sha256"
 	"fmt"
 
-	"github.com/open-telemetry/opentelemetry-operator/api/v1alpha1"
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 )
 
-// Annotations return the annotations for OpenTelemetryCollector pod.
-func Annotations(instance v1alpha1.OpenTelemetryCollector) map[string]string {
+// Annotations return the annotations for SplunkOtelAgent pod.
+func Annotations(instance v1alpha1.SplunkOtelAgent) map[string]string {
 	// new map every time, so that we don't touch the instance's annotations
 	annotations := map[string]string{}
 
@@ -38,7 +38,7 @@ func Annotations(instance v1alpha1.OpenTelemetryCollector) map[string]string {
 		}
 	}
 	// make sure sha256 for configMap is always calculated
-	annotations["opentelemetry-operator-config/sha256"] = getConfigMapSHA(instance.Spec.Config)
+	annotations["splunk-otel-operator-config/sha256"] = getConfigMapSHA(instance.Spec.Config)
 
 	return annotations
 }

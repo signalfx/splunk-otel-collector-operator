@@ -24,9 +24,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/open-telemetry/opentelemetry-operator/api/v1alpha1"
-	"github.com/open-telemetry/opentelemetry-operator/internal/version"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/collector/upgrade"
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
+	"github.com/signalfx/splunk-otel-operator/internal/version"
+	"github.com/signalfx/splunk-otel-operator/pkg/collector/upgrade"
 )
 
 var logger = logf.Log.WithName("unit-tests")
@@ -34,12 +34,12 @@ var logger = logf.Log.WithName("unit-tests")
 func TestShouldUpgradeAllToLatest(t *testing.T) {
 	// prepare
 	nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
-	existing := v1alpha1.OpenTelemetryCollector{
+	existing := v1alpha1.SplunkOtelAgent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
 			Labels: map[string]string{
-				"app.kubernetes.io/managed-by": "opentelemetry-operator",
+				"app.kubernetes.io/managed-by": "splunk-otel-operator",
 			},
 		},
 	}
@@ -51,10 +51,10 @@ func TestShouldUpgradeAllToLatest(t *testing.T) {
 	require.NoError(t, err)
 
 	currentV := version.Get()
-	currentV.OpenTelemetryCollector = upgrade.Latest.String()
+	currentV.SplunkOtelAgent = upgrade.Latest.String()
 
 	// sanity check
-	persisted := &v1alpha1.OpenTelemetryCollector{}
+	persisted := &v1alpha1.SplunkOtelAgent{}
 	err = k8sClient.Get(context.Background(), nsn, persisted)
 	require.NoError(t, err)
 	require.Equal(t, "0.0.1", persisted.Status.Version)
@@ -75,19 +75,19 @@ func TestShouldUpgradeAllToLatest(t *testing.T) {
 func TestUpgradeUpToLatestKnownVersion(t *testing.T) {
 	// prepare
 	nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
-	existing := v1alpha1.OpenTelemetryCollector{
+	existing := v1alpha1.SplunkOtelAgent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
 			Labels: map[string]string{
-				"app.kubernetes.io/managed-by": "opentelemetry-operator",
+				"app.kubernetes.io/managed-by": "splunk-otel-operator",
 			},
 		},
 	}
 	existing.Status.Version = "0.8.0"
 
 	currentV := version.Get()
-	currentV.OpenTelemetryCollector = "0.10.0" // we don't have a 0.10.0 upgrade, but we have a 0.9.0
+	currentV.SplunkOtelAgent = "0.10.0" // we don't have a 0.10.0 upgrade, but we have a 0.9.0
 
 	// test
 	res, err := upgrade.ManagedInstance(context.Background(), logger, currentV, k8sClient, existing)
@@ -111,19 +111,19 @@ func TestVersionsShouldNotBeChanged(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			// prepare
 			nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
-			existing := v1alpha1.OpenTelemetryCollector{
+			existing := v1alpha1.SplunkOtelAgent{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      nsn.Name,
 					Namespace: nsn.Namespace,
 					Labels: map[string]string{
-						"app.kubernetes.io/managed-by": "opentelemetry-operator",
+						"app.kubernetes.io/managed-by": "splunk-otel-operator",
 					},
 				},
 			}
 			existing.Status.Version = tt.v
 
 			currentV := version.Get()
-			currentV.OpenTelemetryCollector = upgrade.Latest.String()
+			currentV.SplunkOtelAgent = upgrade.Latest.String()
 
 			// test
 			res, err := upgrade.ManagedInstance(context.Background(), logger, currentV, k8sClient, existing)

@@ -27,10 +27,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/open-telemetry/opentelemetry-operator/pkg/collector"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/naming"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/targetallocator"
-	ta "github.com/open-telemetry/opentelemetry-operator/pkg/targetallocator/adapters"
+	"github.com/signalfx/splunk-otel-operator/pkg/collector"
+	"github.com/signalfx/splunk-otel-operator/pkg/naming"
+	"github.com/signalfx/splunk-otel-operator/pkg/targetallocator"
+	ta "github.com/signalfx/splunk-otel-operator/pkg/targetallocator/adapters"
 )
 
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
@@ -93,8 +93,8 @@ func desiredTAConfigMap(params Params) (corev1.ConfigMap, error) {
 	taConfig := make(map[interface{}]interface{})
 	taConfig["label_selector"] = map[string]string{
 		"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", params.Instance.Namespace, params.Instance.Name),
-		"app.kubernetes.io/managed-by": "opentelemetry-operator",
-		"app.kubernetes.io/component":  "opentelemetry-collector",
+		"app.kubernetes.io/managed-by": "splunk-otel-operator",
+		"app.kubernetes.io/component":  "splunk-otel-collector",
 	}
 	taConfig["config"] = promConfig
 	taConfigYAML, err := yaml.Marshal(taConfig)
@@ -186,7 +186,7 @@ func deleteConfigMaps(ctx context.Context, params Params, expected []corev1.Conf
 		client.InNamespace(params.Instance.Namespace),
 		client.MatchingLabels(map[string]string{
 			"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", params.Instance.Namespace, params.Instance.Name),
-			"app.kubernetes.io/managed-by": "opentelemetry-operator",
+			"app.kubernetes.io/managed-by": "splunk-otel-operator",
 		}),
 	}
 	list := &corev1.ConfigMapList{}

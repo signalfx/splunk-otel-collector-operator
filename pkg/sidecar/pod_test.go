@@ -22,10 +22,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/open-telemetry/opentelemetry-operator/api/v1alpha1"
-	"github.com/open-telemetry/opentelemetry-operator/internal/config"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/naming"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/sidecar"
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
+	"github.com/signalfx/splunk-otel-operator/internal/config"
+	"github.com/signalfx/splunk-otel-operator/pkg/naming"
+	"github.com/signalfx/splunk-otel-operator/pkg/sidecar"
 )
 
 var logger = logf.Log.WithName("unit-tests")
@@ -41,7 +41,7 @@ func TestAddSidecarWhenNoSidecarExists(t *testing.T) {
 			Volumes: []corev1.Volume{{}},
 		},
 	}
-	otelcol := v1alpha1.OpenTelemetryCollector{
+	otelcol := v1alpha1.SplunkOtelAgent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "otelcol-sample",
 			Namespace: "some-app",
@@ -56,7 +56,7 @@ func TestAddSidecarWhenNoSidecarExists(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, changed.Spec.Containers, 2)
 	assert.Len(t, changed.Spec.Volumes, 2)
-	assert.Equal(t, "some-app.otelcol-sample", changed.Labels["sidecar.opentelemetry.io/injected"])
+	assert.Equal(t, "some-app.otelcol-sample", changed.Labels["sidecar.splunk.com/injected"])
 }
 
 // this situation should never happen in the current code path, but it should not fail
@@ -71,7 +71,7 @@ func TestAddSidecarWhenOneExistsAlready(t *testing.T) {
 			},
 		},
 	}
-	otelcol := v1alpha1.OpenTelemetryCollector{}
+	otelcol := v1alpha1.SplunkOtelAgent{}
 	cfg := config.New(config.WithCollectorImage("some-default-image"))
 
 	// test

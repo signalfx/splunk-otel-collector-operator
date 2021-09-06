@@ -23,9 +23,9 @@ import (
 	"github.com/spf13/pflag"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/open-telemetry/opentelemetry-operator/internal/version"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/autodetect"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/platform"
+	"github.com/signalfx/splunk-otel-operator/internal/version"
+	"github.com/signalfx/splunk-otel-operator/pkg/autodetect"
+	"github.com/signalfx/splunk-otel-operator/pkg/platform"
 )
 
 const (
@@ -71,7 +71,7 @@ func New(opts ...Option) Config {
 	// this is derived from another option, so, we need to first parse the options, then set a default
 	// if there's no explicit value being set
 	if len(o.collectorImage) == 0 {
-		o.collectorImage = fmt.Sprintf("otel/opentelemetry-collector:%s", o.version.OpenTelemetryCollector)
+		o.collectorImage = fmt.Sprintf("quay.io/signalfx/splunk-otel-collector:%s", o.version.SplunkOtelCollector)
 	}
 
 	if len(o.targetAllocatorImage) == 0 {
@@ -94,11 +94,11 @@ func New(opts ...Option) Config {
 
 // FlagSet binds the flags to the user-modifiable values of the operator's configuration.
 func (c *Config) FlagSet() *pflag.FlagSet {
-	fs := pflag.NewFlagSet("opentelemetry-operator", pflag.ExitOnError)
+	fs := pflag.NewFlagSet("splunk-otel-operator", pflag.ExitOnError)
 	pflag.StringVar(&c.collectorImage,
 		"otelcol-image",
 		c.collectorImage,
-		"The default image to use for OpenTelemetry Collector when not specified in the individual custom resource (CR)",
+		"The default image to use for Splunk OpenTelemetry Collector when not specified in the individual custom resource (CR)",
 	)
 
 	return fs

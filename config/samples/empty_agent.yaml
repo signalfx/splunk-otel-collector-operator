@@ -1,0 +1,9 @@
+apiVersion: splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: splunk-otel-agent
+  namespace: splunk-otel-operator-system
+spec:
+  clusterName: my-cluster-name
+  splunkRealm: us0
+  #  image: quay.io/signalfx/splunk-otel-collector:latest

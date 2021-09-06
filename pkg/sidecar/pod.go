@@ -21,18 +21,18 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/open-telemetry/opentelemetry-operator/api/v1alpha1"
-	"github.com/open-telemetry/opentelemetry-operator/internal/config"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/collector"
-	"github.com/open-telemetry/opentelemetry-operator/pkg/naming"
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
+	"github.com/signalfx/splunk-otel-operator/internal/config"
+	"github.com/signalfx/splunk-otel-operator/pkg/collector"
+	"github.com/signalfx/splunk-otel-operator/pkg/naming"
 )
 
 const (
-	label = "sidecar.opentelemetry.io/injected"
+	label = "sidecar.splunk.com/injected"
 )
 
-// Add a new sidecar container to the given pod, based on the given OpenTelemetryCollector.
-func Add(cfg config.Config, logger logr.Logger, otelcol v1alpha1.OpenTelemetryCollector, pod corev1.Pod) (corev1.Pod, error) {
+// Add a new sidecar container to the given pod, based on the given SplunkOtelAgent.
+func Add(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent, pod corev1.Pod) (corev1.Pod, error) {
 	// add the container
 	volumes := collector.Volumes(cfg, otelcol)
 	container := collector.Container(cfg, logger, otelcol)

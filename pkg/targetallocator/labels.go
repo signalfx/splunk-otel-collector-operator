@@ -17,11 +17,11 @@ package targetallocator
 import (
 	"fmt"
 
-	"github.com/open-telemetry/opentelemetry-operator/api/v1alpha1"
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 )
 
-// Labels return the common labels to all TargetAllocator objects that are part of a managed OpenTelemetryCollector.
-func Labels(instance v1alpha1.OpenTelemetryCollector) map[string]string {
+// Labels return the common labels to all TargetAllocator objects that are part of a managed SplunkOtelAgent.
+func Labels(instance v1alpha1.SplunkOtelAgent) map[string]string {
 	// new map every time, so that we don't touch the instance's label
 	base := map[string]string{}
 	if nil != instance.Labels {
@@ -30,7 +30,7 @@ func Labels(instance v1alpha1.OpenTelemetryCollector) map[string]string {
 		}
 	}
 
-	base["app.kubernetes.io/managed-by"] = "opentelemetry-operator"
+	base["app.kubernetes.io/managed-by"] = "splunk-otel-operator"
 	base["app.kubernetes.io/instance"] = fmt.Sprintf("%s.%s", instance.Namespace, instance.Name)
 	base["app.kubernetes.io/part-of"] = "opentelemetry"
 	base["app.kubernetes.io/component"] = "opentelemetry-targetallocator"

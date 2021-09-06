@@ -6,17 +6,17 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.6.0-beta.0
   creationTimestamp: null
-  name: opentelemetrycollectors.opentelemetry.io
+  name: splunkotelagents.splunk.com
 spec:
-  group: opentelemetry.io
+  group: splunk.com
   names:
-    kind: OpenTelemetryCollector
-    listKind: OpenTelemetryCollectorList
-    plural: opentelemetrycollectors
+    kind: SplunkOtelAgent
+    listKind: SplunkOtelAgentList
+    plural: splunkotelagents
     shortNames:
     - otelcol
     - otelcols
-    singular: opentelemetrycollector
+    singular: splunkotelagent
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -34,8 +34,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OpenTelemetryCollector is the Schema for the opentelemetrycollectors
-          API.
+        description: SplunkOtelAgent is the Schema for the SplunkOtelAgents API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -50,7 +49,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpenTelemetryCollectorSpec defines the desired state of OpenTelemetryCollector.
+            description: SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
             properties:
               args:
                 additionalProperties:
@@ -58,6 +57,10 @@ spec:
                 description: Args is the set of arguments to pass to the OpenTelemetry
                   Collector binary
                 type: object
+              clusterName:
+                description: ClusterName is the name of the Kubernetes cluster. This
+                  will be used to identify this cluster in Splunk dashboards.
+                type: string
               config:
                 description: Config is the raw JSON to be used as the collector's
                   configuration. Refer to the OpenTelemetry Collector documentation
@@ -175,8 +178,9 @@ spec:
                   networking namespace.
                 type: boolean
               image:
-                description: Image indicates the container image to use for the OpenTelemetry
-                  Collector.
+                description: 'TODO(splunk): use correct version number instead of
+                  latest Image indicates the container image to use for the OpenTelemetry
+                  Collector.'
                 type: string
               imagePullPolicy:
                 description: ImagePullPolicy indicates the pull policy to be used
@@ -437,6 +441,10 @@ spec:
               serviceAccount:
                 description: ServiceAccount indicates the name of an existing service
                   account to use with this instance.
+                type: string
+              splunkRealm:
+                description: SplunkRealm is the Splunk APM Realm your Splukn account
+                  exists in. For example, us0, us1, etc.
                 type: string
               targetAllocator:
                 description: TargetAllocator indicates a value which determines whether
@@ -2292,10 +2300,12 @@ spec:
                   type: object
                 type: array
                 x-kubernetes-list-type: atomic
+            required:
+            - clusterName
+            - splunkRealm
             type: object
           status:
-            description: OpenTelemetryCollectorStatus defines the observed state of
-              OpenTelemetryCollector.
+            description: SplunkOtelAgentStatus defines the observed state of SplunkOtelAgent.
             properties:
               messages:
                 description: Messages about actions performed by the operator on this
