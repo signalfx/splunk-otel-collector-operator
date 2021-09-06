@@ -104,8 +104,10 @@ func setAgentDefaults(instance *v1alpha1.SplunkOtelAgent) {
 			newEnvVar("HOST_DEV", "/hostfs/dev"),
 
 			// TODO(splunk): add Realm and Cluster config and use it them here
-			newEnvVar("SPLUNK_REALM", "replace-with-signalfx-realm"),
-			newEnvVar("MY_CLUSTER_NAME", "replace-with-cluster-name"),
+			// newEnvVar("SPLUNK_REALM", "replace-with-signalfx-realm"),
+			// newEnvVar("MY_CLUSTER_NAME", "replace-with-cluster-name"),
+			newEnvVar("SPLUNK_REALM", instance.Spec.SplunkRealm),
+			newEnvVar("MY_CLUSTER_NAME", instance.Spec.CLusterName),
 		}
 	}
 

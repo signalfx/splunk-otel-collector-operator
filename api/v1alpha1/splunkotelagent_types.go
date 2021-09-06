@@ -21,8 +21,20 @@ import (
 
 // SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
 type SplunkOtelAgentSpec struct {
-	// Config is the raw JSON to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
+	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
 	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	CLusterName string `json:"clusterName"`
+
+	// SplunkRealm is the Splunk APM Realm your Splukn account exists in. For example, us0, us1, etc.
+	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	SplunkRealm string `json:"splunkRealm"`
+
+	// Config is the raw JSON to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
+	// +optional
 	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
 	Config string `json:"config,omitempty"`
 

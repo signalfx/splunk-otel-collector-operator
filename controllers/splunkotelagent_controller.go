@@ -64,13 +64,13 @@ type Params struct {
 func NewReconciler(p Params) *SplunkOtelAgentReconciler {
 	if len(p.Tasks) == 0 {
 		p.Tasks = []Task{
-			/*
-				{
-					"namespaces",
-					reconcile.Namespaces,
-					true,
-				},
-			*/
+			// TODO(splunk): see if we should handle creation of the namespace as well
+			// this is tricky as,
+			//   - access token secret needs to be in the same namespace
+			//   - if we add namespace here then agents will be started before user creates secret
+			//   - this means agent will crash until the secret is not created
+			// the can lead to confusing behavior so it might be better to have the user
+			// create namespace and secret both before creating SplunkOtelAgent
 			{
 				"config maps",
 				reconcile.ConfigMaps,
