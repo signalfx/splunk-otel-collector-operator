@@ -35,7 +35,7 @@ func TestContainerNewDefault(t *testing.T) {
 	cfg := config.New(config.WithCollectorImage("default-image"))
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Equal(t, "default-image", c.Image)
@@ -51,7 +51,7 @@ func TestContainerWithImageOverridden(t *testing.T) {
 	cfg := config.New(config.WithCollectorImage("default-image"))
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Equal(t, "overridden-image", c.Image)
@@ -70,7 +70,7 @@ func TestContainerConfigFlagIsIgnored(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Len(t, c.Args, 2)
@@ -90,7 +90,7 @@ func TestContainerCustomVolumes(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Len(t, c.VolumeMounts, 2)
@@ -99,7 +99,7 @@ func TestContainerCustomVolumes(t *testing.T) {
 
 func TestContainerCustomSecurityContext(t *testing.T) {
 	// default config without security context
-	c1 := Container(config.New(), logger, v1alpha1.SplunkOtelAgent{Spec: v1alpha1.SplunkOtelAgentSpec{}})
+	c1 := Container(config.New(), logger, v1alpha1.SplunkComponentSpec{})
 
 	// verify
 	assert.Nil(t, c1.SecurityContext)
@@ -109,13 +109,11 @@ func TestContainerCustomSecurityContext(t *testing.T) {
 	uid := int64(1234)
 
 	// test
-	c2 := Container(config.New(), logger, v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
-			SecurityContext: &corev1.SecurityContext{
-				Privileged: &isPrivileged,
-				RunAsUser:  &uid,
-			},
-		}},
+	c2 := Container(config.New(), logger, v1alpha1.SplunkComponentSpec{
+		SecurityContext: &corev1.SecurityContext{
+			Privileged: &isPrivileged,
+			RunAsUser:  &uid,
+		},
 	})
 
 	// verify
@@ -139,7 +137,7 @@ func TestContainerEnvVarsOverridden(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Len(t, c.Env, 1)
@@ -155,7 +153,7 @@ func TestContainerEmptyEnvVarsByDefault(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Empty(t, c.Env)
@@ -180,7 +178,7 @@ func TestContainerResourceRequirements(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Equal(t, resource.MustParse("100m"), *c.Resources.Limits.Cpu())
@@ -197,7 +195,7 @@ func TestContainerDefaultResourceRequirements(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Empty(t, c.Resources)
@@ -216,7 +214,7 @@ func TestContainerArgs(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Contains(t, c.Args, "--metrics-level=detailed")
@@ -233,7 +231,7 @@ func TestContainerImagePullPolicy(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	c := Container(cfg, logger, otelcol)
+	c := Container(cfg, logger, otelcol.Spec.Agent)
 
 	// verify
 	assert.Equal(t, c.ImagePullPolicy, corev1.PullIfNotPresent)

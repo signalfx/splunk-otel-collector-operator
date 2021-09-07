@@ -4,6 +4,8 @@ metadata:
   name: splunk-otel
   namespace: splunk-otel-operator-system
 spec:
+  clusterName: my-cluster-name
+  splunkRealm: us0
   agent:
     config: |
       extensions:
@@ -190,7 +192,6 @@ spec:
             exporters:
               - signalfx
 
-    mode: daemonset
     env:
       - name: SPLUNK_REALM
         value: replace-with-signalfx-realm

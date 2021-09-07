@@ -24,41 +24,28 @@ import (
 )
 
 // Volumes builds the volumes for the given instance, including the config map volume.
-func Volumes(cfg config.Config, otelcol v1alpha1.SplunkOtelAgent) []corev1.Volume {
+// func Volumes(cfg config.Config, otelcol v1alpha1.SplunkOtelAgent) []corev1.Volume {
+func Volumes(cfg config.Config, spec v1alpha1.SplunkComponentSpec, configmap string) []corev1.Volume {
 	// create one volume per configmap (agent, gateway, clusterreceiver)
 	volumes := []corev1.Volume{}
 
-	volumeNames := []string{}
-	if !otelcol.Spec.Agent.Disabled {
-		volumeNames = append(volumeNames, naming.ConfigMap(otelcol, "agent"))
-	}
-
-	if !otelcol.Spec.ClusterReceiver.Disabled {
-		volumeNames = append(volumeNames, naming.ConfigMap(otelcol, "cluster-receiver"))
-	}
-
-	if !otelcol.Spec.Gateway.Disabled {
-		volumeNames = append(volumeNames, naming.ConfigMap(otelcol, "gateway"))
-	}
-
-	for _, name := range volumeNames {
-		volumes = append(volumes, corev1.Volume{
-			Name: naming.ConfigMapVolume(),
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{Name: name},
-					Items: []corev1.KeyToPath{{
-						Key:  cfg.CollectorConfigMapEntry(),
-						Path: cfg.CollectorConfigMapEntry(),
-					}},
-				},
+	volumes = append(volumes, corev1.Volume{
+		Name: naming.ConfigMapVolume(),
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				// LocalObjectReference: corev1.LocalObjectReference{Name: naming.ConfigMap(spec)},
+				LocalObjectReference: corev1.LocalObjectReference{Name: configmap},
+				Items: []corev1.KeyToPath{{
+					Key:  cfg.CollectorConfigMapEntry(),
+					Path: cfg.CollectorConfigMapEntry(),
+				}},
 			},
-		})
-	}
+		},
+	})
 
 	// add user specified volumes
-	if len(otelcol.Spec.Agent.Volumes) > 0 {
-		volumes = append(volumes, otelcol.Spec.Agent.Volumes...)
+	if len(spec.Volumes) > 0 {
+		volumes = append(volumes, spec.Volumes...)
 	}
 
 	return volumes

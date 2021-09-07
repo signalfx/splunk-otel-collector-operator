@@ -18,10 +18,17 @@ import (
 	"fmt"
 	"strings"
 
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+)
+
+const (
+	kindAgent           string = "agent"
+	kindClusterReceiver string = "cluster-receiver"
+	kindGateway         string = "gateway"
 )
 
 // log is for logging in this package.
@@ -39,7 +46,6 @@ var _ webhook.Defaulter = &SplunkOtelAgent{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type.
 func (r *SplunkOtelAgent) Default() {
-	// TODO(splunk): call defaults.go from here
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
 	}
@@ -47,9 +53,9 @@ func (r *SplunkOtelAgent) Default() {
 		r.Labels["app.kubernetes.io/managed-by"] = "splunk-otel-operator"
 	}
 
-	setAgentDefaults(r.Spec.SplunkRealm, r.Spec.ClusterName, &r.Spec.Agent)
-	setClusterReceiverDefaults(r.Spec.SplunkRealm, r.Spec.ClusterName, &r.Spec.ClusterReceiver)
-	setGatewayDefaults(r.Spec.SplunkRealm, r.Spec.ClusterName, &r.Spec.Gateway)
+	r.defaultAgent()
+	r.defaultClusterReceiver()
+	r.defaultGateway()
 
 	agentlog.Info("default", "name", r.Name)
 }
@@ -97,19 +103,177 @@ func (r *SplunkOtelAgent) validateCRDSpec() error {
 }
 
 func (r *SplunkOtelAgent) validateCRDAgentSpec() error {
+	spec := r.Spec.Agent
+
+	if spec.Replicas != nil {
+		return fmt.Errorf("`replicas` is not supported by clusterReceiver")
+	}
+
 	return nil
 }
 
 func (r *SplunkOtelAgent) validateCRDClusterReceiverSpec() error {
-	if !r.Spec.ClusterReceiver.Disabled {
-		return fmt.Errorf("clusterReceiver is not supported at the moment")
+	spec := r.Spec.ClusterReceiver
+
+	if spec.Replicas != nil {
+		return fmt.Errorf("`replicas` is not supported by clusterReceiver")
 	}
+
+	if spec.HostNetwork {
+		return fmt.Errorf("`hostNetwork` cannot be true for clusterReceiver")
+	}
+
 	return nil
 }
 
 func (r *SplunkOtelAgent) validateCRDGatewaySpec() error {
+	spec := r.Spec.Gateway
+
 	if !r.Spec.Gateway.Disabled {
 		return fmt.Errorf("gateway is not supported at the moment")
 	}
+
+	if spec.HostNetwork {
+		return fmt.Errorf("`hostNetwork` cannot be true for clusterReceiver")
+	}
+
 	return nil
+}
+
+func (r *SplunkOtelAgent) defaultAgent() {
+	realm := r.Spec.SplunkRealm
+	clusterName := r.Spec.ClusterName
+
+	spec := &r.Spec.Agent
+	spec.HostNetwork = true
+
+	if spec.Volumes == nil {
+		spec.Volumes = []v1.Volume{
+			{
+				Name: "hostfs",
+				VolumeSource: v1.VolumeSource{
+					HostPath: &v1.HostPathVolumeSource{Path: "/"},
+				},
+			},
+			{
+				Name: "etc-passwd",
+				VolumeSource: v1.VolumeSource{
+					HostPath: &v1.HostPathVolumeSource{Path: "/etc/passwd"},
+				},
+			},
+		}
+	}
+
+	if spec.VolumeMounts == nil {
+		hostToContainer := v1.MountPropagationHostToContainer
+		spec.VolumeMounts = []v1.VolumeMount{
+			{
+				Name:             "hostfs",
+				MountPath:        "/hostfs",
+				ReadOnly:         true,
+				MountPropagation: &hostToContainer,
+			},
+			{
+				Name:      "etc-passwd",
+				MountPath: "/etc/passwd",
+				ReadOnly:  true,
+			},
+		}
+	}
+
+	if spec.Tolerations == nil {
+		spec.Tolerations = []v1.Toleration{
+			{
+				Key:      "node.alpha.kubernetes.io/role",
+				Effect:   v1.TaintEffectNoSchedule,
+				Operator: v1.TolerationOpExists,
+			},
+			{
+				Key:      "node-role.kubernetes.io/master",
+				Effect:   v1.TaintEffectNoSchedule,
+				Operator: v1.TolerationOpExists,
+			},
+		}
+	}
+
+	if spec.Env == nil {
+		spec.Env = []v1.EnvVar{
+			{
+				Name: "SPLUNK_ACCESS_TOKEN",
+				ValueFrom: &v1.EnvVarSource{
+					SecretKeyRef: &v1.SecretKeySelector{
+						LocalObjectReference: v1.LocalObjectReference{Name: "splunk-access-token"},
+						Key:                  "access-token",
+					},
+				},
+			},
+			newEnvVar("SPLUNK_REALM", realm),
+			newEnvVar("MY_CLUSTER_NAME", clusterName),
+			newEnvVar("HOST_PROC", "/hostfs/proc"),
+			newEnvVar("HOST_SYS", "/hostfs/sys"),
+			newEnvVar("HOST_ETC", "/hostfs/etc"),
+			newEnvVar("HOST_VAR", "/hostfs/var"),
+			newEnvVar("HOST_RUN", "/hostfs/run"),
+			newEnvVar("HOST_DEV", "/hostfs/dev"),
+			newEnvVarWithFieldRef("MY_NODE_NAME", "spec.nodeName"),
+			newEnvVarWithFieldRef("MY_NODE_IP", "status.hostIP"),
+			newEnvVarWithFieldRef("MY_POD_IP", "status.podIP"),
+			newEnvVarWithFieldRef("MY_POD_NAME", "metadata.name"),
+			newEnvVarWithFieldRef("MY_POD_UID", "metadata.uid"),
+			newEnvVarWithFieldRef("MY_NAMESPACE", "metadata.namespace"),
+			// TODO(splunk) support ballast
+		}
+	}
+
+	if spec.Config == "" {
+		spec.Config = defaultAgentConfig
+	}
+}
+
+func (r *SplunkOtelAgent) defaultClusterReceiver() {
+	realm := r.Spec.SplunkRealm
+	clusterName := r.Spec.ClusterName
+
+	spec := &r.Spec.ClusterReceiver
+	spec.HostNetwork = false
+
+	if spec.Env == nil {
+		spec.Env = []v1.EnvVar{
+			{
+				Name: "SPLUNK_ACCESS_TOKEN",
+				ValueFrom: &v1.EnvVarSource{
+					SecretKeyRef: &v1.SecretKeySelector{
+						LocalObjectReference: v1.LocalObjectReference{Name: "splunk-access-token"},
+						Key:                  "access-token",
+					},
+				},
+			},
+			newEnvVar("SPLUNK_REALM", realm),
+			newEnvVar("MY_CLUSTER_NAME", clusterName),
+			newEnvVar("HOST_PROC", "/hostfs/proc"),
+			newEnvVar("HOST_SYS", "/hostfs/sys"),
+			newEnvVar("HOST_ETC", "/hostfs/etc"),
+			newEnvVar("HOST_VAR", "/hostfs/var"),
+			newEnvVar("HOST_RUN", "/hostfs/run"),
+			newEnvVar("HOST_DEV", "/hostfs/dev"),
+			newEnvVarWithFieldRef("MY_NODE_NAME", "spec.nodeName"),
+			newEnvVarWithFieldRef("MY_NODE_IP", "status.hostIP"),
+			newEnvVarWithFieldRef("MY_POD_IP", "status.podIP"),
+			newEnvVarWithFieldRef("MY_POD_NAME", "metadata.name"),
+			newEnvVarWithFieldRef("MY_POD_UID", "metadata.uid"),
+			newEnvVarWithFieldRef("MY_NAMESPACE", "metadata.namespace"),
+			// TODO(splunk) support ballast
+		}
+	}
+
+	if spec.Config == "" {
+		spec.Config = defaultClusterReceiverConfig
+	}
+}
+
+func (r *SplunkOtelAgent) defaultGateway() {
+	spec := &r.Spec.Gateway
+	// TODO(splunk): forcibly disable gateway until we add support for it.
+	spec.Disabled = true
+	spec.HostNetwork = false
 }

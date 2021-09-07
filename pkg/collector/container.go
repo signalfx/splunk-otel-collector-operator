@@ -26,13 +26,14 @@ import (
 )
 
 // Container builds a container for the given collector.
-func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) corev1.Container {
-	image := otelcol.Spec.Agent.Image
+// func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) corev1.Container {
+func Container(cfg config.Config, logger logr.Logger, spec v1alpha1.SplunkComponentSpec) corev1.Container {
+	image := spec.Image
 	if len(image) == 0 {
 		image = cfg.CollectorImage()
 	}
 
-	argsMap := otelcol.Spec.Agent.Args
+	argsMap := spec.Args
 	if argsMap == nil {
 		argsMap = map[string]string{}
 	}
@@ -54,21 +55,21 @@ func Container(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOte
 		MountPath: "/conf",
 	}}
 
-	volumeMounts = append(volumeMounts, otelcol.Spec.Agent.VolumeMounts...)
+	volumeMounts = append(volumeMounts, spec.VolumeMounts...)
 
-	var envVars = otelcol.Spec.Agent.Env
-	if otelcol.Spec.Agent.Env == nil {
+	var envVars = spec.Env
+	if spec.Env == nil {
 		envVars = []corev1.EnvVar{}
 	}
 
 	return corev1.Container{
 		Name:            naming.Container(),
 		Image:           image,
-		ImagePullPolicy: otelcol.Spec.Agent.ImagePullPolicy,
+		ImagePullPolicy: spec.ImagePullPolicy,
 		VolumeMounts:    volumeMounts,
 		Args:            args,
 		Env:             envVars,
-		Resources:       otelcol.Spec.Agent.Resources,
-		SecurityContext: otelcol.Spec.Agent.SecurityContext,
+		Resources:       spec.Resources,
+		SecurityContext: spec.SecurityContext,
 	}
 }

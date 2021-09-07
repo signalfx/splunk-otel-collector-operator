@@ -32,7 +32,7 @@ func TestVolumeNewDefault(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	volumes := Volumes(cfg, otelcol)
+	volumes := Volumes(cfg, otelcol.Spec.Agent, "splunk-agent")
 
 	// verify
 	assert.Len(t, volumes, 1)
@@ -55,7 +55,7 @@ func TestVolumeAllowsMoreToBeAdded(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	volumes := Volumes(cfg, otelcol)
+	volumes := Volumes(cfg, otelcol.Spec.Agent, "splunk-agent")
 
 	// verify
 	assert.Len(t, volumes, 2)

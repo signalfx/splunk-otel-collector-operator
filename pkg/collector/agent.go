@@ -50,8 +50,8 @@ func Agent(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAge
 				},
 				Spec: corev1.PodSpec{
 					ServiceAccountName: ServiceAccountName(otelcol),
-					Containers:         []corev1.Container{Container(cfg, logger, otelcol)},
-					Volumes:            Volumes(cfg, otelcol),
+					Containers:         []corev1.Container{Container(cfg, logger, otelcol.Spec.Agent)},
+					Volumes:            Volumes(cfg, otelcol.Spec.Agent, naming.ConfigMap(otelcol, "agent")),
 					Tolerations:        otelcol.Spec.Agent.Tolerations,
 					HostNetwork:        otelcol.Spec.Agent.HostNetwork,
 				},

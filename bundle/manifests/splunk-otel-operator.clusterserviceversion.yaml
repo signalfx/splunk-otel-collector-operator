@@ -171,7 +171,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     repository: github.com/signalfx/splunk-otel-operator
     support: Splunk Inc
-  name: splunk-otel-operator.v0.33.1630976454
+  name: splunk-otel-operator.v0.33.1631010565
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -346,7 +346,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: quay.io/owais/opentelemetry-operator:v0.33.1630976454
+                image: quay.io/owais/splunk-otel-operator:v0.33.1631010565
                 name: manager
                 ports:
                 - containerPort: 9443
@@ -440,7 +440,7 @@ spec:
   maturity: alpha
   provider:
     name: Splunk Inc
-  version: 0.33.1630976454
+  version: 0.33.1631010565
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

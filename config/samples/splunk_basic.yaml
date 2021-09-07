@@ -6,8 +6,9 @@ metadata:
 spec:
   clusterName: my-cluster-name
   splunkRealm: us0
-  # agent: {}
-  #clusterReceiver:
-  #  disabled: false
-  #gateway:
-  #  disabled: false
+  #agent:
+    #disabled: true
+  clusterReceiver:
+    disabled: true
+  gateway:
+    disabled: true 

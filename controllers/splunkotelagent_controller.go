@@ -96,6 +96,13 @@ func NewReconciler(p Params) *SplunkOtelAgentReconciler {
 				reconcile.Agents,
 				true,
 			},
+			/*
+				{
+					"gateway",
+					reconcile.Gateway,
+					true,
+				},
+			*/
 			{
 				"splunk opentelemetry",
 				reconcile.Self,

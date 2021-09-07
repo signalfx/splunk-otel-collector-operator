@@ -8,7 +8,7 @@ BUNDLE_VERSION=${BUNDLE_VERSION:-$VERSION}
 OPERATOR_VERSION=${BUNDLE_VERSION:-$OPERATOR_VERSION}
 
 export USER=${QUAY_USERNAME:-signalfx}
-export IMG=quay.io/$USER/opentelemetry-operator:v$OPERATOR_VERSION
+export IMG=quay.io/$USER/splunk-otel-operator:v$OPERATOR_VERSION
 export BUNDLE_IMG=quay.io/$USER/splunk-otel-operator-bundle:v$BUNDLE_VERSION
 
 build() {
@@ -24,11 +24,11 @@ build_bundle() {
 }
 
 publish() {
-	docker push $IMG
-	docker push $BUNDLE_IMG
-
 	kind load docker-image $IMG
 	kind load docker-image $BUNDLE_IMG
+
+	docker push $IMG
+	docker push $BUNDLE_IMG
 
 	echo "==== Published the following images:"
 	echo $BUNDLE_IMG

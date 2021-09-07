@@ -21,9 +21,9 @@ import (
 	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 )
 
-// AgentConfigMap builds the name for the config map used in the SplunkOtelAgent containers.
-func ConfigMap(otelcol v1alpha1.SplunkOtelAgent, suffix string) string {
-	return fmt.Sprintf("%s-%s", otelcol.Name, suffix)
+// ConfigMap builds the name for the config map used in the SplunkOtelAgent containers.
+func ConfigMap(spec v1alpha1.SplunkOtelAgent, kind string) string {
+	return fmt.Sprintf("%s-%s", spec.Name, kind)
 }
 
 // ConfigMapVolume returns the name to use for the config map's volume in the pod.

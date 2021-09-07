@@ -18,104 +18,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-func setGatewayDefaults(realm, clusterName string, spec *SplunkComponentSpec) {
-	spec.Disabled = true
-}
-
-func setClusterReceiverDefaults(realm, clusterName string, spec *SplunkComponentSpec) {
-	spec.Disabled = true
-}
-
-func setAgentDefaults(realm, clusterName string, spec *SplunkComponentSpec) {
-	// agent must be daemonset.
-	spec.HostNetwork = true
-
-	// TODO(splunk): OpenShift uses externally configured SecurityContextConstraints so doesn't need SecuirtyContext here
-	// Investigate if we need SecuirtyContext for non-openshift platforms
-
-	if spec.Volumes == nil {
-		spec.Volumes = []v1.Volume{
-			{
-				Name: "hostfs",
-				VolumeSource: v1.VolumeSource{
-					HostPath: &v1.HostPathVolumeSource{Path: "/"},
-				},
-			},
-			{
-				Name: "etc-passwd",
-				VolumeSource: v1.VolumeSource{
-					HostPath: &v1.HostPathVolumeSource{Path: "/etc/passwd"},
-				},
-			},
-		}
-	}
-
-	if spec.VolumeMounts == nil {
-		hostToContainer := v1.MountPropagationHostToContainer
-		spec.VolumeMounts = []v1.VolumeMount{
-			{
-				Name:             "hostfs",
-				MountPath:        "/hostfs",
-				ReadOnly:         true,
-				MountPropagation: &hostToContainer,
-			},
-			{
-				Name:      "etc-passwd",
-				MountPath: "/etc/passwd",
-				ReadOnly:  true,
-			},
-		}
-	}
-
-	if spec.Tolerations == nil {
-		spec.Tolerations = []v1.Toleration{
-			{
-				Key:      "node.alpha.kubernetes.io/role",
-				Effect:   v1.TaintEffectNoSchedule,
-				Operator: v1.TolerationOpExists,
-			},
-			{
-				Key:      "node-role.kubernetes.io/master",
-				Effect:   v1.TaintEffectNoSchedule,
-				Operator: v1.TolerationOpExists,
-			},
-		}
-	}
-
-	if spec.Env == nil {
-		spec.Env = []v1.EnvVar{
-			{
-				Name: "SPLUNK_ACCESS_TOKEN",
-				ValueFrom: &v1.EnvVarSource{
-					SecretKeyRef: &v1.SecretKeySelector{
-						LocalObjectReference: v1.LocalObjectReference{Name: "splunk-access-token"},
-						Key:                  "access-token",
-					},
-				},
-			},
-			newEnvVarWithFieldRef("MY_NODE_NAME", "spec.nodeName"),
-			newEnvVarWithFieldRef("MY_NODE_IP", "status.hostIP"),
-			newEnvVarWithFieldRef("MY_POD_IP", "status.podIP"),
-			newEnvVarWithFieldRef("MY_POD_NAME", "metadata.name"),
-			newEnvVarWithFieldRef("MY_POD_UID", "metadata.uid"),
-			newEnvVarWithFieldRef("MY_NAMESPACE", "metadata.namespace"),
-			newEnvVar("HOST_PROC", "/hostfs/proc"),
-			newEnvVar("HOST_SYS", "/hostfs/sys"),
-			newEnvVar("HOST_ETC", "/hostfs/etc"),
-			newEnvVar("HOST_VAR", "/hostfs/var"),
-			newEnvVar("HOST_RUN", "/hostfs/run"),
-			newEnvVar("HOST_DEV", "/hostfs/dev"),
-
-			newEnvVar("SPLUNK_REALM", realm),
-			newEnvVar("MY_CLUSTER_NAME", clusterName),
-		}
-	}
-
-	if spec.Config == "" {
-		spec.Config = defaultAgentConfig
-	}
-}
-
 func newEnvVar(name, value string) v1.EnvVar {
 	return v1.EnvVar{
 		Name:  name,
@@ -297,4 +199,96 @@ service:
         - resourcedetection
       exporters:
         - signalfx
+`
+
+const defaultClusterReceiverConfig = `
+extensions:
+  health_check:
+    endpoint: '0.0.0.0:13133'
+receivers:
+  k8s_cluster:
+    auth_type: serviceAccount
+    metadata_exporters:
+      - signalfx
+  prometheus/self:
+    config:
+      scrape_configs:
+        - job_name: otel-k8s-cluster-receiver
+          scrape_interval: 10s
+          static_configs:
+            - targets:
+                - '${MY_POD_IP}:8888'
+exporters:
+  signalfx:
+    access_token: '${SPLUNK_ACCESS_TOKEN}'
+    api_url: 'https://api.${SPLUNK_REALM}.signalfx.com'
+    ingest_url: 'https://ingest.${SPLUNK_REALM}.signalfx.com'
+    timeout: 10s
+  logging: null
+  logging/debug:
+    loglevel: debug
+processors:
+  batch: null
+  memory_limiter:
+    ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
+    check_interval: 2s
+    limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
+  resource:
+    attributes:
+      - action: insert
+        key: metric_source
+        value: kubernetes
+      - action: insert
+        key: receiver
+        value: k8scluster
+      - action: upsert
+        key: k8s.cluster.name
+        value: '${MY_CLUSTER_NAME}'
+      - action: upsert
+        key: deployment.environment
+        value: '${MY_CLUSTER_NAME}'
+  resource/self:
+    attributes:
+      - action: insert
+        key: k8s.node.name
+        value: '${MY_NODE_NAME}'
+      - action: insert
+        key: k8s.pod.name
+        value: '${MY_POD_NAME}'
+      - action: insert
+        key: k8s.pod.uid
+        value: '${MY_POD_UID}'
+      - action: insert
+        key: k8s.namespace.name
+        value: '${MY_NAMESPACE}'
+  resourcedetection:
+    override: false
+    timeout: 10s
+    detectors:
+      - system
+      - env
+service:
+  extensions:
+    - health_check
+  pipelines:
+    metrics:
+      receivers:
+        - k8s_cluster
+      processors:
+        - batch
+        - resource
+        - resourcedetection
+      exporters:
+        - signalfx
+    metrics/self:
+      receivers:
+        - prometheus/self
+      processors:
+        - batch
+        - resource
+        - resource/self
+        - resourcedetection
+      exporters:
+        - signalfx
+
 `

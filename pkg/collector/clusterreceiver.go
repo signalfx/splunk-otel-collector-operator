@@ -40,7 +40,7 @@ func ClusterReceiver(cfg config.Config, logger logr.Logger, otelcol v1alpha1.Spl
 			Annotations: annotations,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: otelcol.Spec.Agent.Replicas,
+			Replicas: otelcol.Spec.ClusterReceiver.Replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -51,9 +51,9 @@ func ClusterReceiver(cfg config.Config, logger logr.Logger, otelcol v1alpha1.Spl
 				},
 				Spec: corev1.PodSpec{
 					ServiceAccountName: ServiceAccountName(otelcol),
-					Containers:         []corev1.Container{Container(cfg, logger, otelcol)},
-					Volumes:            Volumes(cfg, otelcol),
-					Tolerations:        otelcol.Spec.Agent.Tolerations,
+					Containers:         []corev1.Container{Container(cfg, logger, otelcol.Spec.ClusterReceiver)},
+					Volumes:            Volumes(cfg, otelcol.Spec.ClusterReceiver, naming.ConfigMap(otelcol, "cluster-receiver")),
+					Tolerations:        otelcol.Spec.ClusterReceiver.Tolerations,
 				},
 			},
 		},
