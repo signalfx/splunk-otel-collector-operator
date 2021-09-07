@@ -100,7 +100,7 @@ func params() Params {
 				Namespace: "default",
 				UID:       instanceUID,
 			},
-			Spec: v1alpha1.SplunkOtelAgentSpec{
+			Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 				Ports: []v1.ServicePort{{
 					Name: "web",
 					Port: 80,
@@ -112,7 +112,7 @@ func params() Params {
 				}},
 				Replicas: &replicas,
 				Config:   string(configYAML),
-			},
+			}},
 		},
 		Scheme:   testScheme,
 		Log:      logger,
@@ -142,8 +142,7 @@ func newParams(containerImage string) (Params, error) {
 				Namespace: "default",
 				UID:       instanceUID,
 			},
-			Spec: v1alpha1.SplunkOtelAgentSpec{
-				Mode: v1alpha1.ModeStatefulSet,
+			Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 				Ports: []v1.ServicePort{{
 					Name: "web",
 					Port: 80,
@@ -155,7 +154,7 @@ func newParams(containerImage string) (Params, error) {
 				}},
 				Replicas: &replicas,
 				Config:   string(configYAML),
-			},
+			}},
 		},
 		Scheme: testScheme,
 		Log:    logger,

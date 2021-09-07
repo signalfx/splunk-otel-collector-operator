@@ -87,17 +87,17 @@ func NewReconciler(p Params) *SplunkOtelAgentReconciler {
 				true,
 			},
 			{
-				"deployments",
-				reconcile.Deployments,
+				"cluster receiver",
+				reconcile.ClusterReceivers,
 				true,
 			},
 			{
-				"daemon sets",
-				reconcile.DaemonSets,
+				"agent",
+				reconcile.Agents,
 				true,
 			},
 			{
-				"opentelemetry",
+				"splunk opentelemetry",
 				reconcile.Self,
 				true,
 			},
@@ -136,8 +136,6 @@ func (r *SplunkOtelAgentReconciler) Reconcile(_ context.Context, req ctrl.Reques
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-
-	setDefaults(&instance)
 
 	params := reconcile.Params{
 		Config:   r.config,
@@ -178,6 +176,5 @@ func (r *SplunkOtelAgentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&corev1.Service{}).
 		Owns(&appsv1.Deployment{}).
 		Owns(&appsv1.DaemonSet{}).
-		Owns(&appsv1.StatefulSet{}).
 		Complete(r)
 }

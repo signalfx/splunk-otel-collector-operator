@@ -45,7 +45,7 @@ func TestNewConfig(t *testing.T) {
 func TestOverrideVersion(t *testing.T) {
 	// prepare
 	v := version.Version{
-		SplunkOtelAgent: "the-version",
+		SplunkOtelCollector: "the-version",
 	}
 	cfg := config.New(config.WithVersion(v))
 

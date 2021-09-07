@@ -21,9 +21,9 @@ import (
 	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 )
 
-// ConfigMap builds the name for the config map used in the SplunkOtelAgent containers.
-func ConfigMap(otelcol v1alpha1.SplunkOtelAgent) string {
-	return fmt.Sprintf("%s-collector", otelcol.Name)
+// AgentConfigMap builds the name for the config map used in the SplunkOtelAgent containers.
+func ConfigMap(otelcol v1alpha1.SplunkOtelAgent, suffix string) string {
+	return fmt.Sprintf("%s-%s", otelcol.Name, suffix)
 }
 
 // ConfigMapVolume returns the name to use for the config map's volume in the pod.
@@ -36,9 +36,19 @@ func Container() string {
 	return "otc-container"
 }
 
-// Collector builds the collector (deployment/daemonset) name based on the instance.
-func Collector(otelcol v1alpha1.SplunkOtelAgent) string {
-	return fmt.Sprintf("%s-collector", otelcol.Name)
+// Gateway builds the gateway name based on the instance.
+func Gateway(otelcol v1alpha1.SplunkOtelAgent) string {
+	return fmt.Sprintf("%s-gateway", otelcol.Name)
+}
+
+// Agent builds the agent name based on the instance.
+func Agent(otelcol v1alpha1.SplunkOtelAgent) string {
+	return fmt.Sprintf("%s-agent", otelcol.Name)
+}
+
+// ClusterReceiver builds the agent name based on the instance.
+func ClusterReciever(otelcol v1alpha1.SplunkOtelAgent) string {
+	return fmt.Sprintf("%s-cluster-receiver", otelcol.Name)
 }
 
 // HeadlessService builds the name for the headless service based on the instance.

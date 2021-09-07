@@ -25,16 +25,16 @@ import (
 	"github.com/signalfx/splunk-otel-operator/pkg/naming"
 )
 
-// Deployment builds the deployment for the given instance.
-func Deployment(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) appsv1.Deployment {
+// ClusterReceiver builds the Splunk Cluster Receiver instance (deployment) for the given instance.
+func ClusterReceiver(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) appsv1.Deployment {
 	labels := Labels(otelcol)
-	labels["app.kubernetes.io/name"] = naming.Collector(otelcol)
+	labels["app.kubernetes.io/name"] = naming.ClusterReciever(otelcol)
 
 	annotations := Annotations(otelcol)
 
 	return appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        naming.Collector(otelcol),
+			Name:        naming.ClusterReciever(otelcol),
 			Namespace:   otelcol.Namespace,
 			Labels:      labels,
 			Annotations: annotations,

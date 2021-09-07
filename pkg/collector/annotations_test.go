@@ -30,9 +30,9 @@ func TestDefaultAnnotations(t *testing.T) {
 			Name:      "my-instance",
 			Namespace: "my-ns",
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Config: "test",
-		},
+		}},
 	}
 
 	// test
@@ -57,9 +57,9 @@ func TestUserAnnotations(t *testing.T) {
 				"splunk-otel-operator-config/sha256": "shouldBeOverwritten",
 			},
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			Config: "test",
-		},
+		}},
 	}
 
 	// test

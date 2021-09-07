@@ -27,44 +27,45 @@ import (
 	"github.com/signalfx/splunk-otel-operator/pkg/collector"
 )
 
-func TestExpectedDaemonsets(t *testing.T) {
+func TestExpectedClusterReceivers(t *testing.T) {
 	param := params()
-	expectedDs := collector.DaemonSet(param.Config, logger, param.Instance)
+	expectedDeploy := collector.ClusterReceiver(param.Config, logger, param.Instance)
 
-	t.Run("should create Daemonset", func(t *testing.T) {
-		err := expectedDaemonSets(context.Background(), param, []v1.DaemonSet{expectedDs})
+	t.Run("should create collector deployment", func(t *testing.T) {
+		err := expectedClusterReceivers(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		exists, err := populateObjectIfExists(t, &v1.DaemonSet{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		exists, err := populateObjectIfExists(t, &v1.Deployment{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
 
 	})
-	t.Run("should update Daemonset", func(t *testing.T) {
-		createObjectIfNotExists(t, "test-collector", &expectedDs)
-		err := expectedDaemonSets(context.Background(), param, []v1.DaemonSet{expectedDs})
+
+	t.Run("should update deployment", func(t *testing.T) {
+		createObjectIfNotExists(t, "test-collector", &expectedDeploy)
+		err := expectedClusterReceivers(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		actual := v1.DaemonSet{}
+		actual := v1.Deployment{}
 		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-collector"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
 		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
+		assert.Equal(t, int32(2), *actual.Spec.Replicas)
 	})
 
-	t.Run("should delete daemonset", func(t *testing.T) {
-
+	t.Run("should delete deployment", func(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
 			"app.kubernetes.io/managed-by": "splunk-otel-operator",
 		}
-		ds := v1.DaemonSet{}
-		ds.Name = "dummy"
-		ds.Namespace = "default"
-		ds.Labels = labels
-		ds.Spec = v1.DaemonSetSpec{
+		deploy := v1.Deployment{}
+		deploy.Name = "dummy"
+		deploy.Namespace = "default"
+		deploy.Labels = labels
+		deploy.Spec = v1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -80,29 +81,27 @@ func TestExpectedDaemonsets(t *testing.T) {
 				},
 			},
 		}
+		createObjectIfNotExists(t, "dummy", &deploy)
 
-		createObjectIfNotExists(t, "dummy", &ds)
-
-		err := deleteDaemonSets(context.Background(), param, []v1.DaemonSet{expectedDs})
+		err := deleteClusterReceivers(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		actual := v1.DaemonSet{}
+		actual := v1.Deployment{}
 		exists, _ := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "dummy"})
 
 		assert.False(t, exists)
 
 	})
 
-	t.Run("should not delete daemonset", func(t *testing.T) {
-
+	t.Run("should not delete deployment", func(t *testing.T) {
 		labels := map[string]string{
+			"app.kubernetes.io/instance":   "default.test",
 			"app.kubernetes.io/managed-by": "helm-splunk-otel-operator",
 		}
-		ds := v1.DaemonSet{}
-		ds.Name = "dummy"
-		ds.Namespace = "default"
-		ds.Labels = labels
-		ds.Spec = v1.DaemonSetSpec{
+		deploy := v1.Deployment{}
+		deploy.Name = "dummy"
+		deploy.Namespace = "default"
+		deploy.Spec = v1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -118,13 +117,12 @@ func TestExpectedDaemonsets(t *testing.T) {
 				},
 			},
 		}
+		createObjectIfNotExists(t, "dummy", &deploy)
 
-		createObjectIfNotExists(t, "dummy", &ds)
-
-		err := deleteDaemonSets(context.Background(), param, []v1.DaemonSet{expectedDs})
+		err := deleteClusterReceivers(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		actual := v1.DaemonSet{}
+		actual := v1.Deployment{}
 		exists, _ := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "dummy"})
 
 		assert.True(t, exists)

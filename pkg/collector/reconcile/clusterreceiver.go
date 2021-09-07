@@ -27,28 +27,30 @@ import (
 	"github.com/signalfx/splunk-otel-operator/pkg/collector"
 )
 
-// +kubebuilder:rbac:groups="apps",resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="apps",resources=deployments,verbs=get;list;watch;create;update;patch;delete
 
-// DaemonSets reconciles the daemon set(s) required for the instance in the current context.
-func DaemonSets(ctx context.Context, params Params) error {
-	desired := []appsv1.DaemonSet{}
-	// TODO(splunk): pass params.Instance.Spec.Agent instead of params.Instance
-	desired = append(desired, collector.DaemonSet(params.Config, params.Log, params.Instance))
+// ClusterReceiver reconciles the Splunk Cluster Receiver required for the instance in the current context.
+func ClusterReceivers(ctx context.Context, params Params) error {
+	desired := []appsv1.Deployment{}
+	if !params.Instance.Spec.ClusterReceiver.Disabled {
+		// TODO(splunk): pass params.Instance.Spec.Gateway instead of params.Instance
+		desired = append(desired, collector.ClusterReceiver(params.Config, params.Log, params.Instance))
+	}
 
 	// first, handle the create/update parts
-	if err := expectedDaemonSets(ctx, params, desired); err != nil {
-		return fmt.Errorf("failed to reconcile the expected daemon sets: %w", err)
+	if err := expectedClusterReceivers(ctx, params, desired); err != nil {
+		return fmt.Errorf("failed to reconcile the expected deployments: %w", err)
 	}
 
 	// then, delete the extra objects
-	if err := deleteDaemonSets(ctx, params, desired); err != nil {
-		return fmt.Errorf("failed to reconcile the daemon sets to be deleted: %w", err)
+	if err := deleteClusterReceivers(ctx, params, desired); err != nil {
+		return fmt.Errorf("failed to reconcile the deployments to be deleted: %w", err)
 	}
 
 	return nil
 }
 
-func expectedDaemonSets(ctx context.Context, params Params, expected []appsv1.DaemonSet) error {
+func expectedClusterReceivers(ctx context.Context, params Params, expected []appsv1.Deployment) error {
 	for _, obj := range expected {
 		desired := obj
 
@@ -56,14 +58,14 @@ func expectedDaemonSets(ctx context.Context, params Params, expected []appsv1.Da
 			return fmt.Errorf("failed to set controller reference: %w", err)
 		}
 
-		existing := &appsv1.DaemonSet{}
+		existing := &appsv1.Deployment{}
 		nns := types.NamespacedName{Namespace: desired.Namespace, Name: desired.Name}
 		err := params.Client.Get(ctx, nns, existing)
 		if err != nil && k8serrors.IsNotFound(err) {
 			if err := params.Client.Create(ctx, &desired); err != nil {
 				return fmt.Errorf("failed to create: %w", err)
 			}
-			params.Log.V(2).Info("created", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)
+			params.Log.V(2).Info("created", "deployment.name", desired.Name, "deployment.namespace", desired.Namespace)
 			continue
 		} else if err != nil {
 			return fmt.Errorf("failed to get: %w", err)
@@ -89,17 +91,18 @@ func expectedDaemonSets(ctx context.Context, params Params, expected []appsv1.Da
 		}
 
 		patch := client.MergeFrom(existing)
+
 		if err := params.Client.Patch(ctx, updated, patch); err != nil {
 			return fmt.Errorf("failed to apply changes: %w", err)
 		}
 
-		params.Log.V(2).Info("applied", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)
+		params.Log.V(2).Info("applied", "deployment.name", desired.Name, "deployment.namespace", desired.Namespace)
 	}
 
 	return nil
 }
 
-func deleteDaemonSets(ctx context.Context, params Params, expected []appsv1.DaemonSet) error {
+func deleteClusterReceivers(ctx context.Context, params Params, expected []appsv1.Deployment) error {
 	opts := []client.ListOption{
 		client.InNamespace(params.Instance.Namespace),
 		client.MatchingLabels(map[string]string{
@@ -107,7 +110,7 @@ func deleteDaemonSets(ctx context.Context, params Params, expected []appsv1.Daem
 			"app.kubernetes.io/managed-by": "splunk-otel-operator",
 		}),
 	}
-	list := &appsv1.DaemonSetList{}
+	list := &appsv1.DeploymentList{}
 	if err := params.Client.List(ctx, list, opts...); err != nil {
 		return fmt.Errorf("failed to list: %w", err)
 	}
@@ -125,7 +128,7 @@ func deleteDaemonSets(ctx context.Context, params Params, expected []appsv1.Daem
 			if err := params.Client.Delete(ctx, &existing); err != nil {
 				return fmt.Errorf("failed to delete: %w", err)
 			}
-			params.Log.V(2).Info("deleted", "daemonset.name", existing.Name, "daemonset.namespace", existing.Namespace)
+			params.Log.V(2).Info("deleted", "deployment.name", existing.Name, "deployment.namespace", existing.Namespace)
 		}
 	}
 

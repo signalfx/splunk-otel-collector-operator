@@ -43,13 +43,6 @@ func (in *SplunkComponentSpec) DeepCopyInto(out *SplunkComponentSpec) {
 		*out = new(v1.SecurityContext)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.VolumeClaimTemplates != nil {
-		in, out := &in.VolumeClaimTemplates, &out.VolumeClaimTemplates
-		*out = make([]v1.PersistentVolumeClaim, len(*in))
-		for i := range *in {
-			(*in)[i].DeepCopyInto(&(*out)[i])
-		}
-	}
 	if in.VolumeMounts != nil {
 		in, out := &in.VolumeMounts, &out.VolumeMounts
 		*out = make([]v1.VolumeMount, len(*in))

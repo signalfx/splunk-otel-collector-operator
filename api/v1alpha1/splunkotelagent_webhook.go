@@ -15,6 +15,9 @@
 package v1alpha1
 
 import (
+	"fmt"
+	"strings"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -44,6 +47,10 @@ func (r *SplunkOtelAgent) Default() {
 		r.Labels["app.kubernetes.io/managed-by"] = "splunk-otel-operator"
 	}
 
+	setAgentDefaults(r.Spec.SplunkRealm, r.Spec.ClusterName, &r.Spec.Agent)
+	setClusterReceiverDefaults(r.Spec.SplunkRealm, r.Spec.ClusterName, &r.Spec.ClusterReceiver)
+	setGatewayDefaults(r.Spec.SplunkRealm, r.Spec.ClusterName, &r.Spec.Gateway)
+
 	agentlog.Info("default", "name", r.Name)
 }
 
@@ -71,11 +78,22 @@ func (r *SplunkOtelAgent) ValidateDelete() error {
 }
 
 func (r *SplunkOtelAgent) validateCRDSpec() error {
-	return r.validateCRDAgentSpec()
-	// TODO(splunk): validate all and return multi-error
-	// err = r.validateCRDAgentSpec()
-	// err = r.validateCRDClusterReceiverSpec()
-	// err = r.validateCRDGatewaySpec()
+	var errs []string
+	if err := r.validateCRDAgentSpec(); err != nil {
+		errs = append(errs, err.Error())
+	}
+
+	if err := r.validateCRDClusterReceiverSpec(); err != nil {
+		errs = append(errs, err.Error())
+	}
+
+	if err := r.validateCRDGatewaySpec(); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf(strings.Join(errs, "\n"))
+	}
+	return nil
 }
 
 func (r *SplunkOtelAgent) validateCRDAgentSpec() error {
@@ -83,9 +101,15 @@ func (r *SplunkOtelAgent) validateCRDAgentSpec() error {
 }
 
 func (r *SplunkOtelAgent) validateCRDClusterReceiverSpec() error {
+	if !r.Spec.ClusterReceiver.Disabled {
+		return fmt.Errorf("clusterReceiver is not supported at the moment")
+	}
 	return nil
 }
 
 func (r *SplunkOtelAgent) validateCRDGatewaySpec() error {
+	if !r.Spec.Gateway.Disabled {
+		return fmt.Errorf("gateway is not supported at the moment")
+	}
 	return nil
 }

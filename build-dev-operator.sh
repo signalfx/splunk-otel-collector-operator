@@ -12,6 +12,7 @@ export IMG=quay.io/$USER/opentelemetry-operator:v$OPERATOR_VERSION
 export BUNDLE_IMG=quay.io/$USER/splunk-otel-operator-bundle:v$BUNDLE_VERSION
 
 build() {
+    make generate
 	make set-image-controller
 	make container
 	make bundle VERSION=${OPERATOR_VERSION}

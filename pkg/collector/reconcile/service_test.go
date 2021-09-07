@@ -73,7 +73,6 @@ func TestFilterPort(t *testing.T) {
 			portNames:   map[string]bool{"web": true, "metrics": true},
 			expected:    v1.ServicePort{Name: "port-8090", Port: 8090},
 		},
-
 		{
 			name:        "should return nil if fallback name clashes with existing portName",
 			candidate:   v1.ServicePort{Name: "web", Port: 8090},
@@ -81,6 +80,7 @@ func TestFilterPort(t *testing.T) {
 			portNames:   map[string]bool{"web": true, "port-8090": true},
 		},
 	}
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			actual := filterPort(logger, test.candidate, test.portNumbers, test.portNames)
@@ -102,12 +102,13 @@ func TestDesiredService(t *testing.T) {
 			Client: k8sClient,
 			Log:    logger,
 			Instance: v1alpha1.SplunkOtelAgent{
-				Spec: v1alpha1.SplunkOtelAgentSpec{Config: `receivers:
+				Spec: v1alpha1.SplunkOtelAgentSpec{Gateway: v1alpha1.SplunkComponentSpec{
+					Config: `receivers:
       test:
         protocols:
           unknown:`},
-			},
-		}
+				},
+			}}
 
 		actual := desiredService(context.Background(), params)
 		assert.Nil(t, actual)
@@ -120,7 +121,7 @@ func TestDesiredService(t *testing.T) {
 			Protocol: "TCP",
 			Port:     14250,
 		}
-		ports := append(params().Instance.Spec.Ports, jaegerPorts)
+		ports := append(params().Instance.Spec.Gateway.Ports, jaegerPorts)
 		expected := service("test-collector", ports)
 		actual := desiredService(context.Background(), params())
 
@@ -132,7 +133,7 @@ func TestDesiredService(t *testing.T) {
 
 func TestExpectedServices(t *testing.T) {
 	t.Run("should create the service", func(t *testing.T) {
-		err := expectedServices(context.Background(), params(), []v1.Service{service("test-collector", params().Instance.Spec.Ports)})
+		err := expectedServices(context.Background(), params(), []v1.Service{service("test-collector", params().Instance.Spec.Gateway.Ports)})
 		assert.NoError(t, err)
 
 		exists, err := populateObjectIfExists(t, &v1.Service{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
@@ -142,7 +143,7 @@ func TestExpectedServices(t *testing.T) {
 
 	})
 	t.Run("should update service", func(t *testing.T) {
-		serviceInstance := service("test-collector", params().Instance.Spec.Ports)
+		serviceInstance := service("test-collector", params().Instance.Spec.Gateway.Ports)
 		createObjectIfNotExists(t, "test-collector", &serviceInstance)
 
 		extraPorts := v1.ServicePort{
@@ -152,7 +153,7 @@ func TestExpectedServices(t *testing.T) {
 			TargetPort: intstr.FromInt(8080),
 		}
 
-		ports := append(params().Instance.Spec.Ports, extraPorts)
+		ports := append(params().Instance.Spec.Gateway.Ports, extraPorts)
 		err := expectedServices(context.Background(), params(), []v1.Service{service("test-collector", ports)})
 		assert.NoError(t, err)
 

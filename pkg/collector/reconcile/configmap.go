@@ -26,6 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 	"github.com/signalfx/splunk-otel-operator/pkg/collector"
 	"github.com/signalfx/splunk-otel-operator/pkg/naming"
 )
@@ -34,8 +35,28 @@ import (
 
 // ConfigMaps reconciles the config map(s) required for the instance in the current context.
 func ConfigMaps(ctx context.Context, params Params) error {
-	desired := []corev1.ConfigMap{
-		desiredConfigMap(ctx, params),
+	desired := []corev1.ConfigMap{}
+
+	if !params.Instance.Spec.Agent.Disabled {
+		if cm, err := desiredConfigMap(ctx, params, "agent"); err == nil {
+			desired = append(desired, cm)
+		} else {
+			return err
+		}
+	}
+	if !params.Instance.Spec.ClusterReceiver.Disabled {
+		if cm, err := desiredConfigMap(ctx, params, "clusterreceiver"); err == nil {
+			desired = append(desired, cm)
+		} else {
+			return err
+		}
+	}
+	if !params.Instance.Spec.Gateway.Disabled {
+		if cm, err := desiredConfigMap(ctx, params, "gateway"); err == nil {
+			desired = append(desired, cm)
+		} else {
+			return err
+		}
 	}
 
 	// first, handle the create/update parts
@@ -47,14 +68,27 @@ func ConfigMaps(ctx context.Context, params Params) error {
 	if err := deleteConfigMaps(ctx, params, desired); err != nil {
 		return fmt.Errorf("failed to reconcile the configmaps to be deleted: %w", err)
 	}
+	fmt.Println("========================")
 
 	return nil
 }
 
-func desiredConfigMap(_ context.Context, params Params) corev1.ConfigMap {
-	name := naming.ConfigMap(params.Instance)
+func desiredConfigMap(_ context.Context, params Params, kind string) (corev1.ConfigMap, error) {
+	name := naming.ConfigMap(params.Instance, kind)
 	labels := collector.Labels(params.Instance)
 	labels["app.kubernetes.io/name"] = name
+
+	var spec v1alpha1.SplunkComponentSpec
+	switch kind {
+	case "agent":
+		spec = params.Instance.Spec.Agent
+	case "clusterreceiver":
+		spec = params.Instance.Spec.ClusterReceiver
+	case "gateway":
+		spec = params.Instance.Spec.Gateway
+	default:
+		return corev1.ConfigMap{}, fmt.Errorf("cannot create configmap for unknown kind: %s", kind)
+	}
 
 	return corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -64,12 +98,15 @@ func desiredConfigMap(_ context.Context, params Params) corev1.ConfigMap {
 			Annotations: params.Instance.Annotations,
 		},
 		Data: map[string]string{
-			"collector.yaml": params.Instance.Spec.Agent.Config,
+			"collector.yaml": spec.Config,
 		},
-	}
+	}, nil
 }
 
 func expectedConfigMaps(ctx context.Context, params Params, expected []corev1.ConfigMap, retry bool) error {
+
+	fmt.Println("gonna create configmaps::: ", expected)
+
 	for _, obj := range expected {
 		desired := obj
 

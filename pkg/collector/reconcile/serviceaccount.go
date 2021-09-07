@@ -32,6 +32,7 @@ import (
 // ServiceAccounts reconciles the service account(s) required for the instance in the current context.
 func ServiceAccounts(ctx context.Context, params Params) error {
 	desired := []corev1.ServiceAccount{}
+	// TODO(splunk): may be create separate service accounts for agent, gateway and clusterreceiver
 	desired = append(desired, collector.ServiceAccount(params.Instance))
 
 	// first, handle the create/update parts

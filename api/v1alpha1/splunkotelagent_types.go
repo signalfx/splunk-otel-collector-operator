@@ -20,10 +20,10 @@ import (
 )
 
 type SplunkComponentSpec struct {
-	// Disable determines whether this spec will be depoyed or not.
+	// Disabled determines whether this spec will be depoyed or not.
 	// +optional
 	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
-	Disable string `json:"disable,omitempty"`
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Config is the raw JSON to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
 	// +optional
@@ -66,12 +66,6 @@ type SplunkComponentSpec struct {
 	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
 	HostNetwork bool `json:"hostNetwork,omitempty"`
 
-	// VolumeClaimTemplates will provide stable storage using PersistentVolumes. Only available when the mode=statefulset.
-	// +optional
-	// +listType=atomic
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
-	VolumeClaimTemplates []v1.PersistentVolumeClaim `json:"volumeClaimTemplates,omitempty"`
-
 	// VolumeMounts represents the mount points to use in the underlying collector deployment(s)
 	// +optional
 	// +listType=atomic
@@ -104,12 +98,13 @@ type SplunkComponentSpec struct {
 	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Toleration to schedule OpenTelemetry Collector pods.
-	// This is only relevant to daemonsets, statefulsets and deployments
+	// This is only relevant to daemonsets and deployments
 	// +optional
 	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
 	Tolerations []v1.Toleration `json:"tolerations,omitempty"`
 }
 
+// TODO(splunk): rename to SplunkDeploymentSpec or SplunkUnifiedAgentSpec
 // SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
 type SplunkOtelAgentSpec struct {
 	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
@@ -139,6 +134,7 @@ type SplunkOtelAgentSpec struct {
 	Gateway SplunkComponentSpec `json:"gateway,omitempty"`
 }
 
+// TODO(splunk): rename to SplunkDeploymentStatus or SplunkUnifiedAgentStatus
 // SplunkOtelAgentStatus defines the observed state of SplunkOtelAgent.
 type SplunkOtelAgentStatus struct {
 	// Replicas is currently not being set and might be removed in the next version.

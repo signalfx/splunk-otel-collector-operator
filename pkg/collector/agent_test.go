@@ -38,7 +38,7 @@ func TestDaemonSetNewDefault(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	d := DaemonSet(cfg, logger, otelcol)
+	d := Agent(cfg, logger, otelcol)
 
 	// verify
 	assert.Equal(t, "my-instance-collector", d.Name)
@@ -59,13 +59,13 @@ func TestDaemonSetNewDefault(t *testing.T) {
 
 func TestDaemonsetHostNetwork(t *testing.T) {
 	// test
-	d1 := DaemonSet(config.New(), logger, v1alpha1.SplunkOtelAgent{
+	d1 := Agent(config.New(), logger, v1alpha1.SplunkOtelAgent{
 		Spec: v1alpha1.SplunkOtelAgentSpec{},
 	})
 	assert.False(t, d1.Spec.Template.Spec.HostNetwork)
 
 	// verify custom
-	d2 := DaemonSet(config.New(), logger, v1alpha1.SplunkOtelAgent{
+	d2 := Agent(config.New(), logger, v1alpha1.SplunkOtelAgent{
 		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkComponentSpec{
 			HostNetwork: true,
 		}},

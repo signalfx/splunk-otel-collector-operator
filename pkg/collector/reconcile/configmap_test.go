@@ -37,7 +37,7 @@ func TestDefaultConfigMap(t *testing.T) {
 
 	t.Run("should return expected collector config map", func(t *testing.T) {
 		expectedLables["app.kubernetes.io/component"] = "splunk-otel-collector"
-		expectedLables["app.kubernetes.io/name"] = "test-collector"
+		expectedLables["app.kubernetes.io/name"] = "test-agent"
 
 		expectedData := map[string]string{
 			"collector.yaml": `processors:
@@ -64,9 +64,10 @@ service:
       exporters: [logging]`,
 		}
 
-		actual := desiredConfigMap(context.Background(), params())
+		actual, err := desiredConfigMap(context.Background(), params(), "agent")
 
-		assert.Equal(t, "test-collector", actual.Name)
+		assert.NoError(t, err)
+		assert.Equal(t, "test-agent", actual.Name)
 		assert.Equal(t, expectedLables, actual.Labels)
 		assert.Equal(t, expectedData, actual.Data)
 
@@ -109,8 +110,9 @@ service:
       exporters: [logging]`,
 		}
 
-		actual := desiredConfigMap(context.Background(), params())
+		actual, err := desiredConfigMap(context.Background(), params(), "agent")
 
+		assert.NoError(t, err)
 		assert.Equal(t, "test-collector", actual.Name)
 		assert.Equal(t, expectedLables, actual.Labels)
 		assert.Equal(t, expectedData, actual.Data)
@@ -120,9 +122,13 @@ service:
 
 func TestExpectedConfigMap(t *testing.T) {
 	t.Run("should create collector config maps", func(t *testing.T) {
-		configMap, err := desiredTAConfigMap(params())
+		agentMap, err := desiredConfigMap(context.Background(), params(), "agent")
 		assert.NoError(t, err)
-		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{desiredConfigMap(context.Background(), params()), configMap}, true)
+
+		crMap, err := desiredConfigMap(context.Background(), params(), "clusterreceiver")
+		assert.NoError(t, err)
+
+		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{agentMap, crMap}, true)
 		assert.NoError(t, err)
 
 		exists, err := populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
@@ -151,10 +157,14 @@ func TestExpectedConfigMap(t *testing.T) {
 			Log:      logger,
 			Recorder: record.NewFakeRecorder(10),
 		}
-		cm := desiredConfigMap(context.Background(), param)
+		cm, err := desiredConfigMap(context.Background(), param, "agent")
+		assert.NoError(t, err)
 		createObjectIfNotExists(t, "test-collector", &cm)
 
-		err := expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{desiredConfigMap(context.Background(), params())}, true)
+		desired, err := desiredConfigMap(context.Background(), params(), "agent")
+		assert.NoError(t, err)
+
+		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{desired}, true)
 		assert.NoError(t, err)
 
 		actual := v1.ConfigMap{}
@@ -163,7 +173,7 @@ func TestExpectedConfigMap(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, exists)
 		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
-		assert.Equal(t, params().Instance.Spec.Config, actual.Data["collector.yaml"])
+		assert.Equal(t, params().Instance.Spec.Agent.Config, actual.Data["collector.yaml"])
 	})
 
 	t.Run("should delete config map", func(t *testing.T) {
@@ -183,7 +193,9 @@ func TestExpectedConfigMap(t *testing.T) {
 		exists, _ := populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-delete-collector"})
 		assert.True(t, exists)
 
-		err := deleteConfigMaps(context.Background(), params(), []v1.ConfigMap{desiredConfigMap(context.Background(), params())})
+		desired, err := desiredConfigMap(context.Background(), params(), "agent")
+		assert.NoError(t, err)
+		err = deleteConfigMaps(context.Background(), params(), []v1.ConfigMap{desired})
 		assert.NoError(t, err)
 
 		exists, _ = populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-delete-collector"})

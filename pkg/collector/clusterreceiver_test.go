@@ -47,7 +47,7 @@ func TestDeploymentNewDefault(t *testing.T) {
 	cfg := config.New()
 
 	// test
-	d := Deployment(cfg, logger, otelcol)
+	d := ClusterReceiver(cfg, logger, otelcol)
 
 	// verify
 	assert.Equal(t, "my-instance-collector", d.Name)

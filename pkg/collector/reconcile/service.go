@@ -36,12 +36,16 @@ import (
 // Services reconciles the service(s) required for the instance in the current context.
 func Services(ctx context.Context, params Params) error {
 	desired := []corev1.Service{}
-	type builder func(context.Context, Params) *corev1.Service
-	for _, builder := range []builder{desiredService, headless, monitoringService} {
-		svc := builder(ctx, params)
-		// add only the non-nil to the list
-		if svc != nil {
-			desired = append(desired, *svc)
+
+	if !params.Instance.Spec.Gateway.Disabled {
+		type builder func(context.Context, Params) *corev1.Service
+		for _, builder := range []builder{desiredService, headless, monitoringService} {
+			// TODO(splunk): pass in params.Instance.Spec.Gateway instead of params
+			svc := builder(ctx, params)
+			// add only the non-nil to the list
+			if svc != nil {
+				desired = append(desired, *svc)
+			}
 		}
 	}
 

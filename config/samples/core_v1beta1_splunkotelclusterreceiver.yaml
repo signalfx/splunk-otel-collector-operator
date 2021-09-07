@@ -1,7 +1,0 @@
-apiVersion: core.splunk.com/v1beta1
-kind: SplunkOtelClusterReceiver
-metadata:
-  name: splunkotelclusterreceiver-sample
-spec:
-  # Add fields here
-  foo: bar

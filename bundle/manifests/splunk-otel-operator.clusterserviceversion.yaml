@@ -8,7 +8,7 @@ metadata:
           "apiVersion": "splunk.com/v1alpha1",
           "kind": "SplunkOtelAgent",
           "metadata": {
-            "name": "splunk-otel-agent",
+            "name": "splunk-otel",
             "namespace": "splunk-otel-operator-system"
           },
           "spec": {
@@ -171,7 +171,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     repository: github.com/signalfx/splunk-otel-operator
     support: Splunk Inc
-  name: splunk-otel-operator.v0.33.1630951905
+  name: splunk-otel-operator.v0.33.1630976454
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -180,9 +180,6 @@ spec:
     - kind: SplunkOtelAgent
       name: splunkotelagents.splunk.com
       version: v1alpha1
-    - kind: SplunkOtelClusterReceiver
-      name: splunkotelclusterreceivers.core.splunk.com
-      version: v1beta1
   description: |-
     OpenTelemetry is a collection of tools, APIs, and SDKs. You use it to instrument, generate, collect, and export telemetry data (metrics, logs, and traces) for analysis in order to understand your software's performance and behavior.
 
@@ -349,7 +346,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: quay.io/owais/opentelemetry-operator:v0.33.1630951905
+                image: quay.io/owais/opentelemetry-operator:v0.33.1630976454
                 name: manager
                 ports:
                 - containerPort: 9443
@@ -443,7 +440,7 @@ spec:
   maturity: alpha
   provider:
     name: Splunk Inc
-  version: 0.33.1630951905
+  version: 0.33.1630976454
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

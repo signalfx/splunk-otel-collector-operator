@@ -25,16 +25,16 @@ import (
 	"github.com/signalfx/splunk-otel-operator/pkg/naming"
 )
 
-// DaemonSet builds the deployment for the given instance.
-func DaemonSet(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) appsv1.DaemonSet {
+// Agent builds the deployment for the given instance.
+func Agent(cfg config.Config, logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) appsv1.DaemonSet {
 	labels := Labels(otelcol)
-	labels["app.kubernetes.io/name"] = naming.Collector(otelcol)
+	labels["app.kubernetes.io/name"] = naming.Agent(otelcol)
 
 	annotations := Annotations(otelcol)
 
 	return appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        naming.Collector(otelcol),
+			Name:        naming.Agent(otelcol),
 			Namespace:   otelcol.Namespace,
 			Labels:      labels,
 			Annotations: annotations,

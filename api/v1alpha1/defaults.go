@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package controllers contains the main controller, where the reconciliation starts.
-package controllers
+package v1alpha1
 
 import (
-	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 )
 
-func setDefaults(instance *v1alpha1.SplunkOtelAgent) {
-	setAgentDefaults(instance.Spec.SplunkRealm, instance.Spec.ClusterName, &instance.Spec.Agent)
-	// setClusterReceiverDefaults(instance.Spec.SplunkRealm, instance.Spec.ClusterName, &instance.Spec.ClusterReceiver)
-	// setGatewayDefaults(instance.Spec.SplunkRealm, instance.Spec.ClusterName, &instance.Spec.Gateway)
+func setGatewayDefaults(realm, clusterName string, spec *SplunkComponentSpec) {
+	spec.Disabled = true
 }
 
-func setAgentDefaults(realm, clusterName string, spec *v1alpha1.SplunkComponentSpec) {
+func setClusterReceiverDefaults(realm, clusterName string, spec *SplunkComponentSpec) {
+	spec.Disabled = true
+}
+
+func setAgentDefaults(realm, clusterName string, spec *SplunkComponentSpec) {
 	// agent must be daemonset.
 	spec.HostNetwork = true
 
