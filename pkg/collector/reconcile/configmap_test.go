@@ -64,7 +64,8 @@ service:
       exporters: [logging]`,
 		}
 
-		actual, err := desiredConfigMap(context.Background(), params(), "agent")
+		p := params()
+		actual, err := desiredConfigMap(context.Background(), p, p.Instance.Spec.Agent.Config, "agent")
 
 		assert.NoError(t, err)
 		assert.Equal(t, "test-agent", actual.Name)
@@ -110,7 +111,8 @@ service:
       exporters: [logging]`,
 		}
 
-		actual, err := desiredConfigMap(context.Background(), params(), "agent")
+		p := params()
+		actual, err := desiredConfigMap(context.Background(), p, p.Instance.Spec.Agent.Config, "agent")
 
 		assert.NoError(t, err)
 		assert.Equal(t, "test-collector", actual.Name)
@@ -122,13 +124,16 @@ service:
 
 func TestExpectedConfigMap(t *testing.T) {
 	t.Run("should create collector config maps", func(t *testing.T) {
-		agentMap, err := desiredConfigMap(context.Background(), params(), "agent")
+		p1 := params()
+		agentMap, err := desiredConfigMap(context.Background(), p1, p1.Instance.Spec.Agent.Config, "agent")
 		assert.NoError(t, err)
 
-		crMap, err := desiredConfigMap(context.Background(), params(), "clusterreceiver")
+		p2 := params()
+		crMap, err := desiredConfigMap(context.Background(), p2, p2.Instance.Spec.ClusterReceiver.Config, "clusterreceiver")
 		assert.NoError(t, err)
 
-		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{agentMap, crMap}, true)
+		p3 := params()
+		err = expectedConfigMaps(context.Background(), p3, []v1.ConfigMap{agentMap, crMap}, true)
 		assert.NoError(t, err)
 
 		exists, err := populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
@@ -157,11 +162,12 @@ func TestExpectedConfigMap(t *testing.T) {
 			Log:      logger,
 			Recorder: record.NewFakeRecorder(10),
 		}
-		cm, err := desiredConfigMap(context.Background(), param, "agent")
+		cm, err := desiredConfigMap(context.Background(), param, param.Instance.Spec.Agent.Config, "agent")
 		assert.NoError(t, err)
 		createObjectIfNotExists(t, "test-collector", &cm)
 
-		desired, err := desiredConfigMap(context.Background(), params(), "agent")
+		p := params()
+		desired, err := desiredConfigMap(context.Background(), p, p.Instance.Spec.Agent.Config, "agent")
 		assert.NoError(t, err)
 
 		err = expectedConfigMaps(context.Background(), params(), []v1.ConfigMap{desired}, true)
@@ -193,7 +199,8 @@ func TestExpectedConfigMap(t *testing.T) {
 		exists, _ := populateObjectIfExists(t, &v1.ConfigMap{}, types.NamespacedName{Namespace: "default", Name: "test-delete-collector"})
 		assert.True(t, exists)
 
-		desired, err := desiredConfigMap(context.Background(), params(), "agent")
+		p := params()
+		desired, err := desiredConfigMap(context.Background(), p, p.Instance.Spec.Agent.Config, "agent")
 		assert.NoError(t, err)
 		err = deleteConfigMaps(context.Background(), params(), []v1.ConfigMap{desired})
 		assert.NoError(t, err)

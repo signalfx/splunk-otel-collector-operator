@@ -11,5 +11,5 @@ roleRef:
   name: splunk-otel-operator-role
 subjects:
 - kind: ServiceAccount
-  name: splunk-otel-collector
+  name: splunk-otel-account
   namespace: splunk-otel-operator-system
