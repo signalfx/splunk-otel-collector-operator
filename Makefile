@@ -211,6 +211,9 @@ else
 OPERATOR_SDK=$(shell which operator-sdk)
 endif
 
+addtag:
+	git tag -a v$(OPERATOR_VERSION)
+
 # Generate bundle manifests and metadata, then validate generated files.
 bundle: kustomize operator-sdk manifests
 	$(OPERATOR_SDK) generate kustomize manifests -q
