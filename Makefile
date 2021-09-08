@@ -1,9 +1,9 @@
 # Current Operator version
-VERSION ?= "$(shell git describe --tags | sed 's/^v//')"
+#VERSION ?= "$(shell git describe --tags | sed 's/^v//')"
+VERSION ?= "$(shell grep -v '\#' versions.txt | grep operator | awk -F= '{print $$2}')"
 VERSION_DATE ?= $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 VERSION_PKG ?= "github.com/signalfx/splunk-otel-operator/internal/version"
 OTELCOL_VERSION ?= "$(shell grep -v '\#' versions.txt | grep splunk-otel-collector | awk -F= '{print $$2}')"
-OPERATOR_VERSION ?= "$(shell grep -v '\#' versions.txt | grep operator | awk -F= '{print $$2}')"
 LD_FLAGS ?= "-X ${VERSION_PKG}.version=${VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.otelCol=${OTELCOL_VERSION}"
 
 # Image URL to use all building/pushing image targets
@@ -44,7 +44,7 @@ endif
 KUBE_VERSION ?= 1.21
 KIND_CONFIG ?= kind-$(KUBE_VERSION).yaml
 
-ensure-generate-is-noop: VERSION=$(OPERATOR_VERSION)
+ensure-generate-is-noop: VERSION=$(VERSION)
 ensure-generate-is-noop: USER=opentelemetry
 ensure-generate-is-noop: set-image-controller generate bundle
 	@# on make bundle config/manager/kustomization.yaml includes changes, which should be ignored for the below check
@@ -212,7 +212,7 @@ OPERATOR_SDK=$(shell which operator-sdk)
 endif
 
 addtag:
-	git tag -a v$(OPERATOR_VERSION)
+	git tag -a v$(VERSION)
 
 # Generate bundle manifests and metadata, then validate generated files.
 bundle: kustomize operator-sdk manifests
