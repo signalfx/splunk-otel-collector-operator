@@ -3,13 +3,14 @@
 set -e
 set -u
 
-VERSION=0.33.${VERSION:-$(date +%s)}
-BUNDLE_VERSION=${BUNDLE_VERSION:-$VERSION}
-OPERATOR_VERSION=${BUNDLE_VERSION:-$OPERATOR_VERSION}
+VERSION_FROM_FILE="$(grep -v '\#' versions.txt | grep operator | awk -F= '{print $2}')"
 
+export VERSION=${VERSION:-$VERSION_FROM_FILE}
 export USER=${QUAY_USERNAME:-signalfx}
 export IMG_PREFIX=quay.io/$USER
-export IMG=quay.io/$USER/splunk-otel-operator:v$OPERATOR_VERSION
+export IMG=quay.io/$USER/splunk-otel-operator:v$VERSION
+
+BUNDLE_VERSION=${BUNDLE_VERSION:-$VERSION}
 export BUNDLE_IMG=quay.io/$USER/splunk-otel-operator-bundle:v$BUNDLE_VERSION
 
 build() {
@@ -19,8 +20,8 @@ build() {
 }
 
 pack() {
-	make bundle VERSION=${OPERATOR_VERSION}
-	make bundle-build VERSION=${OPERATOR_VERSION}
+	make bundle
+	make bundle-build
 	make release-artifacts
 }
 
