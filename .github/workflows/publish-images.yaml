@@ -31,7 +31,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v3.5.0
         with:
-          images: quay.io/opentelemetry/splunk-otel-operator
+          images: quay.io/signalfx/splunk-otel-operator
           tag-semver: |
             {{raw}}
             {{version}}

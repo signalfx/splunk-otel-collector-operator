@@ -26,14 +26,14 @@ metadata:
     capabilities: Basic Install
     categories: Logging & Tracing
     certified: "false"
-    containerImage: quay.io/signalfx/splunk-otel-operator:v0.33.0
+    containerImage: quay.io/signalfx/splunk-otel-operator:v0.0.1
     createdAt: "2020-12-16T13:37:00+00:00"
     description: Provides the Splunk OpenTelemetry Connector
     operators.operatorframework.io/builder: operator-sdk-v1.10.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     repository: github.com/signalfx/splunk-otel-operator
     support: Splunk Inc
-  name: splunk-otel-operator.v0.33.1631062770
+  name: splunk-otel-operator.v0.0.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -195,7 +195,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: quay.io/signalfx/splunk-otel-operator:v0.33.1631062747
+                image: quay.io/signalfx/splunk-otel-operator:v0.0.1
                 name: manager
                 ports:
                 - containerPort: 9443
@@ -277,7 +277,7 @@ spec:
   maturity: alpha
   provider:
     name: Splunk Inc
-  version: 0.33.1631062770
+  version: 0.0.1
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

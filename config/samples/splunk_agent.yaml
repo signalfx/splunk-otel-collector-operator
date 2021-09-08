@@ -273,4 +273,4 @@ spec:
       - effect: NoSchedule
         key: node-role.kubernetes.io/master
         operator: Exists
-    image: "quay.io/signalfx/splunk-otel-collector:0.33.0"
+    image: "quay.io/signalfx/splunk-otel-collector:0.34.1"
