@@ -68,7 +68,9 @@ func Service(otelcol v1alpha1.SplunkOtelAgent) string {
 
 // ServiceAccount builds the service account name based on the instance.
 func ServiceAccount(otelcol v1alpha1.SplunkOtelAgent) string {
-	return fmt.Sprintf("%s-collector", otelcol.Name)
+	// TODO(splunk): create separate accounts for agent, clusterreceiver
+	// and gateway.
+	return fmt.Sprintf("%s-account", otelcol.Name)
 }
 
 // Namespace builds the namespace name based on the instance.
