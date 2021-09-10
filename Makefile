@@ -241,7 +241,7 @@ bundle-build:
 
 .PHONY: bundle-build-openshift
 bundle-build-openshift:
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG_OPENSHIFT) .
+	docker build -f bundle-openshift.Dockerfile -t $(BUNDLE_IMG_OPENSHIFT) .
 
 .PHONY: bundles-build
 bundles-build: bundle-build bundle-build-openshift
