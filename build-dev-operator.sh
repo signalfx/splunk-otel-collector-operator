@@ -31,6 +31,10 @@ load() {
 	kind load docker-image $BUNDLE_IMG
 }
 
+publish() {
+    docker push $IMG
+}
+
 
 install() {
     make cert-manager
@@ -43,6 +47,13 @@ build_install() {
 	load
 	install
 }
+
+build_publish() {
+	build
+	pack
+    publish
+}
+
 
 for arg; do
    "$arg"

@@ -8,7 +8,7 @@ spec:
   splunkRealm: us0
   #agent:
     #disabled: true
-  clusterReceiver:
-    disabled: true
+    #clusterReceiver:
+    #disabled: true
   gateway:
     disabled: true 
