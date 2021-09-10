@@ -11,6 +11,7 @@ IMG_PREFIX ?= quay.io/${USER}
 IMG_REPO ?= splunk-otel-operator
 IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
 BUNDLE_IMG ?= ${IMG_PREFIX}/${IMG_REPO}-bundle:${VERSION}
+BUNDLE_IMG_OPENSHIFT ?= ${IMG_PREFIX}/${IMG_REPO}-openshift-bundle:${VERSION}
 
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
@@ -44,7 +45,7 @@ endif
 KUBE_VERSION ?= 1.21
 KIND_CONFIG ?= kind-$(KUBE_VERSION).yaml
 
-ensure-generate-is-noop: VERSION=$(VERSION)
+# ensure-generate-is-noop: VERSION=$(VERSION)
 ensure-generate-is-noop: USER=opentelemetry
 ensure-generate-is-noop: set-image-controller generate bundle
 	@# on make bundle config/manager/kustomization.yaml includes changes, which should be ignored for the below check
@@ -87,6 +88,9 @@ deploy: set-image-controller
 release-artifacts: set-image-controller
 	mkdir -p dist
 	$(KUSTOMIZE) build config/default -o dist/splunk-otel-operator.yaml
+	# dirty hack for now
+	cp dist/splunk-otel-operator.yaml dist/splunk-otel-operator-openshift.yaml
+	cat config/openshift/*.yaml >> dist/splunk-otel-operator-openshift.yaml
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
@@ -220,8 +224,26 @@ bundle: kustomize operator-sdk manifests
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle -q --overwrite --manifests --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 	$(OPERATOR_SDK) bundle validate ./bundle
 
+.PHONY: bundle-openshift
+bundle-openshift:
+	# dirty hack for now
+	rm -rf bundle-openshift
+	cp -r bundle bundle-openshift
+	cat config/openshift/*.yaml >> bundle-openshift/manifests/splunk-otel-operator-role_rbac.authorization.k8s.io_v1_clusterrole.yaml
+
+.PHONY: bundles
+bundles: bundle bundle-openshift
+
 # Build the bundle image, used only for local dev purposes
+.PHONY: bundle-build
 bundle-build:
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+
+.PHONY: bundle-build-openshift
+bundle-build-openshift:
+	docker build -f bundle-openshift.Dockerfile -t $(BUNDLE_IMG_OPENSHIFT) .
+
+.PHONY: bundles-build
+bundles-build: bundle-build bundle-build-openshift
 
 tools: ginkgo kustomize controller-gen operator-sdk
