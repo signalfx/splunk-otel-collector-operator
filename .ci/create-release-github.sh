@@ -8,4 +8,4 @@ gh release create \
     -t "Release ${OPERATOR_VERSION}" \
     "${OPERATOR_VERSION}" \
     'dist/splunk-otel-operator.yaml#Installation manifest for Kubernetes' \
-    'dist/splunk-otel-operator-openshift.yaml#Installation manifest for Kubernetes for OpenShift'
+    'dist/splunk-otel-operator-openshift.yaml#Installation manifest for OpenShift'
