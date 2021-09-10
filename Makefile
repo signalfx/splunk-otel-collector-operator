@@ -11,6 +11,7 @@ IMG_PREFIX ?= quay.io/${USER}
 IMG_REPO ?= splunk-otel-operator
 IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
 BUNDLE_IMG ?= ${IMG_PREFIX}/${IMG_REPO}-bundle:${VERSION}
+BUNDLE_IMG_OPENSHIFT ?= ${IMG_PREFIX}/${IMG_REPO}-openshift-bundle:${VERSION}
 
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
@@ -223,8 +224,26 @@ bundle: kustomize operator-sdk manifests
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle -q --overwrite --manifests --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 	$(OPERATOR_SDK) bundle validate ./bundle
 
+.PHONY: bundle-openshift
+bundle-openshift:
+	# dirty hack for now
+	rm -rf bundle-openshift
+	cp -r bundle bundle-openshift
+	cat config/openshift/*.yaml >> bundle-openshift/manifests/splunk-otel-operator-role_rbac.authorization.k8s.io_v1_clusterrole.yaml
+
+.PHONY: bundles
+bundles: bundle bundle-openshift
+
 # Build the bundle image, used only for local dev purposes
+.PHONY: bundle-build
 bundle-build:
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+
+.PHONY: bundle-build-openshift
+bundle-build-openshift:
+	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG_OPENSHIFT) .
+
+.PHONY: bundles-build
+bundles-build: bundle-build bundle-build-openshift
 
 tools: ginkgo kustomize controller-gen operator-sdk

@@ -4,7 +4,7 @@ apiVersion: security.openshift.io/v1
 metadata:
   name: splunk-otel-agent
 users:
-- system:serviceaccount:openshift-operators:splunk-otel-account
+- system:serviceaccount:splunk-otel-operator-system:splunk-otel-account
 priority: 10
 allowHostNetwork: false 
 allowHostPorts: true

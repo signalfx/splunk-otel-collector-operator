@@ -111,7 +111,7 @@ func main() {
 		MetricsBindAddress: metricsAddr,
 		Port:               9443,
 		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "9f7554c3.opentelemetry.io",
+		LeaderElectionID:   "9f7554c3.splunk.com",
 		Namespace:          watchNamespace,
 	}
 
@@ -154,7 +154,7 @@ func main() {
 	}
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&v1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr); err != nil {
+		if err = (&v1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, cfg.Platform()); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
 			os.Exit(1)
 		}

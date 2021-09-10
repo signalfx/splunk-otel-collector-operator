@@ -292,3 +292,96 @@ service:
         - signalfx
 
 `
+
+const defaultClusterReceiverConfigOpenshift = `
+extensions:
+  health_check:
+    endpoint: '0.0.0.0:13133'
+receivers:
+  k8s_cluster:
+    distribution: openshift
+    auth_type: serviceAccount
+    metadata_exporters:
+      - signalfx
+  prometheus/self:
+    config:
+      scrape_configs:
+        - job_name: otel-k8s-cluster-receiver
+          scrape_interval: 10s
+          static_configs:
+            - targets:
+                - '${MY_POD_IP}:8888'
+exporters:
+  signalfx:
+    access_token: '${SPLUNK_ACCESS_TOKEN}'
+    api_url: 'https://api.${SPLUNK_REALM}.signalfx.com'
+    ingest_url: 'https://ingest.${SPLUNK_REALM}.signalfx.com'
+    timeout: 10s
+  logging: null
+  logging/debug:
+    loglevel: debug
+processors:
+  batch: null
+  memory_limiter:
+    ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
+    check_interval: 2s
+    limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
+  resource:
+    attributes:
+      - action: insert
+        key: metric_source
+        value: kubernetes
+      - action: insert
+        key: receiver
+        value: k8scluster
+      - action: upsert
+        key: k8s.cluster.name
+        value: '${MY_CLUSTER_NAME}'
+      - action: upsert
+        key: deployment.environment
+        value: '${MY_CLUSTER_NAME}'
+  resource/self:
+    attributes:
+      - action: insert
+        key: k8s.node.name
+        value: '${MY_NODE_NAME}'
+      - action: insert
+        key: k8s.pod.name
+        value: '${MY_POD_NAME}'
+      - action: insert
+        key: k8s.pod.uid
+        value: '${MY_POD_UID}'
+      - action: insert
+        key: k8s.namespace.name
+        value: '${MY_NAMESPACE}'
+  resourcedetection:
+    override: false
+    timeout: 10s
+    detectors:
+      - system
+      - env
+service:
+  extensions:
+    - health_check
+  pipelines:
+    metrics:
+      receivers:
+        - k8s_cluster
+      processors:
+        - batch
+        - resource
+        - resourcedetection
+      exporters:
+        - signalfx
+    metrics/self:
+      receivers:
+        - prometheus/self
+      processors:
+        - batch
+        - resource
+        - resource/self
+        - resourcedetection
+      exporters:
+        - signalfx
+
+`
