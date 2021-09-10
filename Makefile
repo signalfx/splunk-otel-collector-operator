@@ -44,7 +44,7 @@ endif
 KUBE_VERSION ?= 1.21
 KIND_CONFIG ?= kind-$(KUBE_VERSION).yaml
 
-ensure-generate-is-noop: VERSION=$(VERSION)
+# ensure-generate-is-noop: VERSION=$(VERSION)
 ensure-generate-is-noop: USER=opentelemetry
 ensure-generate-is-noop: set-image-controller generate bundle
 	@# on make bundle config/manager/kustomization.yaml includes changes, which should be ignored for the below check
@@ -87,6 +87,9 @@ deploy: set-image-controller
 release-artifacts: set-image-controller
 	mkdir -p dist
 	$(KUSTOMIZE) build config/default -o dist/splunk-otel-operator.yaml
+	# dirty hack for now
+	cp dist/splunk-otel-operator.yaml dist/splunk-otel-operator-openshift.yaml
+	cat config/openshift/*.yaml >> dist/splunk-otel-operator-openshift.yaml
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen

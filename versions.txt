@@ -5,4 +5,4 @@
 splunk-otel-collector=0.34.1
 
 # Represents the current release of the OpenTelemetry Operator.
-operator=0.0.1
+operator=0.0.2
