@@ -1,28 +1,7 @@
-# How to Contribute to the OpenTelemetry Operator
-
-We'd love your help!
-
-This project is [Apache 2.0 licensed](LICENSE) and accepts contributions via GitHub pull requests. This document outlines some of the conventions on development workflow, contact points and other resources to make it easier to get your contribution accepted.
-
-We gratefully welcome improvements to documentation as well as to code.
-
-## Getting Started
-
-### Workflow
-
-It is recommended to follow the ["GitHub Workflow"](https://guides.github.com/introduction/flow/). When using [GitHub's CLI](https://github.com/cli/cli), here's how it typically looks like:
-
-```
-$ gh repo fork github.com/open-telemetry/opentelemetry-operator
-$ git checkout -b your-feature-branch
-# do your changes
-$ git commit -sam "Add feature X"
-$ gh pr create
-```
-
 ### Pre-requisites
 * Install [Go](https://golang.org/doc/install).
 * Have a Kubernetes cluster ready for development. We recommend `minikube` or `kind`.
+* RedHat CodeReady Containers to test locally on OpenShift.
 
 ### Local run
 
@@ -79,25 +58,7 @@ The tests are located under `tests/e2e` and are written to be used with `kuttl`.
 
 ## Project Structure
 
-For a general overview of the directories from this operator and what to expect in each one of them, please check out the [official GoDoc](https://godoc.org/github.com/open-telemetry/opentelemetry-operator) or the [locally-hosted GoDoc](http://localhost:6060/pkg/github.com/open-telemetry/opentelemetry-operator/)
-
-## Contributing
-
-Your contribution is welcome! For it to be accepted, we have a few standards that must be followed.
-
-If you are contributing to sync the receivers from [otel-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib), note that the operator only synchronizes receivers that aren't scrapers, as there's no need to open ports in services for this case. In general, receivers would open a UDP/TCP port and the operator should be adding an entry in the Kubernetes Service resource accordingly.
-
-### New features
-
-Before starting the development of a new feature, please create an issue and discuss it with the project maintainers. Features should come with documentation and enough tests (unit and/or end-to-end).
-
-### Bug fixes
-
-Every bug fix should be accompanied with a unit test, so that we can prevent regressions.
-
-### Documentation, typos, ...
-
-They are mostly welcome!
+For a general overview of the directories from this operator and what to expect in each one of them, please check out the [official GoDoc](https://godoc.org/github.com/signalfx/splunk-otel-operator) or the [locally-hosted GoDoc](http://localhost:6060/pkg/github.com/signalfx/splunk-otel-operator/)
 
 ## Operator Lifecycle Manager (OLM)
 

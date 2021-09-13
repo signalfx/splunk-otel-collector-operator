@@ -32,13 +32,13 @@ load() {
 }
 
 publish() {
-    docker push $IMG
+	docker push $IMG
 }
 
 
 install() {
-    make cert-manager
-    kubectl apply -f dist/splunk-otel-operator.yaml
+	make cert-manager
+	kubectl apply -f dist/splunk-otel-operator.yaml
 }
 
 build_install() {
@@ -51,7 +51,7 @@ build_install() {
 build_publish() {
 	build
 	pack
-    publish
+	publish
 }
 
 
