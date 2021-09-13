@@ -154,16 +154,10 @@ func main() {
 	}
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&v1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, cfg.Platform()); err != nil {
+		if err = (&v1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, &cfg); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
 			os.Exit(1)
 		}
-
-		/*
-			mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{
-				Handler: podinjector.NewPodSidecarInjector(cfg, ctrl.Log.WithName("sidecar"), mgr.GetClient()),
-			})
-		*/
 	}
 	// +kubebuilder:scaffold:builder
 
