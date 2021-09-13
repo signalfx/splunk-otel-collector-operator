@@ -18,12 +18,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/signalfx/splunk-otel-operator/pkg/platform"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	"github.com/signalfx/splunk-otel-operator/internal/config"
+	"github.com/signalfx/splunk-otel-operator/pkg/platform"
 )
 
 const (
@@ -35,10 +37,10 @@ const (
 // log is for logging in this package.
 var agentlog = logf.Log.WithName("splunkotelagent-resource")
 
-var currentPlatform platform.Platform = platform.Unknown
+var cfg *config.Config
 
-func (r *SplunkOtelAgent) SetupWebhookWithManager(mgr ctrl.Manager, platform platform.Platform) error {
-	currentPlatform = platform
+func (r *SplunkOtelAgent) SetupWebhookWithManager(mgr ctrl.Manager, c *config.Config) error {
+	cfg = c
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
@@ -271,7 +273,7 @@ func (r *SplunkOtelAgent) defaultClusterReceiver() {
 	}
 
 	if spec.Config == "" {
-		if currentPlatform == platform.OpenShift {
+		if cfg.Platform() == platform.OpenShift {
 			spec.Config = defaultClusterReceiverConfigOpenshift
 		} else {
 			spec.Config = defaultClusterReceiverConfig

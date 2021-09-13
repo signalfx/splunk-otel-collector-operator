@@ -12,14 +12,8 @@ metadata:
             "namespace": "splunk-otel-operator-system"
           },
           "spec": {
-            "clusterName": "my-cluster-name",
-            "clusterReceiver": {
-              "disabled": true
-            },
-            "gateway": {
-              "disabled": true
-            },
-            "splunkRealm": "us0"
+            "clusterName": "\u003cMY_CLUSTER_NAME\u003e",
+            "splunkRealm": "\u003cSPLUNK_REALM\u003e"
           }
         }
       ]

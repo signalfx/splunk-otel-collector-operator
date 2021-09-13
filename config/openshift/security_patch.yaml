@@ -6,7 +6,7 @@ metadata:
 users:
 - system:serviceaccount:splunk-otel-operator-system:splunk-otel-account
 priority: 10
-allowHostNetwork: false 
+allowHostNetwork: true 
 allowHostPorts: true
 allowHostPID: true
 allowHostDirVolumePlugin: true
