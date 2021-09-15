@@ -5,4 +5,4 @@ metadata:
   namespace: splunk-otel-operator-system
 spec:
   clusterName: <MY_CLUSTER_NAME>
-  splunkRealm: <MY_REALM>
+  splunkRealm: <SPLUNK_REALM>
