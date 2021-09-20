@@ -1,7 +1,9 @@
   
-> **⚠ WARNING: This project is Alpha.**  
-> Please do not use in production. Things will break without notice.
+## **⚠ WARNING: This project is Alpha.**  
+### Please do not use in production. Things will break without notice.
   
+  
+---------
   
 # Splunk Operator Connector Operator for Kubernetes
 
