@@ -1,0 +1,48 @@
+default:
+  image: 'docker.repo.splunkdev.net/ci-cd/ci-container:golang-1.17'
+
+publish-image:
+  only:
+    - tags
+  retry: 2
+  script:
+    - docker login -u $CIRCLECI_QUAY_USERNAME -p $CIRCLECI_QUAY_PASSWORD quay.io
+    - OTELCOL_VERSION=$( grep '^splunk-otel-collector=' versions.txt | awk -F= '{print $2}' )
+    - VERSION_DATE=$( date -u +'%Y-%m-%dT%H:%M:%SZ' )
+    - VERSION=${CI_COMMIT_TAG#v}
+    - |
+      set -x
+      docker build -t quay.io/signalfx/splunk-otel-operator:${CI_COMMIT_TAG} \
+        --build-arg VERSION_PKG="github.com/signalfx/splunk-otel-operator/internal/version" \
+        --build-arg VERSION="$VERSION" \
+        --build-arg VERSION_DATE="$VERSION_DATE" \
+        --build-arg OTELCOL_VERSION="$OTELCOL_VERSION" .
+    - docker push quay.io/signalfx/splunk-otel-operator:${CI_COMMIT_TAG}
+
+release:
+  only:
+    - tags
+  variables:
+    OPERATOR_DOWNLOAD_URL: "https://github.com/operator-framework/operator-sdk/releases/download"
+    OPERATOR_SDK_VERSION: "v1.10.1"
+  before_script:
+    - apt update
+    - apt install -y sudo
+    - bash -e ./hack/install-kubebuilder.sh
+    - bash -e ./hack/install-kustomize.sh
+    # install operator-sdk
+    - curl -LO ${OPERATOR_DOWNLOAD_URL}/${OPERATOR_SDK_VERSION}/operator-sdk_linux_amd64
+    - mv operator-sdk_linux_amd64 /usr/local/bin/operator-sdk
+    - chmod a+x /usr/local/bin/operator-sdk
+    # install gh cli
+    - curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    - apt update
+    - apt install -y gh
+  script:
+    - make release-artifacts IMG_PREFIX="quay.io/signalfx"
+    - bash -e .ci/create-release-github.sh
+    - curl https://proxy.golang.org/github.com/signalfx/splunk-otel-operator/@v/${CI_COMMIT_TAG}.info
+  artifacts:
+    paths:
+      - dist/
