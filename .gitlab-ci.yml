@@ -12,12 +12,12 @@ publish-image:
     - VERSION=${CI_COMMIT_TAG#v}
     - |
       set -x
-      docker build -t quay.io/signalfx/splunk-otel-operator:${CI_COMMIT_TAG} \
+      docker build -t quay.io/signalfx/splunk-otel-collector-operator:${CI_COMMIT_TAG} \
         --build-arg VERSION_PKG="github.com/signalfx/splunk-otel-operator/internal/version" \
         --build-arg VERSION="$VERSION" \
         --build-arg VERSION_DATE="$VERSION_DATE" \
         --build-arg OTELCOL_VERSION="$OTELCOL_VERSION" .
-    - docker push quay.io/signalfx/splunk-otel-operator:${CI_COMMIT_TAG}
+    - docker push quay.io/signalfx/splunk-otel-collector-operator:${CI_COMMIT_TAG}
 
 release:
   only:
