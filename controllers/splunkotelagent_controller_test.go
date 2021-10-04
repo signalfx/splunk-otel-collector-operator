@@ -109,8 +109,7 @@ func TestNewObjectsOnReconciliation(t *testing.T) {
 		list := &appsv1.DaemonSetList{}
 		err = k8sClient.List(context.Background(), list, opts...)
 		assert.NoError(t, err)
-		// attention! we expect daemonsets to be empty in the default configuration
-		assert.Empty(t, list.Items)
+		assert.NotEmpty(t, list.Items)
 	}
 
 	// cleanup

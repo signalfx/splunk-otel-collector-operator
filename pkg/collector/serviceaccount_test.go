@@ -36,7 +36,7 @@ func TestServiceAccountNewDefault(t *testing.T) {
 	sa := ServiceAccountName(otelcol)
 
 	// verify
-	assert.Equal(t, "my-instance-collector", sa)
+	assert.Equal(t, "my-instance-account", sa)
 }
 
 func TestServiceAccountOverride(t *testing.T) {

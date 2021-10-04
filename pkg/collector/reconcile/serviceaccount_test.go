@@ -32,7 +32,7 @@ func TestExpectedServiceAccounts(t *testing.T) {
 		err := expectedServiceAccounts(context.Background(), params(), []v1.ServiceAccount{desired})
 		assert.NoError(t, err)
 
-		exists, err := populateObjectIfExists(t, &v1.ServiceAccount{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		exists, err := populateObjectIfExists(t, &v1.ServiceAccount{}, types.NamespacedName{Namespace: "default", Name: "test-account"})
 		assert.NoError(t, err)
 		assert.True(t, exists)
 
@@ -41,12 +41,12 @@ func TestExpectedServiceAccounts(t *testing.T) {
 	t.Run("should update existing service account", func(t *testing.T) {
 		existing := v1.ServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "test-collector",
+				Name:      "test-account",
 				Namespace: "default",
 			},
 		}
-		createObjectIfNotExists(t, "test-collector", &existing)
-		exists, err := populateObjectIfExists(t, &v1.ServiceAccount{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		createObjectIfNotExists(t, "test-account", &existing)
+		exists, err := populateObjectIfExists(t, &v1.ServiceAccount{}, types.NamespacedName{Namespace: "default", Name: "test-account"})
 		assert.NoError(t, err)
 		assert.True(t, exists)
 
@@ -54,7 +54,7 @@ func TestExpectedServiceAccounts(t *testing.T) {
 		assert.NoError(t, err)
 
 		actual := v1.ServiceAccount{}
-		_, err = populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		_, err = populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-account"})
 		assert.NoError(t, err)
 		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
 	})
