@@ -16,7 +16,11 @@ spec:
     singular: splunkotelagent
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: SplunkOtelAgent is the Schema for the splunkotelagents API
@@ -5941,13 +5945,13 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                 type: object
-              splunkRealm:
-                description: SplunkRealm is the Splunk APM Realm your Splukn account
-                  exists in. For example, us0, us1, etc.
+              realm:
+                description: Realm is the Splunk APM Realm your Splukn account exists
+                  in. For example, us0, us1, etc.
                 type: string
             required:
             - clusterName
-            - splunkRealm
+            - realm
             type: object
           status:
             description: SplunkOtelAgentStatus defines the observed state of SplunkOtelAgent

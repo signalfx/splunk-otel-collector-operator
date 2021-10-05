@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	o11yv1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1"
+	o11yv1alpha1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1alpha1"
 	o11ycontrollers "github.com/signalfx/signalfx-go-tracing/controllers/o11y"
 	//+kubebuilder:scaffold:imports
 )
@@ -44,7 +44,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(o11yv1.AddToScheme(scheme))
+	utilruntime.Must(o11yv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 

@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	o11yv1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1"
+	o11yv1alpha1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1alpha1"
 )
 
 // SplunkOtelAgentReconciler reconciles a SplunkOtelAgent object
@@ -57,6 +57,6 @@ func (r *SplunkOtelAgentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 // SetupWithManager sets up the controller with the Manager.
 func (r *SplunkOtelAgentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&o11yv1.SplunkOtelAgent{}).
+		For(&o11yv1alpha1.SplunkOtelAgent{}).
 		Complete(r)
 }

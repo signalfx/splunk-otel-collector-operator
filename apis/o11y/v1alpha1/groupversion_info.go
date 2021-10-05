@@ -17,7 +17,7 @@ limitations under the License.
 // Package v1 contains API Schema definitions for the o11y v1 API group
 //+kubebuilder:object:generate=true
 //+groupName=o11y.splunk.com
-package v1
+package v1alpha1
 
 import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
