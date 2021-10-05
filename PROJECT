@@ -1,0 +1,6 @@
+domain: splunk.com
+layout:
+- go.kubebuilder.io/v3
+projectName: splunk-otel-operator-kubebuilderv3
+repo: github.com/signalfx/splunk-otel-collector-operator
+version: "3"
