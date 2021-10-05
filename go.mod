@@ -1,4 +1,4 @@
-module github.com/signalfx/signalfx-go-tracing
+module github.com/signalfx/splunk-otel-collector-operator
 
 go 1.16
 

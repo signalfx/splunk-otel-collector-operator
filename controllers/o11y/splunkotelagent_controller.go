@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	o11yv1alpha1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1alpha1"
+	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
 )
 
 // SplunkOtelAgentReconciler reconciles a SplunkOtelAgent object

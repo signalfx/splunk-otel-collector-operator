@@ -3,7 +3,7 @@ layout:
 - go.kubebuilder.io/v3
 multigroup: true
 projectName: splunk-otel-collector-operator
-repo: github.com/signalfx/signalfx-go-tracing
+repo: github.com/signalfx/splunk-otel-collector-operator
 resources:
 - api:
     crdVersion: v1
@@ -12,6 +12,6 @@ resources:
   domain: splunk.com
   group: o11y
   kind: SplunkOtelAgent
-  path: github.com/signalfx/signalfx-go-tracing/apis/o11y/v1
-  version: v1
+  path: github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1
+  version: v1alpha1
 version: "3"

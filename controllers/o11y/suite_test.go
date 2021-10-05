@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	o11yv1alpha1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1alpha1"
+	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
