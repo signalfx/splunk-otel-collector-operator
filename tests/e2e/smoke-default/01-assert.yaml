@@ -1,0 +1,6 @@
+apiVersion: splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: test-default
+spec:
+  splunkRealm: my-splunk-realm
