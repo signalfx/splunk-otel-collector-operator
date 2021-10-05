@@ -22,60 +22,60 @@ import (
 type SplunkComponentSpec struct {
 	// Disabled determines whether this spec will be depoyed or not.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Config is the raw JSON to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Config string `json:"config,omitempty"`
 
 	// Args is the set of arguments to pass to the OpenTelemetry Collector binary
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Args map[string]string `json:"args,omitempty"`
 
 	// Replicas is the number of pod instances for the underlying OpenTelemetry Collector
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Replicas *int32 `json:"replicas,omitempty"`
 
 	// ImagePullPolicy indicates the pull policy to be used for retrieving the container image (Always, Never, IfNotPresent)
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullPolicy v1.PullPolicy `json:"imagePullPolicy,omitempty"`
 
 	// TODO(splunk): use correct version number instead of latest
 	// Image indicates the container image to use for the OpenTelemetry Collector.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Image string `json:"image,omitempty"`
 
 	// ServiceAccount indicates the name of an existing service account to use with this instance.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ServiceAccount string `json:"serviceAccount,omitempty"`
 
 	// SecurityContext will be set as the container security context.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	SecurityContext *v1.SecurityContext `json:"securityContext,omitempty"`
 
 	// HostNetwork indicates if the pod should run in the host networking namespace.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	HostNetwork bool `json:"hostNetwork,omitempty"`
 
 	// VolumeMounts represents the mount points to use in the underlying collector deployment(s)
 	// +optional
 	// +listType=atomic
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	VolumeMounts []v1.VolumeMount `json:"volumeMounts,omitempty"`
 
 	// Volumes represents which volumes to use in the underlying collector deployment(s).
 	// +optional
 	// +listType=atomic
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Volumes []v1.Volume `json:"volumes,omitempty"`
 
 	// Ports allows a set of ports to be exposed by the underlying v1.Service. By default, the operator
@@ -83,24 +83,24 @@ type SplunkComponentSpec struct {
 	// used to open aditional ports that can't be inferred by the operator, like for custom receivers.
 	// +optional
 	// +listType=atomic
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Ports []v1.ServicePort `json:"ports,omitempty"`
 
 	// ENV vars to set on the OpenTelemetry Collector's Pods. These can then in certain cases be
 	// consumed in the config file for the Collector.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Env []v1.EnvVar `json:"env,omitempty"`
 
 	// Resources to set on the OpenTelemetry Collector pods.
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Toleration to schedule OpenTelemetry Collector pods.
 	// This is only relevant to daemonsets and deployments
 	// +optional
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Tolerations []v1.Toleration `json:"tolerations,omitempty"`
 }
 
@@ -110,27 +110,27 @@ type SplunkOtelAgentSpec struct {
 	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
 	// +required
 	// +kubebuilder:validation:Required
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ClusterName string `json:"clusterName"`
 
 	// SplunkRealm is the Splunk APM Realm your Splukn account exists in. For example, us0, us1, etc.
 	// +required
 	// +kubebuilder:validation:Required
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	SplunkRealm string `json:"splunkRealm"`
 
 	// TODO(splunk): may be have a common `Env` field here that is injected into all pods(Agent, ClusterReceiver, Gateway)
 
 	// Agent is a Splunk OpenTelemetry Collector instance deployed as an agent on every node.
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Agent SplunkComponentSpec `json:"agent,omitempty"`
 
 	// ClusterReceiver is a single instance Splunk OpenTelemetry Collector deployement used to monitor the entire cluster.
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ClusterReceiver SplunkComponentSpec `json:"clusterReceiver,omitempty"`
 
 	// ClusterReceiver is a Splunk OpenTelemetry Collector deployement used to export data to Splunk APM.
-	// +operator-sdk:gen-csv:customresourcedefinitions.specDescriptors=true
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Gateway SplunkComponentSpec `json:"gateway,omitempty"`
 }
 
