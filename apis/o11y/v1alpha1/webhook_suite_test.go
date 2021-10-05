@@ -27,6 +27,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
 
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	//+kubebuilder:scaffold:imports
@@ -100,7 +101,7 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).NotTo(HaveOccurred())
 
-	err = (&SplunkOtelAgent{}).SetupWebhookWithManager(mgr)
+	err = (&SplunkOtelAgent{}).SetupWebhookWithManager(mgr, autodetect.KubernetesDistro)
 	Expect(err).NotTo(HaveOccurred())
 
 	//+kubebuilder:scaffold:webhook

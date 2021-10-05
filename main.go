@@ -33,6 +33,7 @@ import (
 
 	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
 	o11ycontrollers "github.com/signalfx/splunk-otel-collector-operator/controllers/o11y"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -78,14 +79,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&o11ycontrollers.SplunkOtelAgentReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	restConfig := ctrl.GetConfigOrDie()
+
+	ad, err := autodetect.New(setupLog, restConfig)
+	distro := ad.Distro()
+
+	if err = (o11ycontrollers.NewReconciler(ctrl.Log.WithName("controllers").WithName("SplunkOtelAgent"), mgr.GetClient(), mgr.GetScheme(), mgr.GetEventRecorderFor("splunk-otel-operator"))).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "SplunkOtelAgent")
 		os.Exit(1)
 	}
-	if err = (&o11yv1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr); err != nil {
+
+	if err = (&o11yv1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, distro); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
 		os.Exit(1)
 	}

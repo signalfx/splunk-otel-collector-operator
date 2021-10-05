@@ -18,19 +18,95 @@ package o11y
 
 import (
 	"context"
+	"fmt"
 
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/go-logr/logr"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
 	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/collector/reconcile"
 )
+
+// Task represents a reconciliation task to be executed by the reconciler.
+type Task struct {
+	Name        string
+	Do          func(context.Context, reconcile.Params) error
+	BailOnError bool
+}
 
 // SplunkOtelAgentReconciler reconciles a SplunkOtelAgent object
 type SplunkOtelAgentReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	logger   logr.Logger
+	scheme   *runtime.Scheme
+	recorder record.EventRecorder
+	tasks    []Task
+}
+
+// NewReconciler creates a new reconciler for SplunkOtelAgent objects.
+func NewReconciler(logger logr.Logger, client client.Client, scheme *runtime.Scheme, recorder record.EventRecorder) *SplunkOtelAgentReconciler {
+	tasks := []Task{
+		// TODO(splunk): see if we should handle creation of the namespace as well
+		// this is tricky as,
+		//   - access token secret needs to be in the same namespace
+		//   - if we add namespace here then agents will be started before user creates secret
+		//   - this means agent will crash until the secret is not created
+		// the can lead to confusing behavior so it might be better to have the user
+		// create namespace and secret both before creating SplunkOtelAgent
+		{
+			"config maps",
+			reconcile.ConfigMaps,
+			true,
+		},
+		{
+			"service accounts",
+			reconcile.ServiceAccounts,
+			true,
+		},
+		{
+			"services",
+			reconcile.Services,
+			true,
+		},
+		{
+			"cluster receiver",
+			reconcile.ClusterReceivers,
+			true,
+		},
+		{
+			"agent",
+			reconcile.Agents,
+			true,
+		},
+		/*
+			{
+				"gateway",
+				reconcile.Gateway,
+				true,
+			},
+		*/
+		{
+			"splunk opentelemetry",
+			reconcile.Self,
+			true,
+		},
+	}
+
+	return &SplunkOtelAgentReconciler{
+		Client:   client,
+		logger:   logger,
+		scheme:   scheme,
+		recorder: recorder,
+		tasks:    tasks,
+	}
 }
 
 //+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents,verbs=get;list;watch;create;update;patch;delete
@@ -45,14 +121,57 @@ type SplunkOtelAgentReconciler struct {
 func (r *SplunkOtelAgentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// your logic here
+	log := r.logger.WithValues("splunkotelagent", req.NamespacedName)
+
+	var instance v1alpha1.SplunkOtelAgent
+	if err := r.Get(ctx, req.NamespacedName, &instance); err != nil {
+		if !apierrors.IsNotFound(err) {
+			log.Error(err, "unable to fetch SplunkOtelAgent")
+		}
+
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	params := reconcile.Params{
+		Client:   r.Client,
+		Instance: instance,
+		Log:      log,
+		Scheme:   r.scheme,
+		Recorder: r.recorder,
+	}
+
+	if err := r.RunTasks(ctx, params); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
+}
+
+// RunTasks runs all the tasks associated with this reconciler.
+func (r *SplunkOtelAgentReconciler) RunTasks(ctx context.Context, params reconcile.Params) error {
+	for _, task := range r.tasks {
+		if err := task.Do(ctx, params); err != nil {
+			r.logger.Error(err, fmt.Sprintf("failed to reconcile %s", task.Name))
+			if task.BailOnError {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *SplunkOtelAgentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&o11yv1alpha1.SplunkOtelAgent{}).
+		Owns(&corev1.ConfigMap{}).
+		Owns(&corev1.ServiceAccount{}).
+		Owns(&corev1.Service{}).
+		Owns(&appsv1.Deployment{}).
+		Owns(&appsv1.DaemonSet{}).
 		Complete(r)
 }
