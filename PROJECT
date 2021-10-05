@@ -14,4 +14,8 @@ resources:
   kind: SplunkOtelAgent
   path: github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"
