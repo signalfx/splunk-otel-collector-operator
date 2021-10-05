@@ -114,8 +114,30 @@ type SplunkOtelAgentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Boo is an example field of SplunkOtelAgent.
-	Boo string `json:"boo"`
+	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
+	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	ClusterName string `json:"clusterName"`
+
+	// Realm is the Splunk APM Realm your Splukn account exists in. For example, us0, us1, etc.
+	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	Realm string `json:"realm"`
+
+	// Agent is a Splunk OpenTelemetry Collector instance deployed as an agent on every node.
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	Agent SplunkCollectorSpec `json:"agent,omitempty"`
+
+	// ClusterReceiver is a single instance Splunk OpenTelemetry Collector deployement used to monitor the entire cluster.
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	ClusterReceiver SplunkCollectorSpec `json:"clusterReceiver,omitempty"`
+
+	// ClusterReceiver is a Splunk OpenTelemetry Collector deployement used to export data to Splunk APM.
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	Gateway SplunkCollectorSpec `json:"gateway,omitempty"`
 }
 
 // SplunkOtelAgentStatus defines the observed state of SplunkOtelAgent
@@ -132,6 +154,8 @@ type SplunkOtelAgentStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
+//+operator-sdk:csv:customresourcedefinitions:displayName="Splunk OpenTelemetry Connector"
 
 // SplunkOtelAgent is the Schema for the splunkotelagents API
 type SplunkOtelAgent struct {
