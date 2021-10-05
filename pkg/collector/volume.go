@@ -24,7 +24,6 @@ import (
 )
 
 // Volumes builds the volumes for the given instance, including the config map volume.
-// func Volumes(cfg config.Config, otelcol v1alpha1.SplunkOtelAgent) []corev1.Volume {
 func Volumes(cfg config.Config, spec v1alpha1.SplunkComponentSpec, configmap string) []corev1.Volume {
 	// create one volume per configmap (agent, gateway, clusterreceiver)
 	volumes := []corev1.Volume{}
