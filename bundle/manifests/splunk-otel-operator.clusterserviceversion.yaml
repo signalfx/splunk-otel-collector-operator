@@ -23,7 +23,7 @@ metadata:
     containerImage: quay.io/signalfx/splunk-otel-operator:v0.0.1
     createdAt: "2021-09-13T00:00:00+00:00"
     description: Provides the Splunk OpenTelemetry Connector
-    operators.operatorframework.io/builder: operator-sdk-v1.13.0
+    operators.operatorframework.io/builder: operator-sdk-v1.10.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     repository: github.com/signalfx/splunk-otel-operator
     support: Splunk Inc
@@ -279,27 +279,6 @@ spec:
     containerPort: 443
     deploymentName: splunk-otel-operator-controller-manager
     failurePolicy: Fail
-    generateName: msplunkotelagent.kb.io
-    rules:
-    - apiGroups:
-      - splunk.com
-      apiVersions:
-      - v1alpha1
-      operations:
-      - CREATE
-      - UPDATE
-      resources:
-      - splunkotelagents
-    sideEffects: None
-    targetPort: 9443
-    type: MutatingAdmissionWebhook
-    webhookPath: /mutate-splunk-com-v1alpha1-splunkotelagent
-  - admissionReviewVersions:
-    - v1
-    - v1beta1
-    containerPort: 443
-    deploymentName: splunk-otel-operator-controller-manager
-    failurePolicy: Fail
     generateName: vsplunkotelagentcreateupdate.kb.io
     rules:
     - apiGroups:
@@ -335,3 +314,24 @@ spec:
     targetPort: 9443
     type: ValidatingAdmissionWebhook
     webhookPath: /validate-splunk-com-v1alpha1-splunkotelagent
+  - admissionReviewVersions:
+    - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: splunk-otel-operator-controller-manager
+    failurePolicy: Fail
+    generateName: msplunkotelagent.kb.io
+    rules:
+    - apiGroups:
+      - splunk.com
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - splunkotelagents
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-splunk-com-v1alpha1-splunkotelagent
