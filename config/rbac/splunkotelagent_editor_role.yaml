@@ -1,0 +1,24 @@
+# permissions for end users to edit splunkotelagents.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: splunkotelagent-editor-role
+rules:
+- apiGroups:
+  - core.splunk.com
+  resources:
+  - splunkotelagents
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.splunk.com
+  resources:
+  - splunkotelagents/status
+  verbs:
+  - get

@@ -1,6 +1,16 @@
 domain: splunk.com
 layout:
 - go.kubebuilder.io/v3
-projectName: splunk-otel-operator-kubebuilderv3
+projectName: splunk-otel-collector-operator
 repo: github.com/signalfx/splunk-otel-collector-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: splunk.com
+  group: core
+  kind: SplunkOtelAgent
+  path: github.com/signalfx/splunk-otel-collector-operator/api/v1
+  version: v1
 version: "3"
