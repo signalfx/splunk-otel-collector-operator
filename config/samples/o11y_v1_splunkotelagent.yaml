@@ -1,4 +1,4 @@
-apiVersion: core.splunk.com/v1
+apiVersion: o11y.splunk.com/v1
 kind: SplunkOtelAgent
 metadata:
   name: splunkotelagent-sample

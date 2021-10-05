@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	corev1 "github.com/signalfx/splunk-otel-collector-operator/api/v1"
-	"github.com/signalfx/splunk-otel-collector-operator/controllers"
+	o11yv1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1"
+	o11ycontrollers "github.com/signalfx/signalfx-go-tracing/controllers/o11y"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -44,7 +44,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(corev1.AddToScheme(scheme))
+	utilruntime.Must(o11yv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -71,14 +71,14 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "f1b9003c.splunk.com",
+		LeaderElectionID:       "80f6591f.splunk.com",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	if err = (&controllers.SplunkOtelAgentReconciler{
+	if err = (&o11ycontrollers.SplunkOtelAgentReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {

@@ -1,16 +1,17 @@
 domain: splunk.com
 layout:
 - go.kubebuilder.io/v3
+multigroup: true
 projectName: splunk-otel-collector-operator
-repo: github.com/signalfx/splunk-otel-collector-operator
+repo: github.com/signalfx/signalfx-go-tracing
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
   domain: splunk.com
-  group: core
+  group: o11y
   kind: SplunkOtelAgent
-  path: github.com/signalfx/splunk-otel-collector-operator/api/v1
+  path: github.com/signalfx/signalfx-go-tracing/apis/o11y/v1
   version: v1
 version: "3"

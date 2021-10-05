@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package o11y
 
 import (
 	"context"
@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	corev1 "github.com/signalfx/splunk-otel-collector-operator/api/v1"
+	o11yv1 "github.com/signalfx/signalfx-go-tracing/apis/o11y/v1"
 )
 
 // SplunkOtelAgentReconciler reconciles a SplunkOtelAgent object
@@ -33,9 +33,9 @@ type SplunkOtelAgentReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=core.splunk.com,resources=splunkotelagents,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core.splunk.com,resources=splunkotelagents/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=core.splunk.com,resources=splunkotelagents/finalizers,verbs=update
+//+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -57,6 +57,6 @@ func (r *SplunkOtelAgentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 // SetupWithManager sets up the controller with the Manager.
 func (r *SplunkOtelAgentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.SplunkOtelAgent{}).
+		For(&o11yv1.SplunkOtelAgent{}).
 		Complete(r)
 }

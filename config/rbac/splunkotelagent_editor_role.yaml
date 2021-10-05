@@ -5,7 +5,7 @@ metadata:
   name: splunkotelagent-editor-role
 rules:
 - apiGroups:
-  - core.splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - core.splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents/status
   verbs:

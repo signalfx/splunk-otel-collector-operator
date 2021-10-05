@@ -8,4 +8,4 @@ webhook:
   port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: f1b9003c.splunk.com
+  resourceName: 80f6591f.splunk.com
