@@ -21,26 +21,26 @@ import (
 )
 
 var (
-	version   string
-	buildDate string
-	otelCol   string
+	version          string
+	buildDate        string
+	collectorVersion string
 )
 
 // Version holds this Operator's version as well as the version of some of the components it uses.
 type Version struct {
-	Operator            string `json:"splunk-otel-operator"`
-	BuildDate           string `json:"build-date"`
-	SplunkOtelCollector string `json:"splunk-otel-collector-version"`
-	Go                  string `json:"go-version"`
+	Operator  string `json:"splunk-otel-operator"`
+	BuildDate string `json:"build-date"`
+	Collector string `json:"splunk-otel-collector-version"`
+	Go        string `json:"go-version"`
 }
 
 // Get returns the Version object with the relevant information.
 func Get() Version {
 	return Version{
-		Operator:            version,
-		BuildDate:           buildDate,
-		SplunkOtelCollector: SplunkOtelCollector(),
-		Go:                  runtime.Version(),
+		Operator:  version,
+		BuildDate: buildDate,
+		Collector: Collector(),
+		Go:        runtime.Version(),
 	}
 }
 
@@ -49,16 +49,16 @@ func (v Version) String() string {
 		"Version(Operator='%v', BuildDate='%v', SplunkOtelCollector='%v', Go='%v')",
 		v.Operator,
 		v.BuildDate,
-		v.SplunkOtelCollector,
+		v.Collector,
 		v.Go,
 	)
 }
 
-// SplunkOtelCollector returns the default SplunkOtelAgent to use when no versions are specified via CLI or configuration.
-func SplunkOtelCollector() string {
-	if len(otelCol) > 0 {
+// Collector returns the default SplunkOtelAgent to use when no versions are specified via CLI or configuration.
+func Collector() string {
+	if len(collectorVersion) > 0 {
 		// this should always be set, as it's specified during the build
-		return otelCol
+		return collectorVersion
 	}
 
 	// fallback value, useful for tests

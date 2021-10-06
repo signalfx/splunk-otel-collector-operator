@@ -13,12 +13,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-splunk-com-v1alpha1-splunkotelagent
+      path: /mutate-o11y-splunk-com-v1alpha1-splunkotelagent
   failurePolicy: Fail
   name: msplunkotelagent.kb.io
   rules:
   - apiGroups:
-    - splunk.com
+    - o11y.splunk.com
     apiVersions:
     - v1alpha1
     operations:
@@ -42,37 +42,17 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-splunk-com-v1alpha1-splunkotelagent
+      path: /validate-o11y-splunk-com-v1alpha1-splunkotelagent
   failurePolicy: Fail
-  name: vsplunkotelagentcreateupdate.kb.io
+  name: vsplunkotelagent.kb.io
   rules:
   - apiGroups:
-    - splunk.com
+    - o11y.splunk.com
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
-    resources:
-    - splunkotelagents
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-splunk-com-v1alpha1-splunkotelagent
-  failurePolicy: Ignore
-  name: vsplunkotelagentdelete.kb.io
-  rules:
-  - apiGroups:
-    - splunk.com
-    apiVersions:
-    - v1alpha1
-    operations:
-    - DELETE
     resources:
     - splunkotelagents
   sideEffects: None

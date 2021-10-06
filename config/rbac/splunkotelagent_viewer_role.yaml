@@ -1,11 +1,11 @@
-# permissions for end users to view splunkotelagent.
+# permissions for end users to view splunkotelagents.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: splunkotelagent-viewer-role
 rules:
 - apiGroups:
-  - splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents/status
   verbs:

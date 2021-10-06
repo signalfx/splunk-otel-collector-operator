@@ -21,16 +21,16 @@ import (
 )
 
 func TestFallbackVersion(t *testing.T) {
-	assert.Equal(t, "0.0.0", SplunkOtelCollector())
+	assert.Equal(t, "0.0.0", Collector())
 }
 
 func TestVersionFromBuild(t *testing.T) {
 	// prepare
-	otelCol = "0.0.2" // set during the build
+	collectorVersion = "0.0.2" // set during the build
 	defer func() {
-		otelCol = ""
+		collectorVersion = ""
 	}()
 
-	assert.Equal(t, otelCol, SplunkOtelCollector())
-	assert.Contains(t, Get().String(), otelCol)
+	assert.Equal(t, collectorVersion, Collector())
+	assert.Contains(t, Get().String(), collectorVersion)
 }

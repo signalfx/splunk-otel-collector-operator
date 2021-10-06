@@ -21,13 +21,6 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - events
-  verbs:
-  - create
-  - patch
-- apiGroups:
-  - ""
-  resources:
   - namespaces
   verbs:
   - create
@@ -86,16 +79,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - create
-  - get
-  - list
-  - update
-- apiGroups:
-  - splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents
   verbs:
@@ -107,15 +91,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents/finalizers
   verbs:
-  - get
-  - patch
   - update
 - apiGroups:
-  - splunk.com
+  - o11y.splunk.com
   resources:
   - splunkotelagents/status
   verbs:

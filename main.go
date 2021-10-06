@@ -15,151 +15,105 @@
 package main
 
 import (
-	"context"
 	"flag"
+	"fmt"
 	"os"
-	"runtime"
-	"strings"
 
-	"github.com/spf13/pflag"
-	k8sruntime "k8s.io/apimachinery/pkg/runtime"
+	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
+	// to ensure that exec-entrypoint and run can make use of them.
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
+	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"github.com/signalfx/splunk-otel-operator/api/v1alpha1"
-	"github.com/signalfx/splunk-otel-operator/controllers"
-	"github.com/signalfx/splunk-otel-operator/internal/config"
-	"github.com/signalfx/splunk-otel-operator/internal/version"
-	"github.com/signalfx/splunk-otel-operator/pkg/autodetect"
-	"github.com/signalfx/splunk-otel-operator/pkg/collector/upgrade"
-	// +kubebuilder:scaffold:imports
+	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	o11ycontrollers "github.com/signalfx/splunk-otel-collector-operator/controllers/o11y"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/version"
+	//+kubebuilder:scaffold:imports
 )
 
 var (
-	scheme   = k8sruntime.NewScheme()
+	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
 )
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(v1alpha1.AddToScheme(scheme))
-	// +kubebuilder:scaffold:scheme
+	utilruntime.Must(o11yv1alpha1.AddToScheme(scheme))
+	//+kubebuilder:scaffold:scheme
 }
 
 func main() {
-	// registers any flags that underlying libraries might use
-	opts := zap.Options{}
-	opts.BindFlags(flag.CommandLine)
-	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
-
-	// Add flags related to this operator
 	var metricsAddr string
 	var enableLeaderElection bool
-	pflag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
-	pflag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
+	var probeAddr string
+	var versionAddr bool
+	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
+	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
+	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&versionAddr, "version", false, "Print out version info and quit.")
+	opts := zap.Options{
+		Development: true,
+	}
+	opts.BindFlags(flag.CommandLine)
+	flag.Parse()
 
-	// Add flags related to this operator
-	v := version.Get()
-	logger := zap.New(zap.UseFlagOptions(&opts))
-	ctrl.SetLogger(logger)
+	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	logger.Info("Starting the OpenTelemetry Operator",
-		"splunk-otel-operator", v.Operator,
-		"splunk-otel-collector", v.SplunkOtelCollector,
-		"build-date", v.BuildDate,
-		"go-version", v.Go,
-		"go-arch", runtime.GOARCH,
-		"go-os", runtime.GOOS,
-	)
-
-	restConfig := ctrl.GetConfigOrDie()
-
-	// builds the operator's configuration
-	ad, err := autodetect.New(restConfig)
-	if err != nil {
-		setupLog.Error(err, "failed to setup auto-detect routine")
-		os.Exit(1)
+	if versionAddr {
+		fmt.Println(version.Get())
+		os.Exit(0)
 	}
 
-	cfg := config.New(
-		config.WithLogger(ctrl.Log.WithName("config")),
-		config.WithVersion(v),
-		config.WithAutoDetect(ad),
-	)
-
-	pflag.CommandLine.AddFlagSet(cfg.FlagSet())
-
-	pflag.Parse()
-
-	watchNamespace, found := os.LookupEnv("WATCH_NAMESPACE")
-	if found {
-		setupLog.Info("watching namespace(s)", "namespaces", watchNamespace)
-	} else {
-		setupLog.Info("the env var WATCH_NAMESPACE isn't set, watching all namespaces")
-	}
-
-	mgrOptions := ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		Port:               9443,
-		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "9f7554c3.splunk.com",
-		Namespace:          watchNamespace,
-	}
-
-	if strings.Contains(watchNamespace, ",") {
-		mgrOptions.Namespace = ""
-		mgrOptions.NewCache = cache.MultiNamespacedCacheBuilder(strings.Split(watchNamespace, ","))
-	}
-
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), mgrOptions)
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+		Scheme:                 scheme,
+		MetricsBindAddress:     metricsAddr,
+		Port:                   9443,
+		HealthProbeBindAddress: probeAddr,
+		LeaderElection:         enableLeaderElection,
+		LeaderElectionID:       "80f6591f.splunk.com",
+	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	// run the auto-detect mechanism for the configuration
-	err = mgr.Add(manager.RunnableFunc(func(_ context.Context) error {
-		return cfg.StartAutoDetect()
-	}))
-	if err != nil {
-		setupLog.Error(err, "failed to start the auto-detect mechanism")
-	}
+	restConfig := ctrl.GetConfigOrDie()
 
-	// adds the upgrade mechanism to be executed once the manager is ready
-	err = mgr.Add(manager.RunnableFunc(func(c context.Context) error {
-		return upgrade.ManagedInstances(c, ctrl.Log.WithName("upgrade"), v, mgr.GetClient())
-	}))
+	ad, err := autodetect.New(setupLog, restConfig)
 	if err != nil {
-		setupLog.Error(err, "failed to upgrade managed instances")
+		setupLog.Error(err, "unable to start auto-detector component component")
+		os.Exit(1)
 	}
+	distro := ad.Distro()
 
-	if err = controllers.NewReconciler(controllers.Params{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("SplunkOtelAgent"),
-		Scheme:   mgr.GetScheme(),
-		Config:   cfg,
-		Recorder: mgr.GetEventRecorderFor("splunk-otel-operator"),
-	}).SetupWithManager(mgr); err != nil {
+	if err = (o11ycontrollers.NewReconciler(ctrl.Log.WithName("controllers").WithName("SplunkOtelAgent"), mgr.GetClient(), mgr.GetScheme(), mgr.GetEventRecorderFor("splunk-otel-operator"))).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "SplunkOtelAgent")
 		os.Exit(1)
 	}
 
-	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&v1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, &cfg); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
-			os.Exit(1)
-		}
+	if err = (&o11yv1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, distro); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
+		os.Exit(1)
 	}
-	// +kubebuilder:scaffold:builder
+	//+kubebuilder:scaffold:builder
+
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		setupLog.Error(err, "unable to set up health check")
+		os.Exit(1)
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+		setupLog.Error(err, "unable to set up ready check")
+		os.Exit(1)
+	}
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {

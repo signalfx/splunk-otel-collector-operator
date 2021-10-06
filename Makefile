@@ -1,29 +1,16 @@
-# Current Operator version
-#VERSION ?= "$(shell git describe --tags | sed 's/^v//')"
 VERSION ?= "$(shell grep -v '\#' versions.txt | grep operator | awk -F= '{print $$2}')"
 VERSION_DATE ?= $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
-VERSION_PKG ?= "github.com/signalfx/splunk-otel-operator/internal/version"
-OTELCOL_VERSION ?= "$(shell grep -v '\#' versions.txt | grep splunk-otel-collector | awk -F= '{print $$2}')"
-LD_FLAGS ?= "-X ${VERSION_PKG}.version=${VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.otelCol=${OTELCOL_VERSION}"
+VERSION_PKG = "github.com/signalfx/splunk-otel-collector-operator/internal/version"
+VERSION_COLLECTOR ?= "$(shell grep -v '\#' versions.txt | grep splunk-otel-collector | awk -F= '{print $$2}')"
+LD_FLAGS ?= "-X ${VERSION_PKG}.version=${VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.collectorVersion=${VERSION_COLLECTOR}"
 
 # Image URL to use all building/pushing image targets
-IMG_PREFIX ?= quay.io/${USER}
+QUAY_USER ?= signalfx
+IMG_PREFIX ?= quay.io/${QUAY_USER}
 IMG_REPO ?= splunk-otel-operator
 IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
-BUNDLE_IMG ?= ${IMG_PREFIX}/${IMG_REPO}-bundle:${VERSION}
-BUNDLE_IMG_OPENSHIFT ?= ${IMG_PREFIX}/${IMG_REPO}-openshift-bundle:${VERSION}
-
-# Options for 'bundle-build'
-ifneq ($(origin CHANNELS), undefined)
-BUNDLE_CHANNELS := --channels=$(CHANNELS)
-endif
-ifneq ($(origin DEFAULT_CHANNEL), undefined)
-BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
-endif
-BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
-
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false,generateEmbeddedObjectMeta=true"
+CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -32,57 +19,145 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-# by default, do not run the manager with webhooks enabled. This only affects local runs, not the build or in-cluster deployments.
-ENABLE_WEBHOOKS ?= false
+# Setting SHELL to bash allows bash commands to be executed by recipes.
+# This is a requirement for 'setup-envtest.sh' in the test target.
+# Options are set to exit when a recipe line exits non-zero or a piped command fails.
+SHELL = /usr/bin/env bash -o pipefail
+.SHELLFLAGS = -ec
 
-# If we are running in CI, run go test in verbose mode
-ifeq (,$(CI))
-GOTEST_OPTS=-race
-else
-GOTEST_OPTS=-race -v
-endif
+OPERATOR_SDK=$(shell which operator-sdk)
+KUTTL=$(shell which kubectl-kuttl)
+CONTROLLER_GEN = $(shell which controller-gen)
+KUSTOMIZE = $(shell which kustomize)
 
 KUBE_VERSION ?= 1.21
 KIND_CONFIG ?= kind-$(KUBE_VERSION).yaml
+
+all: build
+
+##@ General
+
+# The help target prints out all targets with their descriptions organized
+# beneath their categories. The categories are represented by '##@' and the
+# target descriptions by '##'. The awk commands is responsible for reading the
+# entire set of makefiles included in this invocation, looking for lines of the
+# file as xyz: ## something, and then pretty-format the target and help. Then,
+# if there's a line with ##@ something, that gets pretty-printed as a category.
+# More info on the usage of ANSI control characters for terminal formatting:
+# https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
+# More info on the awk command:
+# http://linuxcommand.org/lc3_adv_awk.php
+
+help: ## Display this help.
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+##@ Development
 
 # ensure-generate-is-noop: VERSION=$(OPERATOR_VERSION)
 ensure-generate-is-noop: USER=signalfx
 ensure-generate-is-noop: set-image-controller generate bundle
 	@# on make bundle config/manager/kustomization.yaml includes changes, which should be ignored for the below check
 	@git restore config/manager/kustomization.yaml
-	@git diff --exit-code api/v1alpha1/zz_generated.*.go || (echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1)
+	@git diff --exit-code apis/o11y/v1alpha1/zz_generated.*.go || (echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1)
 	@git diff --exit-code bundle config || (echo "Build failed: the bundle, config files has been changed but the generated bundle, config files aren't up to date. Run 'make bundle' and update your PR." && exit 1)
 
-all: manager
-ci: test
 
-# Run tests
-test: generate fmt vet ensure-generate-is-noop
-	go test ${GOTEST_OPTS} ./...
+manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
-# Build manager binary
-manager: generate fmt vet
-	go build -o bin/manager main.go
+generate: ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
-# Run against the configured Kubernetes cluster in ~/.kube/config
-run: generate fmt vet manifests
-	ENABLE_WEBHOOKS=$(ENABLE_WEBHOOKS) go run -ldflags ${LD_FLAGS} ./main.go --zap-devel
+fmt: ## Run go fmt against code.
+	go fmt ./...
 
-# Install CRDs into a cluster
-install: manifests kustomize
+vet: ## Run go vet against code.
+	go vet ./...
+
+ci: generate ensure-generate-is-noop fmt vet test
+
+ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
+#test: manifests generate fmt vet ## Run tests.
+test:
+	mkdir -p ${ENVTEST_ASSETS_DIR}
+	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.8.3/hack/setup-envtest.sh
+	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test ./... -coverprofile cover.out
+
+##@ Build
+
+build: generate fmt vet ## Build manager binary.
+	go build -o bin/manager -ldflags ${LD_FLAGS} main.go
+
+run: manifests generate fmt vet ## Run a controller from your host.
+	go run ./main.go -ldflags ${LD_FLAGS}
+
+docker-build: ## Build docker image with the manager.
+	docker build --build-arg VERSION_DATE=${VERSION_DATE} --build-arg VERSION_PKG=${VERSION_PKG} --build-arg VERSION_COLLECTOR=${VERSION_COLLECTOR} --build-arg VERSION=${VERSION} -t ${IMG} .
+
+docker-push: ## Push docker image with the manager.
+	docker push ${IMG}
+
+##@ Deployment
+
+install: manifests ## Install CRDs into the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -
 
-# Uninstall CRDs from a cluster
-uninstall: manifests kustomize
+uninstall: manifests ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl delete -f -
 
+deploy: manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default | kubectl apply -f -
+
+undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
+	$(KUSTOMIZE) build config/default | kubectl delete -f -
+
+install-tools : ## Download kustomize locally if necessary.
+	go install sigs.k8s.io/kustomize/kustomize/v4
+	go install sigs.k8s.io/controller-tools/cmd/controller-gen
+
+# go-get-tool will 'go get' any package $2 and install it to $1.
+PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+define go-get-tool
+@[ -f $(1) ] || { \
+set -e ;\
+TMP_DIR=$$(mktemp -d) ;\
+cd $$TMP_DIR ;\
+go mod init tmp ;\
+echo "Downloading $(2)" ;\
+GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
+rm -rf $$TMP_DIR ;\
+}
+endef
+define go-get-tool-old
+@[ -f $(1) ] || { \
+set -e ;\
+TMP_DIR=$$(mktemp -d) ;\
+cd $$TMP_DIR ;\
+go mod init tmp ;\
+echo "Downloading $(2)" ;\
+GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
+rm -rf $$TMP_DIR ;\
+}
+endef
+
 # Set the controller image parameters
-set-image-controller: manifests kustomize
+set-image-controller: manifests
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 
-# Deploy controller in the configured Kubernetes cluster in ~/.kube/config
-deploy: set-image-controller
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+# Generate bundle manifests and metadata, then validate generated files.
+bundle: manifests
+	$(OPERATOR_SDK) generate kustomize manifests -q
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG) 
+	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle -q --overwrite --manifests --metadata --version $(VERSION)
+	$(OPERATOR_SDK) bundle validate ./bundle
+
+# dirty hack for now
+.PHONY: bundle-openshift
+bundle-openshift: bundle
+	rm -rf bundle-openshift
+	cp -r bundle bundle-openshift
+	cat config/openshift/*.yaml >> bundle-openshift/manifests/splunk-otel-operator-role_rbac.authorization.k8s.io_v1_clusterrole.yaml
 
 # Generates the released manifests
 release-artifacts: set-image-controller
@@ -92,45 +167,18 @@ release-artifacts: set-image-controller
 	cp dist/splunk-otel-operator.yaml dist/splunk-otel-operator-openshift.yaml
 	cat config/openshift/*.yaml >> dist/splunk-otel-operator-openshift.yaml
 
-# Generate manifests e.g. CRD, RBAC etc.
-manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
-
-# Run go fmt against code
-fmt:
-	go fmt ./...
-
-# Run go vet against code
-vet:
-	go vet ./...
-
-# Run go lint against code
-lint:
-	golangci-lint run
-
-# Generate code
-generate: controller-gen
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
-
 # end-to-tests
 e2e:
 	$(KUTTL) test
-
-prepare-e2e: kuttl set-test-image-vars set-image-controller container start-kind
+	
+#prepare-e2e: set-test-image-vars set-image-controller docker-build start-kind
+prepare-e2e: set-test-image-vars set-image-controller start-kind
 	mkdir -p tests/_build/crds tests/_build/manifests
 	$(KUSTOMIZE) build config/default -o tests/_build/manifests/01-splunk-otel-operator.yaml
 	$(KUSTOMIZE) build config/crd -o tests/_build/crds/
 
 set-test-image-vars:
 	$(eval IMG=local/splunk-otel-operator:e2e)
-
-# Build the container image, used only for local dev purposes
-container:
-	docker build -t ${IMG} --build-arg VERSION_PKG=${VERSION_PKG} --build-arg VERSION=${VERSION} --build-arg VERSION_DATE=${VERSION_DATE} --build-arg OTELCOL_VERSION=${OTELCOL_VERSION} .
-
-# Push the container image, used only for local dev purposes
-container-push:
-	docker push ${IMG}
 
 start-kind: 
 	kind create cluster --config $(KIND_CONFIG)
@@ -141,109 +189,3 @@ cert-manager:
 	kubectl wait --timeout=5m --for=condition=available deployment cert-manager -n cert-manager
 	kubectl wait --timeout=5m --for=condition=available deployment cert-manager-cainjector -n cert-manager
 	kubectl wait --timeout=5m --for=condition=available deployment cert-manager-webhook -n cert-manager
-
-# find or download controller-gen
-# download controller-gen if necessary
-controller-gen:
-ifeq (, $(shell which controller-gen))
-	@{ \
-	go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.6.0-beta.0 ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif
-
-kustomize:
-ifeq (, $(shell which kustomize))
-	@{ \
-	set -e ;\
-	echo "" ;\
-	echo "ERROR: kustomize not found." ;\
-	echo "Please check https://kubectl.docs.kubernetes.io/installation/kustomize/ for installation instructions and try again." ;\
-	echo "" ;\
-	exit 1 ;\
-	}
-KUSTOMIZE=$(GOBIN)/kustomize
-else
-KUSTOMIZE=$(shell which kustomize)
-endif
-
-kuttl:
-ifeq (, $(shell which kubectl-kuttl))
-	echo ${PATH}
-	ls -l /usr/local/bin
-	which kubectl-kuttl
-
-	@{ \
-	set -e ;\
-	echo "" ;\
-	echo "ERROR: kuttl not found." ;\
-	echo "Please check https://kuttl.dev/docs/cli.html for installation instructions and try again." ;\
-	echo "" ;\
-	exit 1 ;\
-	}
-else
-KUTTL=$(shell which kubectl-kuttl)
-endif
-
-kind:
-ifeq (, $(shell which kind))
-	@{ \
-	set -e ;\
-	echo "" ;\
-	echo "ERROR: kind not found." ;\
-	echo "Please check https://kind.sigs.k8s.io/docs/user/quick-start/#installation for installation instructions and try again." ;\
-	echo "" ;\
-	exit 1 ;\
-	}
-else
-KIND=$(shell which kind)
-endif
-
-operator-sdk:
-ifeq (, $(shell which operator-sdk))
-	@{ \
-	set -e ;\
-	echo "" ;\
-	echo "ERROR: operator-sdk not found." ;\
-	echo "Please check https://sdk.operatorframework.io for installation instructions and try again." ;\
-	echo "" ;\
-	exit 1 ;\
-	}
-else
-OPERATOR_SDK=$(shell which operator-sdk)
-endif
-
-addtag:
-	git tag -a v$(VERSION)
-
-# Generate bundle manifests and metadata, then validate generated files.
-bundle: kustomize operator-sdk manifests
-	$(OPERATOR_SDK) generate kustomize manifests -q
-	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle -q --overwrite --manifests --version $(VERSION) $(BUNDLE_METADATA_OPTS)
-	$(OPERATOR_SDK) bundle validate ./bundle
-
-.PHONY: bundle-openshift
-bundle-openshift:
-	# dirty hack for now
-	rm -rf bundle-openshift
-	cp -r bundle bundle-openshift
-	cat config/openshift/*.yaml >> bundle-openshift/manifests/splunk-otel-operator-role_rbac.authorization.k8s.io_v1_clusterrole.yaml
-
-.PHONY: bundles
-bundles: bundle bundle-openshift
-
-# Build the bundle image, used only for local dev purposes
-.PHONY: bundle-build
-bundle-build:
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
-
-.PHONY: bundle-build-openshift
-bundle-build-openshift:
-	docker build -f bundle-openshift.Dockerfile -t $(BUNDLE_IMG_OPENSHIFT) .
-
-.PHONY: bundles-build
-bundles-build: bundle-build bundle-build-openshift
-
-tools: ginkgo kustomize controller-gen operator-sdk

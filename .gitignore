@@ -39,3 +39,4 @@ local
 # test resources
 kubeconfig
 tests/_build/
+testbin/

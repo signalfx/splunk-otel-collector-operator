@@ -3,13 +3,13 @@ kind: ClusterRoleBinding
 metadata:
   creationTimestamp: null
   labels:
-    app: splunk-otel
+    app: splunk-otel-operator
   name: splunk-otel-operator-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: splunk-otel-operator-role
+  name: splunk-otel-operator-collector-role
 subjects:
 - kind: ServiceAccount
-  name: splunk-otel-account
+  name: splunk-otel-operator-acccount
   namespace: splunk-otel-operator-system

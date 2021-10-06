@@ -6,7 +6,7 @@ linters-settings:
   goheader:
     template-path: header.txt
   goimports:
-    local-prefixes: github.com/signalfx/splunk-otel-operator
+    local-prefixes: github.com/signalfx/splunk-otel-collector-operator
   maligned:
     suggest-new: true
   misspell:
@@ -16,7 +16,6 @@ linters:
   enable:
     - goheader
     - goimports
-    - maligned
     - misspell
     - gosec
     - exhaustive
