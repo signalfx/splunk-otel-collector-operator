@@ -39,9 +39,7 @@ func TestDeploymentNewDefault(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my-instance",
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
-			Tolerations: testTolerationValues,
-		}},
+		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{}},
 	}
 
 	// test

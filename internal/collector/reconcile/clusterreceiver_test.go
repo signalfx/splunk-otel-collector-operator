@@ -43,7 +43,7 @@ func TestExpectedClusterReceivers(t *testing.T) {
 	})
 
 	t.Run("should update deployment", func(t *testing.T) {
-		createObjectIfNotExists(t, "test-collector", &expectedDeploy)
+		createObjectIfNotExists(t, "test-cluster-receiver", &expectedDeploy)
 		err := expectedClusterReceivers(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
