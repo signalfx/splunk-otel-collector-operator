@@ -68,7 +68,7 @@ jobs:
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
           build-args: |
-            VERSION_PKG=github.com/signalfx/splunk-otel-operator/internal/version
+            VERSION_PKG=github.com/signalfx/splunk-otel-collector-operator/internal/version
             VERSION=${{ env.VERSION }}
             VERSION_DATE=${{ env.VERSION_DATE }}
             OTELCOL_VERSION=${{ env.OTELCOL_VERSION }}

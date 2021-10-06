@@ -19,12 +19,12 @@ To install the operator in an existing cluster, make sure you have [`cert-manage
 ### 2. Install the Operator
 #### 2.a Kubernetes
 ```
-kubectl apply -f https://github.com/signalfx/splunk-otel-operator/releases/download/v0.0.1/splunk-otel-operator.yaml
+kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/download/v0.0.1/splunk-otel-operator.yaml
 ```
 
 #### 2.b OpenShift
 ```
-kubectl apply -f https://github.com/signalfx/splunk-otel-operator/releases/download/v0.0.1/splunk-otel-operator-openshift.yaml
+kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/download/v0.0.1/splunk-otel-operator-openshift.yaml
 ```
 
 ### 3. Add your Splunk APM token
@@ -73,15 +73,15 @@ The OpenTelemetry Operator *might* work on versions outside of the given range, 
   
 [Apache 2.0 License](./LICENSE).
 
-[github-workflow]: https://github.com/signalfx/splunk-otel-operator/actions
-[github-workflow-img]: https://github.com/signalfx/splunk-otel-operator/workflows/Continuous%20Integration/badge.svg
-[goreport-img]: https://goreportcard.com/badge/github.com/signalfx/splunk-otel-operator
-[goreport]: https://goreportcard.com/report/github.com/signalfx/splunk-otel-operator
-[godoc-img]: https://godoc.org/github.com/signalfx/splunk-otel-operator?status.svg
-[godoc]: https://godoc.org/github.com/signalfx/splunk-otel-operator/pkg/apis/opentelemetry/v1alpha1#SplunkOtelAgent
+[github-workflow]: https://github.com/signalfx/splunk-otel-collector-operator/actions
+[github-workflow-img]: https://github.com/signalfx/splunk-otel-collector-operator/workflows/Continuous%20Integration/badge.svg
+[goreport-img]: https://goreportcard.com/badge/github.com/signalfx/splunk-otel-collector-operator
+[goreport]: https://goreportcard.com/report/github.com/signalfx/splunk-otel-collector-operator
+[godoc-img]: https://godoc.org/github.com/signalfx/splunk-otel-collector-operator?status.svg
+[godoc]: https://godoc.org/github.com/signalfx/splunk-otel-collector-operator/pkg/apis/opentelemetry/v1alpha1#SplunkOtelAgent
 [code-climate]: https://codeclimate.com/github/signalfx/splunk-otel-operator/maintainability
 [code-climate-img]: https://api.codeclimate.com/v1/badges/7bb215eea77fc9c24484/maintainability
 [codecov]: https://codecov.io/gh/signalfx/splunk-otel-operator
 [codecov-img]: https://codecov.io/gh/signalfx/splunk-otel-operator/branch/main/graph/badge.svg
-[contributors]: https://github.com/signalfx/splunk-otel-operator/graphs/contributors
+[contributors]: https://github.com/signalfx/splunk-otel-collector-operator/graphs/contributors
 [contributors-img]: https://contributors-img.web.app/image?repo=open-telemetry/opentelemetry-operator
