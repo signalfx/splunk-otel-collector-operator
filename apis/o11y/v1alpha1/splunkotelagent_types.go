@@ -111,15 +111,14 @@ type SplunkCollectorSpec struct {
 
 // SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent
 type SplunkOtelAgentSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
 	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
+	// +required
 	// +kubebuilder:validation:Required
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ClusterName string `json:"clusterName"`
 
 	// Realm is the Splunk APM Realm your Splukn account exists in. For example, us0, us1, etc.
+	// +required
 	// +kubebuilder:validation:Required
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Realm string `json:"realm"`

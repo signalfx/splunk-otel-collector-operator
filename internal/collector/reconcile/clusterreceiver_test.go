@@ -35,7 +35,7 @@ func TestExpectedClusterReceivers(t *testing.T) {
 		err := expectedClusterReceivers(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		exists, err := populateObjectIfExists(t, &v1.Deployment{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		exists, err := populateObjectIfExists(t, &v1.Deployment{}, types.NamespacedName{Namespace: "default", Name: "test-cluster-receiver"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
@@ -48,12 +48,12 @@ func TestExpectedClusterReceivers(t *testing.T) {
 		assert.NoError(t, err)
 
 		actual := v1.Deployment{}
-		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-cluster-receiver"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
 		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
-		assert.Equal(t, int32(2), *actual.Spec.Replicas)
+		assert.Equal(t, int32(1), *actual.Spec.Replicas)
 	})
 
 	t.Run("should delete deployment", func(t *testing.T) {

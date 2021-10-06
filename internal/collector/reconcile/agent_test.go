@@ -35,19 +35,19 @@ func TestExpectedDaemonsets(t *testing.T) {
 		err := expectedAgents(context.Background(), param, []v1.DaemonSet{expectedDs})
 		assert.NoError(t, err)
 
-		exists, err := populateObjectIfExists(t, &v1.DaemonSet{}, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		exists, err := populateObjectIfExists(t, &v1.DaemonSet{}, types.NamespacedName{Namespace: "default", Name: "test-agent"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
 
 	})
 	t.Run("should update Daemonset", func(t *testing.T) {
-		createObjectIfNotExists(t, "test-collector", &expectedDs)
+		createObjectIfNotExists(t, "test-agent", &expectedDs)
 		err := expectedAgents(context.Background(), param, []v1.DaemonSet{expectedDs})
 		assert.NoError(t, err)
 
 		actual := v1.DaemonSet{}
-		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-collector"})
+		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-agent"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)

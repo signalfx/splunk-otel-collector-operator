@@ -18,5 +18,5 @@ const (
 	configmapEntry = "collector.yaml"
 
 	// TODO: source this via build tags or configuration
-	defaultCollectorImage = "quay.io/signalfx/splunk-otel-collector:v0.33.1"
+	defaultCollectorImage = "quay.io/signalfx/splunk-otel-collector:0.36.0"
 )

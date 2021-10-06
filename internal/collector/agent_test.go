@@ -39,8 +39,8 @@ func TestDaemonSetNewDefault(t *testing.T) {
 	d := Agent(logger, otelcol)
 
 	// verify
-	assert.Equal(t, "my-instance-collector", d.Name)
-	assert.Equal(t, "my-instance-collector", d.Labels["app.kubernetes.io/name"])
+	assert.Equal(t, "my-instance-agent", d.Name)
+	assert.Equal(t, "my-instance-agent", d.Labels["app.kubernetes.io/name"])
 	assert.Equal(t, "true", d.Annotations["prometheus.io/scrape"])
 	assert.Equal(t, "8888", d.Annotations["prometheus.io/port"])
 	assert.Equal(t, "/metrics", d.Annotations["prometheus.io/path"])

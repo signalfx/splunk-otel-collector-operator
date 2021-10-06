@@ -1,6 +1,14 @@
+VERSION ?= "$(shell grep -v '\#' versions.txt | grep operator | awk -F= '{print $$2}')"
+VERSION_DATE ?= $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+VERSION_PKG ?= "github.com/signalfx/splunk-otel-operator/internal/version"
+OTELCOL_VERSION ?= "$(shell grep -v '\#' versions.txt | grep splunk-otel-collector | awk -F= '{print $$2}')"
+LD_FLAGS ?= "-X ${VERSION_PKG}.version=${VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.otelCol=${OTELCOL_VERSION}"
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+USER ?= signalfx
+IMG_PREFIX ?= quay.io/${USER}
+IMG_REPO ?= splunk-otel-operator
+IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 
@@ -16,6 +24,8 @@ endif
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
+
+OPERATOR_SDK=$(shell which operator-sdk)
 
 all: build
 
@@ -65,7 +75,7 @@ build: generate fmt vet ## Build manager binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
-docker-build: test ## Build docker image with the manager.
+docker-build: ## Build docker image with the manager.
 	docker build -t ${IMG} .
 
 docker-push: ## Push docker image with the manager.
@@ -108,3 +118,29 @@ GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
 rm -rf $$TMP_DIR ;\
 }
 endef
+
+# Set the controller image parameters
+set-image-controller: manifests kustomize
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+
+# Generate bundle manifests and metadata, then validate generated files.
+bundle: manifests
+	$(OPERATOR_SDK) generate kustomize manifests -q
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG) 
+	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle -q --overwrite --manifests --metadata --version $(VERSION)
+	$(OPERATOR_SDK) bundle validate ./bundle
+
+# dirty hack for now
+.PHONY: bundle-openshift
+bundle-openshift: bundle
+	rm -rf bundle-openshift
+	cp -r bundle bundle-openshift
+	cat config/openshift/*.yaml >> bundle-openshift/manifests/splunk-otel-operator-role_rbac.authorization.k8s.io_v1_clusterrole.yaml
+
+# Generates the released manifests
+release-artifacts: set-image-controller
+	mkdir -p dist
+	$(KUSTOMIZE) build config/default -o dist/splunk-otel-operator.yaml
+	# dirty hack for now
+	cp dist/splunk-otel-operator.yaml dist/splunk-otel-operator-openshift.yaml
+	cat config/openshift/*.yaml >> dist/splunk-otel-operator-openshift.yaml

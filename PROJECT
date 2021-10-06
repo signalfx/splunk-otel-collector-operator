@@ -4,6 +4,8 @@ layout:
 multigroup: true
 projectName: splunk-otel-collector-operator
 repo: github.com/signalfx/splunk-otel-collector-operator
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
 resources:
 - api:
     crdVersion: v1

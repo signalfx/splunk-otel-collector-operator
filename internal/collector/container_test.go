@@ -36,7 +36,7 @@ func TestContainerNewDefault(t *testing.T) {
 	c := Container(logger, otelcol.Spec.Agent)
 
 	// verify
-	assert.Equal(t, "default-image", c.Image)
+	assert.Equal(t, "quay.io/signalfx/splunk-otel-collector:0.36.0", c.Image)
 }
 
 func TestContainerConfigFlagIsIgnored(t *testing.T) {

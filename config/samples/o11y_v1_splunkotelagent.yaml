@@ -1,7 +1,6 @@
-apiVersion: o11y.splunk.com/v1
+apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
   name: splunkotelagent-sample
 spec:
   # Add fields here
-  foo: bar

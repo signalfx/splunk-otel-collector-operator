@@ -112,7 +112,9 @@ func TestDesiredService(t *testing.T) {
 		assert.Nil(t, actual)
 
 	})
+
 	t.Run("should return service with port mentioned in Instance.Spec.Ports and inferred ports", func(t *testing.T) {
+		t.Skip("not needed now. will be enabled once we support gateway")
 
 		jaegerPorts := v1.ServicePort{
 			Name:     "jaeger-grpc",
@@ -130,6 +132,7 @@ func TestDesiredService(t *testing.T) {
 }
 
 func TestExpectedServices(t *testing.T) {
+	t.Skip("not needed now. will be enabled once we support gateway")
 	t.Run("should create the service", func(t *testing.T) {
 		err := expectedServices(context.Background(), params(), []v1.Service{service("test-collector", params().Instance.Spec.Gateway.Ports)})
 		assert.NoError(t, err)

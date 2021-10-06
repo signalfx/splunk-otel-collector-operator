@@ -118,44 +118,6 @@ func params() Params {
 	}
 }
 
-func newParams(containerImage string) (Params, error) {
-	replicas := int32(1)
-	configYAML, err := ioutil.ReadFile("test.yaml")
-	if err != nil {
-		return Params{}, fmt.Errorf("Error getting yaml file: %w", err)
-	}
-
-	return Params{
-		Client: k8sClient,
-		Instance: v1alpha1.SplunkOtelAgent{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "splunk.com",
-				APIVersion: "v1",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "test",
-				Namespace: "default",
-				UID:       instanceUID,
-			},
-			Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
-				Ports: []v1.ServicePort{{
-					Name: "web",
-					Port: 80,
-					TargetPort: intstr.IntOrString{
-						Type:   intstr.Int,
-						IntVal: 80,
-					},
-					NodePort: 0,
-				}},
-				Replicas: &replicas,
-				Config:   string(configYAML),
-			}},
-		},
-		Scheme: testScheme,
-		Log:    logger,
-	}, nil
-}
-
 func createObjectIfNotExists(tb testing.TB, name string, object client.Object) {
 	tb.Helper()
 	err := k8sClient.Get(context.Background(), client.ObjectKey{Namespace: "default", Name: name}, object)

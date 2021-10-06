@@ -1,0 +1,20 @@
+apiVersion: splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: stateful
+spec:
+  mode: statefulset
+  config: |
+    receivers:
+      jaeger:
+        protocols:
+          grpc:
+    processors:
+    exporters:
+      logging:
+    service:
+      pipelines:
+        traces:
+          receivers: [jaeger]
+          processors: []
+          exporters: [logging]

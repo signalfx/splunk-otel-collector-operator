@@ -1,0 +1,510 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v1.13.0
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
+  name: splunk-otel-collector-operator.v0.2.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: SplunkOtelAgent is the Schema for the splunkotelagents API
+      displayName: Splunk OpenTelemetry Connector
+      kind: SplunkOtelAgent
+      name: splunkotelagents.o11y.splunk.com
+      specDescriptors:
+      - description: Agent is a Splunk OpenTelemetry Collector instance deployed as
+          an agent on every node.
+        displayName: Agent
+        path: agent
+      - description: Args is the set of arguments to pass to the OpenTelemetry Collector
+          binary
+        displayName: Args
+        path: agent.args
+      - description: Config is the raw JSON to be used as the collector's configuration.
+          Refer to the OpenTelemetry Collector documentation for details.
+        displayName: Config
+        path: agent.config
+      - description: Disabled determines whether this spec will be depoyed or not.
+        displayName: Disabled
+        path: agent.disabled
+      - description: ENV vars to set on the OpenTelemetry Collector's Pods. These
+          can then in certain cases be consumed in the config file for the Collector.
+        displayName: Env
+        path: agent.env
+      - description: HostNetwork indicates if the pod should run in the host networking
+          namespace.
+        displayName: Host Network
+        path: agent.hostNetwork
+      - description: 'TODO(splunk): use correct version number instead of latest Image
+          indicates the container image to use for the OpenTelemetry Collector.'
+        displayName: Image
+        path: agent.image
+      - description: ImagePullPolicy indicates the pull policy to be used for retrieving
+          the container image (Always, Never, IfNotPresent)
+        displayName: Image Pull Policy
+        path: agent.imagePullPolicy
+      - description: Ports allows a set of ports to be exposed by the underlying v1.Service.
+          By default, the operator will attempt to infer the required ports by parsing
+          the .Spec.Config property but this property can be used to open aditional
+          ports that can't be inferred by the operator, like for custom receivers.
+        displayName: Ports
+        path: agent.ports
+      - description: Replicas is the number of pod instances for the underlying OpenTelemetry
+          Collector
+        displayName: Replicas
+        path: agent.replicas
+      - description: Resources to set on the OpenTelemetry Collector pods.
+        displayName: Resources
+        path: agent.resources
+      - description: SecurityContext will be set as the container security context.
+        displayName: Security Context
+        path: agent.securityContext
+      - description: ServiceAccount indicates the name of an existing service account
+          to use with this instance.
+        displayName: Service Account
+        path: agent.serviceAccount
+      - description: Toleration to schedule OpenTelemetry Collector pods. This is
+          only relevant to daemonsets and deployments
+        displayName: Tolerations
+        path: agent.tolerations
+      - description: VolumeMounts represents the mount points to use in the underlying
+          collector deployment(s)
+        displayName: Volume Mounts
+        path: agent.volumeMounts
+      - description: Volumes represents which volumes to use in the underlying collector
+          deployment(s).
+        displayName: Volumes
+        path: agent.volumes
+      - description: ClusterName is the name of the Kubernetes cluster. This will
+          be used to identify this cluster in Splunk dashboards.
+        displayName: Cluster Name
+        path: clusterName
+      - description: ClusterReceiver is a single instance Splunk OpenTelemetry Collector
+          deployement used to monitor the entire cluster.
+        displayName: Cluster Receiver
+        path: clusterReceiver
+      - description: Args is the set of arguments to pass to the OpenTelemetry Collector
+          binary
+        displayName: Args
+        path: clusterReceiver.args
+      - description: Config is the raw JSON to be used as the collector's configuration.
+          Refer to the OpenTelemetry Collector documentation for details.
+        displayName: Config
+        path: clusterReceiver.config
+      - description: Disabled determines whether this spec will be depoyed or not.
+        displayName: Disabled
+        path: clusterReceiver.disabled
+      - description: ENV vars to set on the OpenTelemetry Collector's Pods. These
+          can then in certain cases be consumed in the config file for the Collector.
+        displayName: Env
+        path: clusterReceiver.env
+      - description: HostNetwork indicates if the pod should run in the host networking
+          namespace.
+        displayName: Host Network
+        path: clusterReceiver.hostNetwork
+      - description: 'TODO(splunk): use correct version number instead of latest Image
+          indicates the container image to use for the OpenTelemetry Collector.'
+        displayName: Image
+        path: clusterReceiver.image
+      - description: ImagePullPolicy indicates the pull policy to be used for retrieving
+          the container image (Always, Never, IfNotPresent)
+        displayName: Image Pull Policy
+        path: clusterReceiver.imagePullPolicy
+      - description: Ports allows a set of ports to be exposed by the underlying v1.Service.
+          By default, the operator will attempt to infer the required ports by parsing
+          the .Spec.Config property but this property can be used to open aditional
+          ports that can't be inferred by the operator, like for custom receivers.
+        displayName: Ports
+        path: clusterReceiver.ports
+      - description: Replicas is the number of pod instances for the underlying OpenTelemetry
+          Collector
+        displayName: Replicas
+        path: clusterReceiver.replicas
+      - description: Resources to set on the OpenTelemetry Collector pods.
+        displayName: Resources
+        path: clusterReceiver.resources
+      - description: SecurityContext will be set as the container security context.
+        displayName: Security Context
+        path: clusterReceiver.securityContext
+      - description: ServiceAccount indicates the name of an existing service account
+          to use with this instance.
+        displayName: Service Account
+        path: clusterReceiver.serviceAccount
+      - description: Toleration to schedule OpenTelemetry Collector pods. This is
+          only relevant to daemonsets and deployments
+        displayName: Tolerations
+        path: clusterReceiver.tolerations
+      - description: VolumeMounts represents the mount points to use in the underlying
+          collector deployment(s)
+        displayName: Volume Mounts
+        path: clusterReceiver.volumeMounts
+      - description: Volumes represents which volumes to use in the underlying collector
+          deployment(s).
+        displayName: Volumes
+        path: clusterReceiver.volumes
+      - description: ClusterReceiver is a Splunk OpenTelemetry Collector deployement
+          used to export data to Splunk APM.
+        displayName: Gateway
+        path: gateway
+      - description: Args is the set of arguments to pass to the OpenTelemetry Collector
+          binary
+        displayName: Args
+        path: gateway.args
+      - description: Config is the raw JSON to be used as the collector's configuration.
+          Refer to the OpenTelemetry Collector documentation for details.
+        displayName: Config
+        path: gateway.config
+      - description: Disabled determines whether this spec will be depoyed or not.
+        displayName: Disabled
+        path: gateway.disabled
+      - description: ENV vars to set on the OpenTelemetry Collector's Pods. These
+          can then in certain cases be consumed in the config file for the Collector.
+        displayName: Env
+        path: gateway.env
+      - description: HostNetwork indicates if the pod should run in the host networking
+          namespace.
+        displayName: Host Network
+        path: gateway.hostNetwork
+      - description: 'TODO(splunk): use correct version number instead of latest Image
+          indicates the container image to use for the OpenTelemetry Collector.'
+        displayName: Image
+        path: gateway.image
+      - description: ImagePullPolicy indicates the pull policy to be used for retrieving
+          the container image (Always, Never, IfNotPresent)
+        displayName: Image Pull Policy
+        path: gateway.imagePullPolicy
+      - description: Ports allows a set of ports to be exposed by the underlying v1.Service.
+          By default, the operator will attempt to infer the required ports by parsing
+          the .Spec.Config property but this property can be used to open aditional
+          ports that can't be inferred by the operator, like for custom receivers.
+        displayName: Ports
+        path: gateway.ports
+      - description: Replicas is the number of pod instances for the underlying OpenTelemetry
+          Collector
+        displayName: Replicas
+        path: gateway.replicas
+      - description: Resources to set on the OpenTelemetry Collector pods.
+        displayName: Resources
+        path: gateway.resources
+      - description: SecurityContext will be set as the container security context.
+        displayName: Security Context
+        path: gateway.securityContext
+      - description: ServiceAccount indicates the name of an existing service account
+          to use with this instance.
+        displayName: Service Account
+        path: gateway.serviceAccount
+      - description: Toleration to schedule OpenTelemetry Collector pods. This is
+          only relevant to daemonsets and deployments
+        displayName: Tolerations
+        path: gateway.tolerations
+      - description: VolumeMounts represents the mount points to use in the underlying
+          collector deployment(s)
+        displayName: Volume Mounts
+        path: gateway.volumeMounts
+      - description: Volumes represents which volumes to use in the underlying collector
+          deployment(s).
+        displayName: Volumes
+        path: gateway.volumes
+      - description: Realm is the Splunk APM Realm your Splukn account exists in.
+          For example, us0, us1, etc.
+        displayName: Realm
+        path: realm
+      version: v1alpha1
+  description: Operator to manage Splunk OpenTelemetry Collector
+  displayName: Splunk OpenTelemetry Collector Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - daemonsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - o11y.splunk.com
+          resources:
+          - splunkotelagents
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - o11y.splunk.com
+          resources:
+          - splunkotelagents/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - o11y.splunk.com
+          resources:
+          - splunkotelagents/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: splunk-otel-operator-controller-manager
+      deployments:
+      - name: splunk-otel-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - --leader-elect
+                command:
+                - /manager
+                image: quay.io/owais/splunk-otel-operator:v0.2.0
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                name: manager
+                ports:
+                - containerPort: 9443
+                  name: webhook-server
+                  protocol: TCP
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                resources:
+                  limits:
+                    cpu: 100m
+                    memory: 30Mi
+                  requests:
+                    cpu: 100m
+                    memory: 20Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                volumeMounts:
+                - mountPath: /tmp/k8s-webhook-server/serving-certs
+                  name: cert
+                  readOnly: true
+              securityContext:
+                runAsNonRoot: true
+              serviceAccountName: splunk-otel-operator-controller-manager
+              terminationGracePeriodSeconds: 10
+              volumes:
+              - name: cert
+                secret:
+                  defaultMode: 420
+                  secretName: webhook-server-cert
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: splunk-otel-operator-controller-manager
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - observability
+  - tracing
+  - metrics
+  - logging
+  - apm
+  - splunk
+  - opentelemetry
+  - apm
+  links:
+  - name: Splunk Otel Collector Operator
+    url: https://splunk-otel-collector-operator.domain
+  maturity: alpha
+  provider:
+    name: Splunk Inc
+    url: github.com/signalfx/splunk-otel-collector-operator
+  version: 0.2.0
+  webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    conversionCRDs:
+    - splunkotelagents.o11y.splunk.com
+    deploymentName: splunk-otel-operator-controller-manager
+    generateName: csplunkotelagents.kb.io
+    sideEffects: None
+    targetPort: 9443
+    type: ConversionWebhook
+    webhookPath: /convert
+  - admissionReviewVersions:
+    - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: splunk-otel-operator-controller-manager
+    failurePolicy: Fail
+    generateName: msplunkotelagent.kb.io
+    rules:
+    - apiGroups:
+      - o11y.splunk.com
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - splunkotelagents
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-o11y-splunk-com-v1alpha1-splunkotelagent
+  - admissionReviewVersions:
+    - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: splunk-otel-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vsplunkotelagent.kb.io
+    rules:
+    - apiGroups:
+      - o11y.splunk.com
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - splunkotelagents
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-o11y-splunk-com-v1alpha1-splunkotelagent
