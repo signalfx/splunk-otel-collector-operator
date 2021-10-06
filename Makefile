@@ -5,8 +5,8 @@ OTELCOL_VERSION ?= "$(shell grep -v '\#' versions.txt | grep splunk-otel-collect
 LD_FLAGS ?= "-X ${VERSION_PKG}.version=${VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.otelCol=${OTELCOL_VERSION}"
 
 # Image URL to use all building/pushing image targets
-USER ?= signalfx
-IMG_PREFIX ?= quay.io/${USER}
+QUAY_USER ?= signalfx
+IMG_PREFIX ?= quay.io/${QUAY_USER}
 IMG_REPO ?= splunk-otel-operator
 IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
@@ -26,6 +26,10 @@ SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
 OPERATOR_SDK=$(shell which operator-sdk)
+KUTTL=$(shell which kubectl-kuttl)
+
+KUBE_VERSION ?= 1.21
+KIND_CONFIG ?= kind-$(KUBE_VERSION).yaml
 
 all: build
 
@@ -144,3 +148,26 @@ release-artifacts: set-image-controller
 	# dirty hack for now
 	cp dist/splunk-otel-operator.yaml dist/splunk-otel-operator-openshift.yaml
 	cat config/openshift/*.yaml >> dist/splunk-otel-operator-openshift.yaml
+
+# end-to-tests
+e2e:
+	$(KUTTL) test
+	
+#prepare-e2e: set-test-image-vars set-image-controller docker-build start-kind
+prepare-e2e: set-test-image-vars set-image-controller start-kind
+	mkdir -p tests/_build/crds tests/_build/manifests
+	$(KUSTOMIZE) build config/default -o tests/_build/manifests/01-splunk-otel-operator.yaml
+	$(KUSTOMIZE) build config/crd -o tests/_build/crds/
+
+set-test-image-vars:
+	$(eval IMG=local/splunk-otel-operator:e2e)
+
+start-kind: 
+	kind create cluster --config $(KIND_CONFIG)
+	kind load docker-image local/splunk-otel-operator:e2e
+
+cert-manager:
+	kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.5.2/cert-manager.yaml
+	kubectl wait --timeout=5m --for=condition=available deployment cert-manager -n cert-manager
+	kubectl wait --timeout=5m --for=condition=available deployment cert-manager-cainjector -n cert-manager
+	kubectl wait --timeout=5m --for=condition=available deployment cert-manager-webhook -n cert-manager
