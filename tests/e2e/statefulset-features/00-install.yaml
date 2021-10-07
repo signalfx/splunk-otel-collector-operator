@@ -1,4 +1,4 @@
-apiVersion: splunk.com/v1alpha1
+apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
   name: stateful

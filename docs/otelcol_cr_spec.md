@@ -3,7 +3,7 @@
 The below `SplunkOtelAgent` custom resource contains all the specification that can be configured. 
 
 ```
-apiVersion: splunk.com/v1alpha1
+apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
   name: example-splunk-otel-agent 

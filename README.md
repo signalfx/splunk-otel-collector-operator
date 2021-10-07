@@ -39,7 +39,7 @@ Once the `splunk-otel--operator` deployment is ready, create an Splunk OpenTelem
 
 ```console
 $ kubectl apply -f - <<EOF
-apiVersion: splunk.com/v1alpha1
+apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
   name: splunk-otel
