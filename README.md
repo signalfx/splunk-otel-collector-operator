@@ -9,7 +9,7 @@
 
 The OpenTelemetry Operator is an implementation of a [Kubernetes Operator](https://coreos.com/operators/).
 
-It helps deploy and manage [Splunk OpenTelemetry Connector](https://github.com/signalfx/splunk-opentelemetry-collector)
+It helps deploy and manage [Splunk OpenTelemetry Connector](https://github.com/signalfx/splunk-otel-collector)
 
 ## Getting started
 
