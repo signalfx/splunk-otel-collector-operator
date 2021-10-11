@@ -1,0 +1,26 @@
+apiVersion: o11y.splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: test-default
+spec:
+  clusterName: test-cluster-custom
+  splunkRealm: my-splunk-realm-custom
+  agent:
+    env:
+      - name: SPLUNK_ACCESS_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: access-token
+            name: splunk-access-token
+      - name: SPLUNK_REALM
+        value: my-splunk-realm-custom
+      - name: MY_CLUSTER_NAME
+        value: test-cluster-custom
+  clusterReceiver:
+    env:
+      - name: SPLUNK_REALM
+        value: my-splunk-realm-custom
+      - name: MY_CLUSTER_NAME
+        value: test-cluster-custom
+  gateway:
+    disabled: true

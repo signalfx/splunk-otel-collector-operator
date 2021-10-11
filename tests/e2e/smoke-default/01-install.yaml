@@ -1,0 +1,7 @@
+apiVersion: o11y.splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: test-default
+spec:
+  clusterName: test-cluster
+  splunkRealm: my-splunk-realm

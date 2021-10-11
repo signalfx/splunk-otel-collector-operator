@@ -1,0 +1,13 @@
+apiVersion: o11y.splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: test-default
+spec:
+  clusterName: test-cluster-disabled
+  splunkRealm: my-splunk-realm-disabled
+  agent:
+    disabled: true
+  clusterReceiver:
+    disabled: true
+  gateway:
+    disabled: true
