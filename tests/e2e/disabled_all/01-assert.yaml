@@ -8,7 +8,7 @@ metadata:
   name: test-default
 spec:
   clusterName: test-cluster-disabled
-  splunkRealm: my-splunk-realm-disabled
+  realm: my-splunk-realm-disabled
   agent:
     disabled: true
   clusterReceiver:

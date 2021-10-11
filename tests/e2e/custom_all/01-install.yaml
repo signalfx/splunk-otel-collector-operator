@@ -4,7 +4,7 @@ metadata:
   name: test-default
 spec:
   clusterName: test-cluster-custom
-  splunkRealm: my-splunk-realm-custom
+  realm: my-splunk-realm-custom
   agent:
     env:
       - name: SPLUNK_ACCESS_TOKEN

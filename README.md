@@ -46,7 +46,7 @@ metadata:
   namespace: splunk-otel-operator-system
 spec:
   clusterName: <MY_CLUSTER_NAME>
-  splunkRealm: <SPLUNK_REALM>
+  realm: <SPLUNK_REALM>
 EOF
 ```
 

@@ -3,4 +3,4 @@ kind: SplunkOtelAgent
 metadata:
   name: test-default
 spec:
-  splunkRealm: my-splunk-realm
+  realm: my-splunk-realm

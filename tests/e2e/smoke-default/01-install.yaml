@@ -4,4 +4,4 @@ metadata:
   name: test-default
 spec:
   clusterName: test-cluster
-  splunkRealm: my-splunk-realm
+  realm: my-splunk-realm
