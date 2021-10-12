@@ -1,6 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-default-agent
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-default-cluster-receiver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-default-cluster-receiver
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: test-default-agent
+---
 apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
-  name: test-default
-spec:
-  realm: my-splunk-realm
+  labels:
+    app.kubernetes.io/managed-by: splunk-otel-operator

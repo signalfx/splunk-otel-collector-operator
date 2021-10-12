@@ -2,7 +2,7 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 timeout: 350
 ---
-apiVersion: splunk.com/v1alpha1
+apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
   name: test-default
