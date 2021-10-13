@@ -169,13 +169,10 @@ release-artifacts: set-image-controller
 
 ##@ Tests
 
-e2e: ## end-to-tests
+e2e: ## Run end-to-tests
 	$(KUTTL) test
 
-container: ## Build the container image, used for tests and local dev purposes
-	docker build -t ${IMG} --build-arg VERSION_PKG=${VERSION_PKG} --build-arg VERSION=${VERSION} --build-arg VERSION_DATE=${VERSION_DATE} --build-arg VERSION_COLLECTOR=${VERSION_COLLECTOR} .
-	
-prepare-e2e: set-test-image-vars set-image-controller container start-kind ## prepare end-to-end tests
+prepare-e2e: set-test-image-vars set-image-controller docker-build start-kind ## prepare end-to-end tests
 	mkdir -p tests/_build/crds tests/_build/manifests
 	$(KUSTOMIZE) build config/default -o tests/_build/manifests/01-splunk-otel-operator.yaml
 	$(KUSTOMIZE) build config/crd -o tests/_build/crds/

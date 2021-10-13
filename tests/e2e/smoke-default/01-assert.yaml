@@ -3,16 +3,19 @@ kind: SplunkOtelAgent
 metadata:
   labels:
     app.kubernetes.io/managed-by: splunk-otel-collector-operator
+spec:
+  clusterName: test-cluster
+  realm: my-splunk-realm
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: test-default-agent
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-collector-operator
+    app.kubernetes.io/managed-by: splunk-otel-operator
 data:
   collector.yaml: |2
-
+    
     extensions:
       health_check:
         endpoint: '0.0.0.0:13133'
@@ -174,11 +177,6 @@ data:
             - resourcedetection
           exporters:
             - signalfx
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: test-default-cluster-receiver
 ---
 apiVersion: apps/v1
 kind: Deployment
