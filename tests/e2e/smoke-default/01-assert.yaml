@@ -185,7 +185,7 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: splunk-otel-operator
 data:
-  collector.yaml: |2
+  collector.yaml: |2+
     
     extensions:
       health_check:
@@ -275,7 +275,6 @@ data:
             - resourcedetection
           exporters:
             - signalfx
-          
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -292,6 +291,93 @@ metadata:
     app.kubernetes.io/managed-by: splunk-otel-operator
     app.kubernetes.io/name: test-default-cluster-receiver
     app.kubernetes.io/part-of: opentelemetry
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: splunk-otel-collector
+        app.kubernetes.io/managed-by: splunk-otel-operator
+        app.kubernetes.io/name: test-default-cluster-receiver
+        app.kubernetes.io/part-of: opentelemetry
+    spec:
+      containers:
+      - args:
+        - --config=/conf/collector.yaml
+        env:
+        - name: SPLUNK_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: access-token
+              name: splunk-access-token
+        - name: SPLUNK_REALM
+          value: my-splunk-realm
+        - name: MY_CLUSTER_NAME
+          value: test-cluster
+        - name: HOST_PROC
+          value: /hostfs/proc
+        - name: HOST_SYS
+          value: /hostfs/sys
+        - name: HOST_ETC
+          value: /hostfs/etc
+        - name: HOST_VAR
+          value: /hostfs/var
+        - name: HOST_RUN
+          value: /hostfs/run
+        - name: HOST_DEV
+          value: /hostfs/dev
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: MY_NODE_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: MY_POD_UID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.uid
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        imagePullPolicy: IfNotPresent
+        name: otc-container
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /conf
+          name: otc-internal
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: splunk-otel-operator-acccount
+      serviceAccountName: splunk-otel-operator-acccount
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: collector.yaml
+            path: collector.yaml
+          name: test-default-cluster-receiver
+        name: otc-internal
 status:
   availableReplicas: 1
 ---

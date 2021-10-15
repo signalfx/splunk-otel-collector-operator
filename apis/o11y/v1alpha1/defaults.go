@@ -290,7 +290,6 @@ service:
         - resourcedetection
       exporters:
         - signalfx
-
 `
 
 const defaultClusterReceiverConfigOpenshift = `
@@ -383,5 +382,4 @@ service:
         - resourcedetection
       exporters:
         - signalfx
-
 `
