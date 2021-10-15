@@ -23,6 +23,7 @@ package tools
 // This ensures that all systems use the same version of tools in addition to regular dependencies.
 
 import (
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	_ "sigs.k8s.io/controller-tools/cmd/controller-gen"
 	_ "sigs.k8s.io/kustomize/kustomize/v4"
 )

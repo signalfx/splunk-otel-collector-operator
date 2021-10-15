@@ -66,7 +66,7 @@ manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefin
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 generate: ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+	$(CONTROLLER_GEN) object:headerFile="./hack/boilerplate.go.txt" paths="./..."
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
@@ -74,7 +74,11 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-ci: generate ensure-generate-is-noop fmt vet test
+.PHONY: lint
+lint:
+	golangci-lint run --allow-parallel-runners
+
+lint-all: generate ensure-generate-is-noop fmt vet lint
 
 ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 #test: manifests generate fmt vet ## Run tests.
@@ -112,9 +116,10 @@ deploy: manifests ## Deploy controller to the K8s cluster specified in ~/.kube/c
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
-install-tools : ## Download kustomize locally if necessary.
+install-tools : ## Download CLI tools
 	go install sigs.k8s.io/kustomize/kustomize/v4
 	go install sigs.k8s.io/controller-tools/cmd/controller-gen
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
