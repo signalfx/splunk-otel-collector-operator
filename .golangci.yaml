@@ -18,8 +18,6 @@ linters-settings:
     enable-all: true
     disable:
       - fieldalignment
-  goheader:
-    template-path: header.txt
   goimports:
     local-prefixes: github.com/signalfx/splunk-otel-collector-operator
   gofmt:
@@ -32,12 +30,12 @@ linters-settings:
 linters:
   disable:
     - errcheck
+    - goheader
   enable:
     - exhaustive
     - exportloopref
     - godot
     - gofmt
-    - goheader
     - goimports
     - gosec
     - govet
