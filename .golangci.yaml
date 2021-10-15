@@ -1,23 +1,60 @@
+# options for analysis running
 run:
+  concurrency: 4
   timeout: 5m
+  modules-download-mode: readonly
 
-# all available settings of specific linters
 linters-settings:
+  govet:
+    check-shadowing: true
+    settings:
+      printf: # analyzer name, run `go tool vet help` to see all analyzers
+        funcs: # run `go tool vet help printf` to see available settings for `printf` analyzer
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+
+    enable-all: true
+    disable:
+      - fieldalignment
   goheader:
     template-path: header.txt
   goimports:
     local-prefixes: github.com/signalfx/splunk-otel-collector-operator
+  gofmt:
+    simplify: true
   maligned:
     suggest-new: true
   misspell:
     locale: US
 
 linters:
+  disable:
+    - errcheck
   enable:
+    - exhaustive
+    - exportloopref
+    - godot
+    - gofmt
     - goheader
     - goimports
-    - misspell
     - gosec
-    - exhaustive
-    - godot
+    - govet
+    - misspell
+    - revive
+    - staticcheck
+    - unconvert
     - unparam
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - text: "G404:"
+      linters:
+        - gosec
+    - text: "G402:"
+      linters:
+        - gosec
+

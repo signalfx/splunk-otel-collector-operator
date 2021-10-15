@@ -60,9 +60,20 @@ func expectedAgents(ctx context.Context, params Params, expected []appsv1.Daemon
 
 		existing := &appsv1.DaemonSet{}
 		nns := types.NamespacedName{Namespace: desired.Namespace, Name: desired.Name}
+
 		err := params.Client.Get(ctx, nns, existing)
 		if err != nil && k8serrors.IsNotFound(err) {
-			if err := params.Client.Create(ctx, &desired); err != nil {
+			if err = params.Client.Create(ctx, &desired); err != nil {
+				return fmt.Errorf("failed to create: %w", err)
+			}
+			params.Log.V(2).Info("created", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)
+			continue
+		} else if err != nil {
+			return fmt.Errorf("failed to get: %w", err)
+		}
+
+		if err := params.Client.Get(ctx, nns, existing); err != nil && k8serrors.IsNotFound(err) {
+			if err = params.Client.Create(ctx, &desired); err != nil {
 				return fmt.Errorf("failed to create: %w", err)
 			}
 			params.Log.V(2).Info("created", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)

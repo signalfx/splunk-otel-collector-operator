@@ -64,10 +64,10 @@ func expectedNamespace(ctx context.Context, params Params, expected corev1.Names
 	err := params.Client.Get(ctx, client.ObjectKey{Name: expected.Name}, existing)
 	if err != nil && errors.IsNotFound(err) {
 		// create namespace
-		if err := params.Client.Create(ctx, &expected); err != nil {
+		if err = params.Client.Create(ctx, &expected); err != nil {
 			if errors.IsAlreadyExists(err) && retry {
 				// let's try again? we probably had multiple updates at one, and now it exists already
-				if err := expectedNamespace(ctx, params, expected, false); err != nil {
+				if err = expectedNamespace(ctx, params, expected, false); err != nil {
 					// somethin else happened now...
 					return err
 				}
