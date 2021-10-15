@@ -1,0 +1,17 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 350
+---
+apiVersion: o11y.splunk.com/v1alpha1
+kind: SplunkOtelAgent
+metadata:
+  name: test-default
+spec:
+  clusterName: test-cluster-disabled
+  realm: my-splunk-realm-disabled
+  agent:
+    disabled: true
+  clusterReceiver:
+    disabled: true
+  gateway:
+    disabled: true

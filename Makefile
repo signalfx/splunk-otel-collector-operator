@@ -172,15 +172,18 @@ release-artifacts: set-image-controller
 	cp dist/splunk-otel-operator.yaml dist/splunk-otel-operator-openshift.yaml
 	cat config/openshift/*.yaml >> dist/splunk-otel-operator-openshift.yaml
 
-# end-to-tests
-e2e:
+##@ Tests
+
+e2e: ## Run end-to-tests
 	$(KUTTL) test
-	
-#prepare-e2e: set-test-image-vars set-image-controller docker-build start-kind
-prepare-e2e: set-test-image-vars set-image-controller start-kind
+
+prepare-e2e: set-test-image-vars set-image-controller docker-build start-kind ## prepare end-to-end tests
 	mkdir -p tests/_build/crds tests/_build/manifests
 	$(KUSTOMIZE) build config/default -o tests/_build/manifests/01-splunk-otel-operator.yaml
 	$(KUSTOMIZE) build config/crd -o tests/_build/crds/
+
+clean-e2e: ## delete kind cluster
+	kind delete cluster
 
 set-test-image-vars:
 	$(eval IMG=local/splunk-otel-operator:e2e)
