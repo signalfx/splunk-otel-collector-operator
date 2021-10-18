@@ -2,23 +2,26 @@
 
 The below `SplunkOtelAgent` custom resource contains all the specification that can be configured. 
 
-```
+```yaml
 apiVersion: o11y.splunk.com/v1alpha1
 kind: SplunkOtelAgent
 metadata:
   name: example-splunk-otel-agent 
 spec:
 
-  // +optional SplunkRealm is the Splunk APM Realm your Splukn account
+  // +required SplunkRealm is the Splunk APM Realm your Splukn account
   // exists in. For example, us0, us1, etc.
-  splunkRealm: <YOUR_SPLUNK_REALM> 
+  realm: <YOUR_SPLUNK_REALM> 
 
-  // +optional ClusterName is the name of the Kubernetes cluster. This
+  // +required ClusterName is the name of the Kubernetes cluster. This
   will be used to identify this cluster in Splunk dashboards.
   clusterName: <YOUR_CLUSTER_NAME>
 
   agent:
-    // +optional Config is the raw JSON to be used as the agent configuration. Refer to the OpenTelemetry Collector documentation for details.
+    // +optional Config is the raw YAML to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
+    // This will be automatically set by the operator but can be overriden by the user.
+    // No effort is made to merge the user provided config with the default config set by the operator.
+    // User provided config always overrides the default config.
     config:
     
     // +optional Args is the set of arguments to pass to the OpenTelemetry Collector binary

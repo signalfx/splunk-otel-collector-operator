@@ -28,7 +28,10 @@ type SplunkCollectorSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Config is the raw JSON to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
+	// Config is the raw YAML to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
+	// This will be automatically set by the operator but can be overriden by the user.
+	// No effort is made to merge the user provided config with the default config set by the operator.
+	// User provided config always overrides the default config.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Config string `json:"config,omitempty"`
@@ -39,6 +42,7 @@ type SplunkCollectorSpec struct {
 	Args map[string]string `json:"args,omitempty"`
 
 	// Replicas is the number of pod instances for the underlying OpenTelemetry Collector
+	// Only applicable in Gateway mode.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Replicas *int32 `json:"replicas,omitempty"`
@@ -91,6 +95,7 @@ type SplunkCollectorSpec struct {
 
 	// ENV vars to set on the OpenTelemetry Collector's Pods. These can then in certain cases be
 	// consumed in the config file for the Collector.
+	// Setting this field will override any existing environment variables set by the operator.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Env []v1.EnvVar `json:"env,omitempty"`
