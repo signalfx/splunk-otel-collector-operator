@@ -5,7 +5,7 @@
   
 ---------
   
-# Splunk Operator Connector Operator for Kubernetes
+# Splunk OpenTelemetry Connector Operator for Kubernetes
 
 The OpenTelemetry Operator is an implementation of a [Kubernetes Operator](https://coreos.com/operators/).
 
