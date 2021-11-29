@@ -41,7 +41,7 @@ type SplunkCollectorSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Args map[string]string `json:"args,omitempty"`
 
-	// Replicas is the number of pod instances for the underlying OpenTelemetry Collector
+	// Replicas is the number of pod instances for the underlying OpenTelemetry Collector.
 	// Only applicable in Gateway mode.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
@@ -152,10 +152,11 @@ type SplunkOtelAgentStatus struct {
 	Messages []string `json:"messages,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
-//+operator-sdk:csv:customresourcedefinitions:displayName="Splunk OpenTelemetry Collector"
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
+// +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".status.version",description="Splunk OpenTelemetry Operator Version"
+// +operator-sdk:csv:customresourcedefinitions:displayName="Splunk OpenTelemetry Collector"
 
 // SplunkOtelAgent is the Schema for the splunkotelagents API.
 type SplunkOtelAgent struct {

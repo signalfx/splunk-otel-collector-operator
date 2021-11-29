@@ -33,6 +33,7 @@ import (
 var logger = logf.Log.WithName("unit-tests")
 
 func TestShouldUpgradeAllToLatest(t *testing.T) {
+	t.Skip("enable once we support upgrades")
 	// prepare
 	nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
 	existing := v1alpha1.SplunkOtelAgent{

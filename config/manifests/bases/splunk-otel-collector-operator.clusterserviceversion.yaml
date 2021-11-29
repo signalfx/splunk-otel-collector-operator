@@ -58,7 +58,7 @@ spec:
         displayName: Ports
         path: agent.ports
       - description: Replicas is the number of pod instances for the underlying OpenTelemetry
-          Collector Only applicable in Gateway mode.
+          Collector. Only applicable in Gateway mode.
         displayName: Replicas
         path: agent.replicas
       - description: Resources to set on the OpenTelemetry Collector pods.
@@ -130,7 +130,7 @@ spec:
         displayName: Ports
         path: clusterReceiver.ports
       - description: Replicas is the number of pod instances for the underlying OpenTelemetry
-          Collector Only applicable in Gateway mode.
+          Collector. Only applicable in Gateway mode.
         displayName: Replicas
         path: clusterReceiver.replicas
       - description: Resources to set on the OpenTelemetry Collector pods.
@@ -198,7 +198,7 @@ spec:
         displayName: Ports
         path: gateway.ports
       - description: Replicas is the number of pod instances for the underlying OpenTelemetry
-          Collector Only applicable in Gateway mode.
+          Collector. Only applicable in Gateway mode.
         displayName: Replicas
         path: gateway.replicas
       - description: Resources to set on the OpenTelemetry Collector pods.
