@@ -4,7 +4,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.6.0
+    controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
   name: splunkotelagents.o11y.splunk.com
 spec:
@@ -51,9 +51,13 @@ spec:
                       Collector binary
                     type: object
                   config:
-                    description: Config is the raw JSON to be used as the collector's
+                    description: Config is the raw YAML to be used as the collector's
                       configuration. Refer to the OpenTelemetry Collector documentation
-                      for details.
+                      for details. This will be automatically set by the operator
+                      but can be overriden by the user. No effort is made to merge
+                      the user provided config with the default config set by the
+                      operator. User provided config always overrides the default
+                      config.
                     type: string
                   disabled:
                     description: Disabled determines whether this spec will be depoyed
@@ -62,7 +66,8 @@ spec:
                   env:
                     description: ENV vars to set on the OpenTelemetry Collector's
                       Pods. These can then in certain cases be consumed in the config
-                      file for the Collector.
+                      file for the Collector. Setting this field will override any
+                      existing environment variables set by the operator.
                     items:
                       description: EnvVar represents an environment variable present
                         in a Container.
@@ -251,7 +256,7 @@ spec:
                     x-kubernetes-list-type: atomic
                   replicas:
                     description: Replicas is the number of pod instances for the underlying
-                      OpenTelemetry Collector
+                      OpenTelemetry Collector Only applicable in Gateway mode.
                     format: int32
                     type: integer
                   resources:
@@ -2076,9 +2081,13 @@ spec:
                       Collector binary
                     type: object
                   config:
-                    description: Config is the raw JSON to be used as the collector's
+                    description: Config is the raw YAML to be used as the collector's
                       configuration. Refer to the OpenTelemetry Collector documentation
-                      for details.
+                      for details. This will be automatically set by the operator
+                      but can be overriden by the user. No effort is made to merge
+                      the user provided config with the default config set by the
+                      operator. User provided config always overrides the default
+                      config.
                     type: string
                   disabled:
                     description: Disabled determines whether this spec will be depoyed
@@ -2087,7 +2096,8 @@ spec:
                   env:
                     description: ENV vars to set on the OpenTelemetry Collector's
                       Pods. These can then in certain cases be consumed in the config
-                      file for the Collector.
+                      file for the Collector. Setting this field will override any
+                      existing environment variables set by the operator.
                     items:
                       description: EnvVar represents an environment variable present
                         in a Container.
@@ -2276,7 +2286,7 @@ spec:
                     x-kubernetes-list-type: atomic
                   replicas:
                     description: Replicas is the number of pod instances for the underlying
-                      OpenTelemetry Collector
+                      OpenTelemetry Collector Only applicable in Gateway mode.
                     format: int32
                     type: integer
                   resources:
@@ -4097,9 +4107,13 @@ spec:
                       Collector binary
                     type: object
                   config:
-                    description: Config is the raw JSON to be used as the collector's
+                    description: Config is the raw YAML to be used as the collector's
                       configuration. Refer to the OpenTelemetry Collector documentation
-                      for details.
+                      for details. This will be automatically set by the operator
+                      but can be overriden by the user. No effort is made to merge
+                      the user provided config with the default config set by the
+                      operator. User provided config always overrides the default
+                      config.
                     type: string
                   disabled:
                     description: Disabled determines whether this spec will be depoyed
@@ -4108,7 +4122,8 @@ spec:
                   env:
                     description: ENV vars to set on the OpenTelemetry Collector's
                       Pods. These can then in certain cases be consumed in the config
-                      file for the Collector.
+                      file for the Collector. Setting this field will override any
+                      existing environment variables set by the operator.
                     items:
                       description: EnvVar represents an environment variable present
                         in a Container.
@@ -4297,7 +4312,7 @@ spec:
                     x-kubernetes-list-type: atomic
                   replicas:
                     description: Replicas is the number of pod instances for the underlying
-                      OpenTelemetry Collector
+                      OpenTelemetry Collector Only applicable in Gateway mode.
                     format: int32
                     type: integer
                   resources:
