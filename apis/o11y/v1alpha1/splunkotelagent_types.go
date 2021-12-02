@@ -29,7 +29,7 @@ type SplunkCollectorSpec struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Config is the raw YAML to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
-	// This will be automatically set by the operator but can be overriden by the user.
+	// This will be automatically set by the operator but can be overridden by the user.
 	// No effort is made to merge the user provided config with the default config set by the operator.
 	// User provided config always overrides the default config.
 	// +kubebuilder:validation:Optional
