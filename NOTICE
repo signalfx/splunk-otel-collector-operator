@@ -1,0 +1,13 @@
+Splunk OpenTelemetry Collector Operator for Kubernetes
+
+Copyright Splunk Inc
+Copyright The OpenTelemetry Authors
+
+================= OpenTelemetry Operator ==================
+
+This product is based on source code originally developed
+by the OpenTelemetry Authors and others
+under the auspices of the Cloud Native Foundation
+and released as the OpenTelemetry Operator for Kubernetes.
+
+URL: https://github.com/open-telemetry/opentelemetry-operator/
