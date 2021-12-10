@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: splunk-access-token
+type: Opaque
+stringData:
+  access-token: 0123456789--1234567-12

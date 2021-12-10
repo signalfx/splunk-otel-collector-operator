@@ -8,6 +8,7 @@ metadata:
 webhooks:
 - admissionReviewVersions:
   - v1
+  - v1beta1
   clientConfig:
     service:
       name: webhook-service
@@ -26,6 +27,27 @@ webhooks:
     resources:
     - splunkotelagents
   sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-v1-pod
+  failurePolicy: Ignore
+  name: mpod.kb.io
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+  sideEffects: None
 
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -36,6 +58,7 @@ metadata:
 webhooks:
 - admissionReviewVersions:
   - v1
+  - v1beta1
   clientConfig:
     service:
       name: webhook-service

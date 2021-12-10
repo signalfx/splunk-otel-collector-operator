@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace 
+metadata:
+  name: config-injection-test-ns
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu
+  namespace: config-injection-test-ns
+  labels:
+    app: ubuntu
+  annotations:
+    o11y.splunk.com/inject-config: "true"
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu:latest
+    command: ["/bin/sleep", "infinity"]
+    imagePullPolicy: IfNotPresent
+  restartPolicy: Always

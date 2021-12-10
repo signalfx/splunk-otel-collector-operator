@@ -29,11 +29,13 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
 	o11ycontrollers "github.com/signalfx/splunk-otel-collector-operator/controllers/o11y"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/version"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/webhooks"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -104,6 +106,13 @@ func main() {
 		setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
 		os.Exit(1)
 	}
+
+	mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{
+		Handler: webhooks.NewHandler(
+			ctrl.Log.WithName("webhook-handler"),
+			mgr.GetClient(),
+		),
+	})
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
