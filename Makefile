@@ -9,8 +9,6 @@ QUAY_USER ?= signalfx
 IMG_PREFIX ?= quay.io/${QUAY_USER}
 IMG_REPO ?= splunk-otel-operator
 IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
-# Produce CRDs that work back to Kubernetes v1.16 (no version conversion)
-CRD_OPTIONS ?= crd
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -64,7 +62,7 @@ ensure-generate-is-noop: set-image-controller generate bundle
 
 
 manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases 
 
 generate: ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="./hack/boilerplate.go.txt" paths="./..."
