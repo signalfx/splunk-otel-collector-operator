@@ -155,7 +155,7 @@ type SplunkOtelAgentStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
-//+operator-sdk:csv:customresourcedefinitions:displayName="Splunk OpenTelemetry Connector"
+//+operator-sdk:csv:customresourcedefinitions:displayName="Splunk OpenTelemetry Collector"
 
 // SplunkOtelAgent is the Schema for the splunkotelagents API.
 type SplunkOtelAgent struct {
