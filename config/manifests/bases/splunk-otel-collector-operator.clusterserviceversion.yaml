@@ -11,7 +11,7 @@ spec:
   customresourcedefinitions:
     owned:
     - description: SplunkOtelAgent is the Schema for the splunkotelagents API.
-      displayName: Splunk OpenTelemetry Connector
+      displayName: Splunk OpenTelemetry Collector
       kind: SplunkOtelAgent
       name: splunkotelagents.o11y.splunk.com
       specDescriptors:

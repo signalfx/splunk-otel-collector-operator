@@ -5,11 +5,11 @@
   
 ---------
   
-# Splunk OpenTelemetry Connector Operator for Kubernetes
+# Splunk OpenTelemetry Collector Operator for Kubernetes
 
 The OpenTelemetry Operator is an implementation of a [Kubernetes Operator](https://coreos.com/operators/).
 
-It helps deploy and manage [Splunk OpenTelemetry Connector](https://github.com/signalfx/splunk-otel-collector)
+It helps deploy and manage [Splunk OpenTelemetry Collector](https://github.com/signalfx/splunk-otel-collector)
 
 ## Getting started
 
@@ -33,7 +33,7 @@ kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/rele
 kubectl create secret generic splunk-access-token --namespace splunk-otel-operator-system --from-literal=access-token=SPLUNK_ACCESS_TOKEN
 ```
 
-### 4. Deploy Splunk OpenTelemetry Connector
+### 4. Deploy Splunk OpenTelemetry Collector
 
 Once the `splunk-otel--operator` deployment is ready, create an Splunk OpenTelemetry Collector instance, like:
 
@@ -53,7 +53,7 @@ EOF
 Replace `MY_CLUSTER_NAME` and `SPLUNK_REALM` with your values.
 
 **_WARNING:_** Until the OpenTelemetry Collector format is stable, changes may be required in the above example to remain
-compatible with the latest version of the Splunk OpenTelemetry Operator and Splunk OpenTelemetry Connector.
+compatible with the latest version of the Splunk OpenTelemetry Operator and Splunk OpenTelemetry Collector.
 
 ## Compatibility matrix
 
