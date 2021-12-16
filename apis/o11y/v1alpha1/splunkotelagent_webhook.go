@@ -27,6 +27,10 @@ import (
 	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
 )
 
+const (
+	defaultJavaAgentImage = "quay.io/signalfx/splunk-otel-instrumentation-java:v1.6.0"
+)
+
 // log is for logging in this package.
 var splunkotelagentlog = logf.Log.WithName("splunkotelagent-resource")
 
@@ -56,6 +60,7 @@ func (r *SplunkOtelAgent) Default() {
 		r.Labels["app.kubernetes.io/managed-by"] = "splunk-otel-collector-operator"
 	}
 
+	r.defaultInstrumentation()
 	r.defaultAgent()
 	r.defaultClusterReceiver()
 	r.defaultGateway()
@@ -86,6 +91,11 @@ func (r *SplunkOtelAgent) ValidateDelete() error {
 
 func (r *SplunkOtelAgent) validateCRDSpec() error {
 	var errs []string
+
+	if err := r.validateInstrumentation(); err != nil {
+		errs = append(errs, err.Error())
+	}
+
 	if err := r.validateCRDAgentSpec(); err != nil {
 		errs = append(errs, err.Error())
 	}
@@ -100,6 +110,10 @@ func (r *SplunkOtelAgent) validateCRDSpec() error {
 	if len(errs) > 0 {
 		return fmt.Errorf(strings.Join(errs, "\n"))
 	}
+	return nil
+}
+
+func (r *SplunkOtelAgent) validateInstrumentation() error {
 	return nil
 }
 
@@ -139,6 +153,12 @@ func (r *SplunkOtelAgent) validateCRDGatewaySpec() error {
 	}
 
 	return nil
+}
+
+func (r *SplunkOtelAgent) defaultInstrumentation() {
+	if r.Spec.Instrumentation.Java.Image == "" {
+		r.Spec.Instrumentation.Java.Image = defaultJavaAgentImage
+	}
 }
 
 func (r *SplunkOtelAgent) defaultAgent() {

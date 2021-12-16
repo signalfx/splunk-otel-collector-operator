@@ -112,6 +112,21 @@ type SplunkCollectorSpec struct {
 	Tolerations []v1.Toleration `json:"tolerations,omitempty"`
 }
 
+// Instrumentation is used to configure and customize Splunk OpenTelemetry SDKs and auto-instrumentation agents.
+type Instrumentation struct {
+	// Java is used to configure Java SDK and auto-instrumentation agent.
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	Java AutoInstrumentation `json:"java,omitempty"`
+}
+
+type AutoInstrumentation struct {
+	// Image specifies the auto-instrumentation docker image that should be used.
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	Image string `json:"image,omitempty"`
+}
+
 // SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
 type SplunkOtelAgentSpec struct {
 	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
@@ -125,6 +140,11 @@ type SplunkOtelAgentSpec struct {
 	// +kubebuilder:validation:Required
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Realm string `json:"realm"`
+
+	// Instrumentation is used to configure and customize Splunk OpenTelemetry SDKs and auto-instrumentation agents
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	Instrumentation Instrumentation `json:"instrumentation,omitempty"`
 
 	// Agent is a Splunk OpenTelemetry Collector instance deployed as an agent on every node.
 	// +kubebuilder:validation:Optional
