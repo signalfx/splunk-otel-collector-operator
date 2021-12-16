@@ -126,19 +126,10 @@ func getIndexOfEnv(envs []corev1.EnvVar, name string) int {
 }
 
 func resourceMapToStr(res map[string]string) string {
-	keys := make([]string, 0, len(res))
+	kvPairs := make([]string, 0, len(res))
 	for k := range res {
-		keys = append(keys, k)
+		kvPairs = append(kvPairs, fmt.Sprintf("%s=%s", k, res[k]))
 	}
-	sort.Strings(keys)
-
-	var str = ""
-	for _, k := range keys {
-		if str != "" {
-			str += ","
-		}
-		str += fmt.Sprintf("%s=%s", k, res[k])
-	}
-
-	return str
+	sort.Strings(kvPairs)
+	return strings.Join(kvPairs, ",")
 }
