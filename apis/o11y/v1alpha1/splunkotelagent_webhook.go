@@ -41,7 +41,7 @@ func (r *SplunkOtelAgent) SetupWebhookWithManager(mgr ctrl.Manager, distro autod
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-//+kubebuilder:webhook:path=/mutate-o11y-splunk-com-v1alpha1-splunkotelagent,mutating=true,failurePolicy=fail,sideEffects=None,groups=o11y.splunk.com,resources=splunkotelagents,verbs=create;update,versions=v1alpha1,name=msplunkotelagent.kb.io,admissionReviewVersions={v1}
+//+kubebuilder:webhook:path=/mutate-o11y-splunk-com-v1alpha1-splunkotelagent,mutating=true,failurePolicy=fail,sideEffects=None,groups=o11y.splunk.com,resources=splunkotelagents,verbs=create;update,versions=v1alpha1,name=msplunkotelagent.kb.io,admissionReviewVersions={v1,v1beta1}
 
 var _ webhook.Defaulter = &SplunkOtelAgent{}
 
@@ -62,7 +62,7 @@ func (r *SplunkOtelAgent) Default() {
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-o11y-splunk-com-v1alpha1-splunkotelagent,mutating=false,failurePolicy=fail,sideEffects=None,groups=o11y.splunk.com,resources=splunkotelagents,verbs=create;update,versions=v1alpha1,name=vsplunkotelagent.kb.io,admissionReviewVersions={v1}
+//+kubebuilder:webhook:path=/validate-o11y-splunk-com-v1alpha1-splunkotelagent,mutating=false,failurePolicy=fail,sideEffects=None,groups=o11y.splunk.com,resources=splunkotelagents,verbs=create;update,versions=v1alpha1,name=vsplunkotelagent.kb.io,admissionReviewVersions={v1,v1beta1}
 
 var _ webhook.Validator = &SplunkOtelAgent{}
 

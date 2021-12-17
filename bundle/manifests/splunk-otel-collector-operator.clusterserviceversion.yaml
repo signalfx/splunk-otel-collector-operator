@@ -322,6 +322,14 @@ spec:
           - update
           - watch
         - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
           - o11y.splunk.com
           resources:
           - splunkotelagents
@@ -493,6 +501,28 @@ spec:
     webhookPath: /convert
   - admissionReviewVersions:
     - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: splunk-otel-operator-controller-manager
+    failurePolicy: Ignore
+    generateName: mpod.kb.io
+    rules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pods
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-v1-pod
+  - admissionReviewVersions:
+    - v1
+    - v1beta1
     containerPort: 443
     deploymentName: splunk-otel-operator-controller-manager
     failurePolicy: Fail
@@ -513,6 +543,7 @@ spec:
     webhookPath: /mutate-o11y-splunk-com-v1alpha1-splunkotelagent
   - admissionReviewVersions:
     - v1
+    - v1beta1
     containerPort: 443
     deploymentName: splunk-otel-operator-controller-manager
     failurePolicy: Fail

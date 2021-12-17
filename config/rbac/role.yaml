@@ -79,6 +79,14 @@ rules:
   - update
   - watch
 - apiGroups:
+  - apps
+  resources:
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - o11y.splunk.com
   resources:
   - splunkotelagents

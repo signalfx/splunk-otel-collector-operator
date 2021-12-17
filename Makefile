@@ -92,7 +92,7 @@ build: generate fmt vet ## Build manager binary.
 	go build -o bin/manager -ldflags ${LD_FLAGS} main.go
 
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./main.go -ldflags ${LD_FLAGS}
+	go run -ldflags=${LD_FLAGS} ./main.go
 
 docker-build: ## Build docker image with the manager.
 	docker build --build-arg VERSION_DATE=${VERSION_DATE} --build-arg VERSION_PKG=${VERSION_PKG} --build-arg VERSION_COLLECTOR=${VERSION_COLLECTOR} --build-arg VERSION=${VERSION} -t ${IMG} .

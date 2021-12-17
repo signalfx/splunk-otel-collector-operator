@@ -2,10 +2,10 @@ domain: splunk.com
 layout:
 - go.kubebuilder.io/v3
 multigroup: true
-projectName: splunk-otel-collector-operator
-repo: github.com/signalfx/splunk-otel-collector-operator
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
+projectName: splunk-otel-collector-operator
+repo: github.com/signalfx/splunk-otel-collector-operator
 resources:
 - api:
     crdVersion: v1

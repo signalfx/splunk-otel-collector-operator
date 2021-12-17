@@ -8,6 +8,7 @@ require (
 	github.com/go-logr/logr v0.4.0
 	github.com/golangci/golangci-lint v1.42.1
 	github.com/stretchr/testify v1.7.0
+	go.opentelemetry.io/otel v0.20.0
 	golang.org/x/sys v0.0.0-20211004093028-2c5d950f24ef // indirect
 	golang.org/x/tools v0.1.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0
