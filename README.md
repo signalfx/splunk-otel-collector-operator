@@ -86,3 +86,5 @@ The OpenTelemetry Operator *might* work on versions outside of the given range, 
 [codecov-img]: https://codecov.io/gh/signalfx/splunk-otel-operator/branch/main/graph/badge.svg
 [contributors]: https://github.com/signalfx/splunk-otel-collector-operator/graphs/contributors
 [contributors-img]: https://contributors-img.web.app/image?repo=open-telemetry/opentelemetry-operator
+
+>ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.
