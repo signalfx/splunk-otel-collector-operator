@@ -57,7 +57,7 @@ ensure-generate-is-noop: set-image-controller generate bundle
 	@# on make bundle config/manager/kustomization.yaml includes changes, which should be ignored for the below check
 	@git restore config/manager/kustomization.yaml
 	# TODO(splunk): Check if resources are in sync another way, this only checks if the resources are in sync from the last commit.
-	@git diff --exit-code apis/o11y/v1alpha1/zz_generated.*.go || (echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1)
+	@git diff --exit-code apis/otel/v1alpha1/zz_generated.*.go || (echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1)
 	@git diff --exit-code bundle config || (echo "Build failed: the bundle, config files has been changed but the generated bundle, config files aren't up to date. Run 'make bundle' and update your PR." && exit 1)
 
 

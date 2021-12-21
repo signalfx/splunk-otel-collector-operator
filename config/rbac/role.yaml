@@ -87,9 +87,9 @@ rules:
   - list
   - watch
 - apiGroups:
-  - o11y.splunk.com
+  - otel.splunk.com
   resources:
-  - splunkotelagents
+  - agents
   verbs:
   - create
   - delete
@@ -99,15 +99,15 @@ rules:
   - update
   - watch
 - apiGroups:
-  - o11y.splunk.com
+  - otel.splunk.com
   resources:
-  - splunkotelagents/finalizers
+  - agents/finalizers
   verbs:
   - update
 - apiGroups:
-  - o11y.splunk.com
+  - otel.splunk.com
   resources:
-  - splunkotelagents/status
+  - agents/status
   verbs:
   - get
   - patch

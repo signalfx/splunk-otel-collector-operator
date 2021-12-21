@@ -19,12 +19,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
 // ServiceAccountName returns the name of the existing or self-provisioned service account to use for the given instance.
-func ServiceAccountName(instance v1alpha1.SplunkOtelAgent) string {
+func ServiceAccountName(instance v1alpha1.Agent) string {
 	if len(instance.Spec.Agent.ServiceAccount) == 0 {
 		return naming.ServiceAccount(instance)
 	}
@@ -33,7 +33,7 @@ func ServiceAccountName(instance v1alpha1.SplunkOtelAgent) string {
 }
 
 //ServiceAccount returns the service account for the given instance.
-func ServiceAccount(otelcol v1alpha1.SplunkOtelAgent) corev1.ServiceAccount {
+func ServiceAccount(otelcol v1alpha1.Agent) corev1.ServiceAccount {
 	labels := Labels(otelcol)
 	labels["app.kubernetes.io/name"] = naming.ServiceAccount(otelcol)
 

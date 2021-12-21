@@ -3,8 +3,8 @@
 The below `SplunkOtelAgent` custom resource contains all the specification that can be configured. 
 
 ```yaml
-apiVersion: o11y.splunk.com/v1alpha1
-kind: SplunkOtelAgent
+apiVersion: otel.splunk.com/v1alpha1
+kind: Agent
 metadata:
   name: example-splunk-otel-agent 
 spec:

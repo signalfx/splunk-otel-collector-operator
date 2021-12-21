@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/collector"
 )
 
@@ -100,8 +100,8 @@ func TestDesiredService(t *testing.T) {
 		params := Params{
 			Client: k8sClient,
 			Log:    logger,
-			Instance: v1alpha1.SplunkOtelAgent{
-				Spec: v1alpha1.SplunkOtelAgentSpec{Gateway: v1alpha1.SplunkCollectorSpec{
+			Instance: v1alpha1.Agent{
+				Spec: v1alpha1.AgentSpec{Gateway: v1alpha1.CollectorSpec{
 					Config: `receivers:
       test:
         protocols:

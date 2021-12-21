@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package o11y
+package otel
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 
-	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	otelv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	if err = o11yv1alpha1.AddToScheme(scheme.Scheme); err != nil {
+	if err = otelv1alpha1.AddToScheme(scheme.Scheme); err != nil {
 		fmt.Printf("failed to register scheme: %v", err)
 		os.Exit(1)
 	}

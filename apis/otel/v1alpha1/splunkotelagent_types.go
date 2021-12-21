@@ -22,7 +22,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type SplunkCollectorSpec struct {
+type CollectorSpec struct {
 	// Disabled determines whether this spec will be depoyed or not.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
@@ -127,8 +127,8 @@ type AutoInstrumentation struct {
 	Image string `json:"image,omitempty"`
 }
 
-// SplunkOtelAgentSpec defines the desired state of SplunkOtelAgent.
-type SplunkOtelAgentSpec struct {
+// AgentSpec defines the desired state of SplunkOtelAgent.
+type AgentSpec struct {
 	// ClusterName is the name of the Kubernetes cluster. This will be used to identify this cluster in Splunk dashboards.
 	// +required
 	// +kubebuilder:validation:Required
@@ -149,21 +149,21 @@ type SplunkOtelAgentSpec struct {
 	// Agent is a Splunk OpenTelemetry Collector instance deployed as an agent on every node.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
-	Agent SplunkCollectorSpec `json:"agent,omitempty"`
+	Agent CollectorSpec `json:"agent,omitempty"`
 
 	// ClusterReceiver is a single instance Splunk OpenTelemetry Collector deployement used to monitor the entire cluster.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
-	ClusterReceiver SplunkCollectorSpec `json:"clusterReceiver,omitempty"`
+	ClusterReceiver CollectorSpec `json:"clusterReceiver,omitempty"`
 
 	// ClusterReceiver is a Splunk OpenTelemetry Collector deployement used to export data to Splunk APM.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
-	Gateway SplunkCollectorSpec `json:"gateway,omitempty"`
+	Gateway CollectorSpec `json:"gateway,omitempty"`
 }
 
-// SplunkOtelAgentStatus defines the observed state of SplunkOtelAgent.
-type SplunkOtelAgentStatus struct {
+// AgentStatus defines the observed state of SplunkOtelAgent.
+type AgentStatus struct {
 	// Version of the managed OpenTelemetry Collector (operand).
 	Version string `json:"version,omitempty"`
 
@@ -178,24 +178,24 @@ type SplunkOtelAgentStatus struct {
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".status.version",description="Splunk OpenTelemetry Operator Version"
 // +operator-sdk:csv:customresourcedefinitions:displayName="Splunk OpenTelemetry Collector"
 
-// SplunkOtelAgent is the Schema for the splunkotelagents API.
-type SplunkOtelAgent struct {
+// Agent is the Schema for the agents API.
+type Agent struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   SplunkOtelAgentSpec   `json:"spec,omitempty"`
-	Status SplunkOtelAgentStatus `json:"status,omitempty"`
+	Spec   AgentSpec   `json:"spec,omitempty"`
+	Status AgentStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// SplunkOtelAgentList contains a list of SplunkOtelAgent.
-type SplunkOtelAgentList struct {
+// AgentList contains a list of SplunkOtelAgent.
+type AgentList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []SplunkOtelAgent `json:"items"`
+	Items           []Agent `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&SplunkOtelAgent{}, &SplunkOtelAgentList{})
+	SchemeBuilder.Register(&Agent{}, &AgentList{})
 }

@@ -21,12 +21,12 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
 // Container builds a container for the given collector.
-func Container(logger logr.Logger, spec v1alpha1.SplunkCollectorSpec) corev1.Container {
+func Container(logger logr.Logger, spec v1alpha1.CollectorSpec) corev1.Container {
 	image := spec.Image
 	if len(image) == 0 {
 		image = defaultCollectorImage

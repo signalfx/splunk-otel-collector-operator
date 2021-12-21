@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 func TestSelf(t *testing.T) {
@@ -32,7 +32,7 @@ func TestSelf(t *testing.T) {
 		err := Self(context.Background(), params())
 		assert.NoError(t, err)
 
-		actual := v1alpha1.SplunkOtelAgent{}
+		actual := v1alpha1.Agent{}
 		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test"})
 		assert.NoError(t, err)
 		assert.True(t, exists)

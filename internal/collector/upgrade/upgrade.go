@@ -25,7 +25,7 @@ import (
 	"github.com/go-logr/logr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/version"
 )
 
@@ -38,7 +38,7 @@ func ManagedInstances(ctx context.Context, logger logr.Logger, ver version.Versi
 			"app.kubernetes.io/managed-by": "splunk-otel-operator",
 		}),
 	}
-	list := &v1alpha1.SplunkOtelAgentList{}
+	list := &v1alpha1.AgentList{}
 	if err := cl.List(ctx, list, opts...); err != nil {
 		return fmt.Errorf("failed to list: %w", err)
 	}
@@ -79,7 +79,7 @@ func ManagedInstances(ctx context.Context, logger logr.Logger, ver version.Versi
 }
 
 // ManagedInstance performs the necessary changes to bring the given otelcol instance to the current version.
-func ManagedInstance(ctx context.Context, logger logr.Logger, currentV version.Version, cl client.Client, otelcol v1alpha1.SplunkOtelAgent) (v1alpha1.SplunkOtelAgent, error) {
+func ManagedInstance(ctx context.Context, logger logr.Logger, currentV version.Version, cl client.Client, otelcol v1alpha1.Agent) (v1alpha1.Agent, error) {
 	// this is likely a new instance, assume it's already up to date
 	if otelcol.Status.Version == "" {
 		return otelcol, nil

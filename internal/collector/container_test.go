@@ -23,7 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	. "github.com/signalfx/splunk-otel-collector-operator/internal/collector"
 )
 
@@ -31,7 +31,7 @@ var logger = logf.Log.WithName("unit-tests")
 
 func TestContainerNewDefault(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{}
+	otelcol := v1alpha1.Agent{}
 
 	// test
 	c := Container(logger, otelcol.Spec.Agent)
@@ -42,8 +42,8 @@ func TestContainerNewDefault(t *testing.T) {
 
 func TestContainerConfigFlagIsIgnored(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			Args: map[string]string{
 				"key":    "value",
 				"config": "/some-custom-file.yaml",
@@ -62,8 +62,8 @@ func TestContainerConfigFlagIsIgnored(t *testing.T) {
 
 func TestContainerCustomVolumes(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			VolumeMounts: []corev1.VolumeMount{{
 				Name: "custom-volume-mount",
 			}},
@@ -80,7 +80,7 @@ func TestContainerCustomVolumes(t *testing.T) {
 
 func TestContainerCustomSecurityContext(t *testing.T) {
 	// default config without security context
-	c1 := Container(logger, v1alpha1.SplunkCollectorSpec{})
+	c1 := Container(logger, v1alpha1.CollectorSpec{})
 
 	// verify
 	assert.Nil(t, c1.SecurityContext)
@@ -90,7 +90,7 @@ func TestContainerCustomSecurityContext(t *testing.T) {
 	uid := int64(1234)
 
 	// test
-	c2 := Container(logger, v1alpha1.SplunkCollectorSpec{
+	c2 := Container(logger, v1alpha1.CollectorSpec{
 		SecurityContext: &corev1.SecurityContext{
 			Privileged: &isPrivileged,
 			RunAsUser:  &uid,
@@ -104,8 +104,8 @@ func TestContainerCustomSecurityContext(t *testing.T) {
 }
 
 func TestContainerEnvVarsOverridden(t *testing.T) {
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			Env: []corev1.EnvVar{
 				{
 					Name:  "foo",
@@ -125,8 +125,8 @@ func TestContainerEnvVarsOverridden(t *testing.T) {
 }
 
 func TestContainerEmptyEnvVarsByDefault(t *testing.T) {
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{},
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{},
 	}
 
 	// test
@@ -137,8 +137,8 @@ func TestContainerEmptyEnvVarsByDefault(t *testing.T) {
 }
 
 func TestContainerResourceRequirements(t *testing.T) {
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			Resources: corev1.ResourceRequirements{
 				Limits: corev1.ResourceList{
 					corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -163,8 +163,8 @@ func TestContainerResourceRequirements(t *testing.T) {
 }
 
 func TestContainerDefaultResourceRequirements(t *testing.T) {
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{},
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{},
 	}
 
 	// test
@@ -176,8 +176,8 @@ func TestContainerDefaultResourceRequirements(t *testing.T) {
 
 func TestContainerArgs(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			Args: map[string]string{
 				"metrics-level": "detailed",
 				"log-level":     "debug",
@@ -195,8 +195,8 @@ func TestContainerArgs(t *testing.T) {
 
 func TestContainerImagePullPolicy(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			ImagePullPolicy: corev1.PullIfNotPresent,
 		}},
 	}

@@ -24,17 +24,17 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 func TestConfigFromSpec(t *testing.T) {
 	cases := []struct {
-		spec *v1alpha1.SplunkOtelAgentSpec
+		spec *v1alpha1.AgentSpec
 		cfg  config
 	}{
 		{
-			spec: &v1alpha1.SplunkOtelAgentSpec{
-				Agent: v1alpha1.SplunkCollectorSpec{},
+			spec: &v1alpha1.AgentSpec{
+				Agent: v1alpha1.CollectorSpec{},
 				Instrumentation: v1alpha1.Instrumentation{
 					Java: v1alpha1.AutoInstrumentation{
 						Image: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.2.3",
@@ -48,8 +48,8 @@ func TestConfigFromSpec(t *testing.T) {
 			},
 		},
 		{
-			spec: &v1alpha1.SplunkOtelAgentSpec{
-				Agent: v1alpha1.SplunkCollectorSpec{Disabled: true},
+			spec: &v1alpha1.AgentSpec{
+				Agent: v1alpha1.CollectorSpec{Disabled: true},
 				Instrumentation: v1alpha1.Instrumentation{
 					Java: v1alpha1.AutoInstrumentation{
 						Image: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.6.0",
@@ -63,9 +63,9 @@ func TestConfigFromSpec(t *testing.T) {
 			},
 		},
 		{
-			spec: &v1alpha1.SplunkOtelAgentSpec{
-				Agent:   v1alpha1.SplunkCollectorSpec{Disabled: true},
-				Gateway: v1alpha1.SplunkCollectorSpec{Disabled: true},
+			spec: &v1alpha1.AgentSpec{
+				Agent:   v1alpha1.CollectorSpec{Disabled: true},
+				Gateway: v1alpha1.CollectorSpec{Disabled: true},
 				Realm:   "mars0",
 				Instrumentation: v1alpha1.Instrumentation{
 					Java: v1alpha1.AutoInstrumentation{

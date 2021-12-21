@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package o11y
+package otel
 
 import (
 	"context"
@@ -32,7 +32,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	k8sreconcile "sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/collector/reconcile"
 )
 
@@ -42,12 +42,12 @@ func TestNewObjectsOnReconciliation(t *testing.T) {
 	// prepare
 	nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
 	reconciler := NewReconciler(logger, k8sClient, testScheme, nil)
-	created := &v1alpha1.SplunkOtelAgent{
+	created := &v1alpha1.Agent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{},
+		Spec: v1alpha1.AgentSpec{},
 	}
 	err := k8sClient.Create(context.Background(), created)
 	require.NoError(t, err)
@@ -161,7 +161,7 @@ func TestBreakOnUnrecoverableError(t *testing.T) {
 		},
 	}
 
-	created := &v1alpha1.SplunkOtelAgent{
+	created := &v1alpha1.Agent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,

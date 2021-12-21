@@ -21,14 +21,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	. "github.com/signalfx/splunk-otel-collector-operator/internal/collector"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
 func TestVolumeNewDefault(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{}
+	otelcol := v1alpha1.Agent{}
 
 	// test
 	volumes := Volumes(otelcol.Spec.Agent, "splunk-agent")
@@ -42,9 +42,9 @@ func TestVolumeNewDefault(t *testing.T) {
 
 func TestVolumeAllowsMoreToBeAdded(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{
-			Agent: v1alpha1.SplunkCollectorSpec{
+	otelcol := v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{
+			Agent: v1alpha1.CollectorSpec{
 				Volumes: []corev1.Volume{{
 					Name: "my-volume",
 				}},

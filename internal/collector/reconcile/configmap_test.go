@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 func TestDesiredConfigMap(t *testing.T) {
@@ -96,7 +96,7 @@ func TestExpectedConfigMap(t *testing.T) {
 
 		param := Params{
 			Client: k8sClient,
-			Instance: v1alpha1.SplunkOtelAgent{
+			Instance: v1alpha1.Agent{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "splunk.com",
 					APIVersion: "v1",

@@ -13,19 +13,19 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-o11y-splunk-com-v1alpha1-splunkotelagent
+      path: /mutate-otel-splunk-com-v1alpha1-agent
   failurePolicy: Fail
-  name: msplunkotelagent.kb.io
+  name: magent.kb.io
   rules:
   - apiGroups:
-    - o11y.splunk.com
+    - otel.splunk.com
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
     resources:
-    - splunkotelagents
+    - agents
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -63,17 +63,17 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-o11y-splunk-com-v1alpha1-splunkotelagent
+      path: /validate-otel-splunk-com-v1alpha1-agent
   failurePolicy: Fail
-  name: vsplunkotelagent.kb.io
+  name: vagent.kb.io
   rules:
   - apiGroups:
-    - o11y.splunk.com
+    - otel.splunk.com
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
     resources:
-    - splunkotelagents
+    - agents
   sideEffects: None

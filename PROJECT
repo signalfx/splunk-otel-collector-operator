@@ -12,9 +12,9 @@ resources:
     namespaced: true
   controller: true
   domain: splunk.com
-  group: o11y
-  kind: SplunkOtelAgent
-  path: github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1
+  group: otel
+  kind: Agent
+  path: github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true

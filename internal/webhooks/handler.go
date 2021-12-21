@@ -14,12 +14,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 // +kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=ignore,groups="",resources=pods,verbs=create;update,versions=v1,name=mpod.kb.io,sideEffects=none,admissionReviewVersions={v1,v1beta1}
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=list;watch
-// +kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents,verbs=get;list;watch
+// +kubebuilder:rbac:groups=otel.splunk.com,resources=agents,verbs=get;list;watch
 // +kubebuilder:rbac:groups="apps",resources=replicasets,verbs=get;list;watch
 
 const (
@@ -37,10 +37,10 @@ const (
 	exporterOTLP      = "otlp"
 	exporterJaeger    = "jaeger-thrift-splunk"
 
-	annotationJava   = "o11y.splunk.com/inject-java"
-	annotationConfig = "o11y.splunk.com/inject-config"
-	annotationStatus = "o11y.splunk.com/injection-status"
-	annotationReason = "o11y.splunk.com/injection-reason"
+	annotationJava   = "otel.splunk.com/inject-java"
+	annotationConfig = "otel.splunk.com/inject-config"
+	annotationStatus = "otel.splunk.com/injection-status"
+	annotationReason = "otel.splunk.com/injection-reason"
 )
 
 type injectFn func(ctx context.Context, cfg config, pod corev1.Pod, ns corev1.Namespace) (corev1.Pod, error)
@@ -141,7 +141,7 @@ func (h *handler) Handle(ctx context.Context, req admission.Request) admission.R
 	return h.patch(req, pod, nil)
 }
 
-func configFromSpec(spec *v1alpha1.SplunkOtelAgentSpec) config {
+func configFromSpec(spec *v1alpha1.AgentSpec) config {
 
 	cfg := config{
 		exporter: exporterOTLP,
@@ -269,8 +269,8 @@ func (h *handler) InjectDecoder(d *admission.Decoder) error {
 	return nil
 }
 
-func (h *handler) getAgentSpec(ctx context.Context) (*v1alpha1.SplunkOtelAgentSpec, error) {
-	specs := &v1alpha1.SplunkOtelAgentList{}
+func (h *handler) getAgentSpec(ctx context.Context) (*v1alpha1.AgentSpec, error) {
+	specs := &v1alpha1.AgentList{}
 	err := h.client.List(ctx, specs)
 	if err != nil {
 		return nil, err

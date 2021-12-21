@@ -21,17 +21,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	. "github.com/signalfx/splunk-otel-collector-operator/internal/collector"
 )
 
 func TestDaemonSetNewDefault(t *testing.T) {
 	// prepare
-	otelcol := v1alpha1.SplunkOtelAgent{
+	otelcol := v1alpha1.Agent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my-instance",
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			Tolerations: testTolerationValues,
 		}},
 	}
@@ -58,14 +58,14 @@ func TestDaemonSetNewDefault(t *testing.T) {
 
 func TestDaemonsetHostNetwork(t *testing.T) {
 	// test
-	d1 := Agent(logger, v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{},
+	d1 := Agent(logger, v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{},
 	})
 	assert.False(t, d1.Spec.Template.Spec.HostNetwork)
 
 	// verify custom
-	d2 := Agent(logger, v1alpha1.SplunkOtelAgent{
-		Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+	d2 := Agent(logger, v1alpha1.Agent{
+		Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 			HostNetwork: true,
 		}},
 	})

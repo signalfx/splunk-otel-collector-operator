@@ -18,10 +18,10 @@ package upgrade
 import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 //nolint unused
-func noop(cl client.Client, otelcol *v1alpha1.SplunkOtelAgent) (*v1alpha1.SplunkOtelAgent, error) {
+func noop(cl client.Client, otelcol *v1alpha1.Agent) (*v1alpha1.Agent, error) {
 	return otelcol, nil
 }
