@@ -37,7 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 var k8sClient client.Client
@@ -89,9 +89,9 @@ func params() Params {
 	}
 	return Params{
 		Client: k8sClient,
-		Instance: v1alpha1.SplunkOtelAgent{
+		Instance: v1alpha1.Agent{
 			TypeMeta: metav1.TypeMeta{
-				Kind:       "o11y.splunk.com",
+				Kind:       "otel.splunk.com",
 				APIVersion: "v1alpha1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
@@ -99,7 +99,7 @@ func params() Params {
 				Namespace: "default",
 				UID:       instanceUID,
 			},
-			Spec: v1alpha1.SplunkOtelAgentSpec{Agent: v1alpha1.SplunkCollectorSpec{
+			Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
 				Ports: []v1.ServicePort{{
 					Name: "web",
 					Port: 80,

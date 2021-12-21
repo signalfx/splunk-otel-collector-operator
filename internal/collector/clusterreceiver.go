@@ -21,12 +21,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
 // ClusterReceiver builds the Splunk Cluster Receiver instance (deployment) for the given instance.
-func ClusterReceiver(logger logr.Logger, otelcol v1alpha1.SplunkOtelAgent) appsv1.Deployment {
+func ClusterReceiver(logger logr.Logger, otelcol v1alpha1.Agent) appsv1.Deployment {
 	labels := Labels(otelcol)
 	labels["app.kubernetes.io/name"] = naming.ClusterReciever(otelcol)
 

@@ -32,11 +32,11 @@ const (
 )
 
 // log is for logging in this package.
-var splunkotelagentlog = logf.Log.WithName("splunkotelagent-resource")
+var agentlog = logf.Log.WithName("agent-resource")
 
 var detectedDistro autodetect.Distro = autodetect.UnknownDistro
 
-func (r *SplunkOtelAgent) SetupWebhookWithManager(mgr ctrl.Manager, distro autodetect.Distro) error {
+func (r *Agent) SetupWebhookWithManager(mgr ctrl.Manager, distro autodetect.Distro) error {
 	detectedDistro = distro
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
@@ -45,13 +45,13 @@ func (r *SplunkOtelAgent) SetupWebhookWithManager(mgr ctrl.Manager, distro autod
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-//+kubebuilder:webhook:path=/mutate-o11y-splunk-com-v1alpha1-splunkotelagent,mutating=true,failurePolicy=fail,sideEffects=None,groups=o11y.splunk.com,resources=splunkotelagents,verbs=create;update,versions=v1alpha1,name=msplunkotelagent.kb.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/mutate-otel-splunk-com-v1alpha1-agent,mutating=true,failurePolicy=fail,sideEffects=None,groups=otel.splunk.com,resources=agents,verbs=create;update,versions=v1alpha1,name=magent.kb.io,admissionReviewVersions={v1,v1beta1}
 
-var _ webhook.Defaulter = &SplunkOtelAgent{}
+var _ webhook.Defaulter = &Agent{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type.
-func (r *SplunkOtelAgent) Default() {
-	splunkotelagentlog.Info("default", "name", r.Name)
+func (r *Agent) Default() {
+	agentlog.Info("default", "name", r.Name)
 
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
@@ -67,29 +67,29 @@ func (r *SplunkOtelAgent) Default() {
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-o11y-splunk-com-v1alpha1-splunkotelagent,mutating=false,failurePolicy=fail,sideEffects=None,groups=o11y.splunk.com,resources=splunkotelagents,verbs=create;update,versions=v1alpha1,name=vsplunkotelagent.kb.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/validate-otel-splunk-com-v1alpha1-agent,mutating=false,failurePolicy=fail,sideEffects=None,groups=otel.splunk.com,resources=agents,verbs=create;update,versions=v1alpha1,name=vagent.kb.io,admissionReviewVersions={v1,v1beta1}
 
-var _ webhook.Validator = &SplunkOtelAgent{}
+var _ webhook.Validator = &Agent{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type.
-func (r *SplunkOtelAgent) ValidateCreate() error {
-	splunkotelagentlog.Info("validate create", "name", r.Name)
+func (r *Agent) ValidateCreate() error {
+	agentlog.Info("validate create", "name", r.Name)
 	return r.validateCRDSpec()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type.
-func (r *SplunkOtelAgent) ValidateUpdate(old runtime.Object) error {
-	splunkotelagentlog.Info("validate update", "name", r.Name)
+func (r *Agent) ValidateUpdate(old runtime.Object) error {
+	agentlog.Info("validate update", "name", r.Name)
 	return r.validateCRDSpec()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type.
-func (r *SplunkOtelAgent) ValidateDelete() error {
-	splunkotelagentlog.Info("validate delete", "name", r.Name)
+func (r *Agent) ValidateDelete() error {
+	agentlog.Info("validate delete", "name", r.Name)
 	return nil
 }
 
-func (r *SplunkOtelAgent) validateCRDSpec() error {
+func (r *Agent) validateCRDSpec() error {
 	var errs []string
 
 	if err := r.validateInstrumentation(); err != nil {
@@ -113,11 +113,11 @@ func (r *SplunkOtelAgent) validateCRDSpec() error {
 	return nil
 }
 
-func (r *SplunkOtelAgent) validateInstrumentation() error {
+func (r *Agent) validateInstrumentation() error {
 	return nil
 }
 
-func (r *SplunkOtelAgent) validateCRDAgentSpec() error {
+func (r *Agent) validateCRDAgentSpec() error {
 	spec := r.Spec.Agent
 
 	if spec.Replicas != nil {
@@ -127,7 +127,7 @@ func (r *SplunkOtelAgent) validateCRDAgentSpec() error {
 	return nil
 }
 
-func (r *SplunkOtelAgent) validateCRDClusterReceiverSpec() error {
+func (r *Agent) validateCRDClusterReceiverSpec() error {
 	spec := r.Spec.ClusterReceiver
 
 	if spec.Replicas != nil {
@@ -141,7 +141,7 @@ func (r *SplunkOtelAgent) validateCRDClusterReceiverSpec() error {
 	return nil
 }
 
-func (r *SplunkOtelAgent) validateCRDGatewaySpec() error {
+func (r *Agent) validateCRDGatewaySpec() error {
 	spec := r.Spec.Gateway
 
 	if !r.Spec.Gateway.Disabled {
@@ -155,13 +155,13 @@ func (r *SplunkOtelAgent) validateCRDGatewaySpec() error {
 	return nil
 }
 
-func (r *SplunkOtelAgent) defaultInstrumentation() {
+func (r *Agent) defaultInstrumentation() {
 	if r.Spec.Instrumentation.Java.Image == "" {
 		r.Spec.Instrumentation.Java.Image = defaultJavaAgentImage
 	}
 }
 
-func (r *SplunkOtelAgent) defaultAgent() {
+func (r *Agent) defaultAgent() {
 	realm := r.Spec.Realm
 	clusterName := r.Spec.ClusterName
 
@@ -251,7 +251,7 @@ func (r *SplunkOtelAgent) defaultAgent() {
 	}
 }
 
-func (r *SplunkOtelAgent) defaultClusterReceiver() {
+func (r *Agent) defaultClusterReceiver() {
 	realm := r.Spec.Realm
 	clusterName := r.Spec.ClusterName
 
@@ -296,7 +296,7 @@ func (r *SplunkOtelAgent) defaultClusterReceiver() {
 	}
 }
 
-func (r *SplunkOtelAgent) defaultGateway() {
+func (r *Agent) defaultGateway() {
 	spec := &r.Spec.Gateway
 	// TODO(splunk): forcibly disable gateway until we add support for it.
 	spec.Disabled = true

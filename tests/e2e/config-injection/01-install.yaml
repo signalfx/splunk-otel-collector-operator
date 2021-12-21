@@ -1,5 +1,5 @@
-apiVersion: o11y.splunk.com/v1alpha1
-kind: SplunkOtelAgent
+apiVersion: otel.splunk.com/v1alpha1
+kind: Agent
 metadata:
   name: test-conf-injection
   namespace: splunk-otel-operator-system

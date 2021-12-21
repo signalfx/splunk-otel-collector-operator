@@ -21,13 +21,13 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 // Params holds the reconciliation-specific parameters.
 type Params struct {
 	Client   client.Client
-	Instance v1alpha1.SplunkOtelAgent
+	Instance v1alpha1.Agent
 	Log      logr.Logger
 	Scheme   *runtime.Scheme
 	Recorder record.EventRecorder

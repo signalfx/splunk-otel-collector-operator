@@ -5,10 +5,10 @@ metadata:
     alm-examples: |-
       [
         {
-          "apiVersion": "o11y.splunk.com/v1alpha1",
-          "kind": "SplunkOtelAgent",
+          "apiVersion": "otel.splunk.com/v1alpha1",
+          "kind": "Agent",
           "metadata": {
-            "name": "splunkotelagent-sample"
+            "name": "agent-sample"
           },
           "spec": null
         }
@@ -22,10 +22,10 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: SplunkOtelAgent is the Schema for the splunkotelagents API.
+    - description: Agent is the Schema for the agents API.
       displayName: Splunk OpenTelemetry Collector
-      kind: SplunkOtelAgent
-      name: splunkotelagents.o11y.splunk.com
+      kind: Agent
+      name: agents.otel.splunk.com
       specDescriptors:
       - description: Agent is a Splunk OpenTelemetry Collector instance deployed as
           an agent on every node.
@@ -341,9 +341,9 @@ spec:
           - list
           - watch
         - apiGroups:
-          - o11y.splunk.com
+          - otel.splunk.com
           resources:
-          - splunkotelagents
+          - agents
           verbs:
           - create
           - delete
@@ -353,15 +353,15 @@ spec:
           - update
           - watch
         - apiGroups:
-          - o11y.splunk.com
+          - otel.splunk.com
           resources:
-          - splunkotelagents/finalizers
+          - agents/finalizers
           verbs:
           - update
         - apiGroups:
-          - o11y.splunk.com
+          - otel.splunk.com
           resources:
-          - splunkotelagents/status
+          - agents/status
           verbs:
           - get
           - patch
@@ -503,13 +503,34 @@ spec:
     - v1
     containerPort: 443
     conversionCRDs:
-    - splunkotelagents.o11y.splunk.com
+    - agents.otel.splunk.com
     deploymentName: splunk-otel-operator-controller-manager
-    generateName: csplunkotelagents.kb.io
+    generateName: cagents.kb.io
     sideEffects: None
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
+  - admissionReviewVersions:
+    - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: splunk-otel-operator-controller-manager
+    failurePolicy: Fail
+    generateName: magent.kb.io
+    rules:
+    - apiGroups:
+      - otel.splunk.com
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - agents
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-otel-splunk-com-v1alpha1-agent
   - admissionReviewVersions:
     - v1
     - v1beta1
@@ -537,39 +558,18 @@ spec:
     containerPort: 443
     deploymentName: splunk-otel-operator-controller-manager
     failurePolicy: Fail
-    generateName: msplunkotelagent.kb.io
+    generateName: vagent.kb.io
     rules:
     - apiGroups:
-      - o11y.splunk.com
+      - otel.splunk.com
       apiVersions:
       - v1alpha1
       operations:
       - CREATE
       - UPDATE
       resources:
-      - splunkotelagents
-    sideEffects: None
-    targetPort: 9443
-    type: MutatingAdmissionWebhook
-    webhookPath: /mutate-o11y-splunk-com-v1alpha1-splunkotelagent
-  - admissionReviewVersions:
-    - v1
-    - v1beta1
-    containerPort: 443
-    deploymentName: splunk-otel-operator-controller-manager
-    failurePolicy: Fail
-    generateName: vsplunkotelagent.kb.io
-    rules:
-    - apiGroups:
-      - o11y.splunk.com
-      apiVersions:
-      - v1alpha1
-      operations:
-      - CREATE
-      - UPDATE
-      resources:
-      - splunkotelagents
+      - agents
     sideEffects: None
     targetPort: 9443
     type: ValidatingAdmissionWebhook
-    webhookPath: /validate-o11y-splunk-com-v1alpha1-splunkotelagent
+    webhookPath: /validate-otel-splunk-com-v1alpha1-agent

@@ -23,7 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/collector/upgrade"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/version"
 )
@@ -31,7 +31,7 @@ import (
 func TestInfluxdbReceiverPropertyDrop(t *testing.T) {
 	// prepare
 	nsn := types.NamespacedName{Name: "my-instance", Namespace: "default"}
-	existing := v1alpha1.SplunkOtelAgent{
+	existing := v1alpha1.Agent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
@@ -39,8 +39,8 @@ func TestInfluxdbReceiverPropertyDrop(t *testing.T) {
 				"app.kubernetes.io/managed-by": "splunk-otel-operator",
 			},
 		},
-		Spec: v1alpha1.SplunkOtelAgentSpec{
-			Agent: v1alpha1.SplunkCollectorSpec{
+		Spec: v1alpha1.AgentSpec{
+			Agent: v1alpha1.CollectorSpec{
 				Config: `
 receivers:
   influxdb:

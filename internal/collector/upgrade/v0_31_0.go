@@ -22,11 +22,11 @@ import (
 	"gopkg.in/yaml.v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/collector/adapters"
 )
 
-func upgrade0_31_0(cl client.Client, otelcol *v1alpha1.SplunkOtelAgent) (*v1alpha1.SplunkOtelAgent, error) {
+func upgrade0_31_0(cl client.Client, otelcol *v1alpha1.Agent) (*v1alpha1.Agent, error) {
 	if len(otelcol.Spec.Agent.Config) == 0 {
 		return otelcol, nil
 	}

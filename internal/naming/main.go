@@ -19,11 +19,11 @@ package naming
 import (
 	"fmt"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
 // ConfigMap builds the name for the config map used in the SplunkOtelAgent containers.
-func ConfigMap(spec v1alpha1.SplunkOtelAgent, kind string) string {
+func ConfigMap(spec v1alpha1.Agent, kind string) string {
 	return fmt.Sprintf("%s-%s", spec.Name, kind)
 }
 
@@ -38,37 +38,37 @@ func Container() string {
 }
 
 // Gateway builds the gateway name based on the instance.
-func Gateway(otelcol v1alpha1.SplunkOtelAgent) string {
+func Gateway(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-gateway", otelcol.Name)
 }
 
 // Agent builds the agent name based on the instance.
-func Agent(otelcol v1alpha1.SplunkOtelAgent) string {
+func Agent(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-agent", otelcol.Name)
 }
 
 // ClusterReceiver builds the agent name based on the instance.
-func ClusterReciever(otelcol v1alpha1.SplunkOtelAgent) string {
+func ClusterReciever(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-cluster-receiver", otelcol.Name)
 }
 
 // HeadlessService builds the name for the headless service based on the instance.
-func HeadlessService(otelcol v1alpha1.SplunkOtelAgent) string {
+func HeadlessService(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-headless", Service(otelcol))
 }
 
 // MonitoringService builds the name for the monitoring service based on the instance.
-func MonitoringService(otelcol v1alpha1.SplunkOtelAgent) string {
+func MonitoringService(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-monitoring", Service(otelcol))
 }
 
 // Service builds the service name based on the instance.
-func Service(otelcol v1alpha1.SplunkOtelAgent) string {
+func Service(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-collector", otelcol.Name)
 }
 
 // ServiceAccount builds the service account name based on the instance.
-func ServiceAccount(otelcol v1alpha1.SplunkOtelAgent) string {
+func ServiceAccount(otelcol v1alpha1.Agent) string {
 	// TODO(splunk): create separate accounts for agent, clusterreceiver
 	// and gateway.
 	// return fmt.Sprintf("%s-account", otelcol.Name)
@@ -76,6 +76,6 @@ func ServiceAccount(otelcol v1alpha1.SplunkOtelAgent) string {
 }
 
 // Namespace builds the namespace name based on the instance.
-func Namespace(otelcol v1alpha1.SplunkOtelAgent) string {
+func Namespace(otelcol v1alpha1.Agent) string {
 	return "splunk-otel-operator-system"
 }

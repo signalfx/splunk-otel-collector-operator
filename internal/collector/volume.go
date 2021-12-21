@@ -19,12 +19,12 @@ package collector
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
 // Volumes builds the volumes for the given instance, including the config map volume.
-func Volumes(spec v1alpha1.SplunkCollectorSpec, configmap string) []corev1.Volume {
+func Volumes(spec v1alpha1.CollectorSpec, configmap string) []corev1.Volume {
 	// create one volume per configmap (agent, gateway, clusterreceiver)
 	volumes := []corev1.Volume{}
 

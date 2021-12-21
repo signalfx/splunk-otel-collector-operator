@@ -1,3 +1,3 @@
 ## This file is auto-generated, do not modify ##
 resources:
-- o11y_v1_splunkotelagent.yaml
+- otel_v1_agent.yaml

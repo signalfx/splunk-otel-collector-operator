@@ -33,7 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
 	// +kubebuilder:scaffold:imports
 )
@@ -89,7 +89,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	if err = (&v1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, autodetect.UnknownDistro); err != nil {
+	if err = (&v1alpha1.Agent{}).SetupWebhookWithManager(mgr, autodetect.UnknownDistro); err != nil {
 		fmt.Printf("failed to SetupWebhookWithManager: %v", err)
 		os.Exit(1)
 	}

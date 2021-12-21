@@ -39,8 +39,8 @@ Once the `splunk-otel--operator` deployment is ready, create an Splunk OpenTelem
 
 ```console
 $ kubectl apply -f - <<EOF
-apiVersion: o11y.splunk.com/v1alpha1
-kind: SplunkOtelAgent
+apiVersion: otel.splunk.com/v1alpha1
+kind: Agent
 metadata:
   name: splunk-otel
   namespace: splunk-otel-operator-system
@@ -72,7 +72,7 @@ spec:
         image: my-java-app:latest
 ```
 
-Then you can automatically instrument it by add `o11y.splunk.com/inject-java: "true"` to the Pod spec (not the deployment) so that it would look like the following:
+Then you can automatically instrument it by add `otel.splunk.com/inject-java: "true"` to the Pod spec (not the deployment) so that it would look like the following:
 
 ```yaml
 apiVersion: apps/v1
@@ -83,7 +83,7 @@ spec:
   template:
     metadata:
       annotations:
-        o11y.splunk.com/inject-java: "true"
+        otel.splunk.com/inject-java: "true"
     spec:
       containers:
       - name: my-java-app
@@ -94,11 +94,11 @@ This will automatically inject [Splunk OpenTelemetry Java Agent](github.com/sign
 
 Right now the following annotations are supported:
 
-### o11y.splunk.com/inject-java
+### otel.splunk.com/inject-java
 
 When this instrumentation is set to `"true"` on a pod, the operator automatically instruments the pod with the Splunk OpenTelemetry Java agent and configures it to send all telemetry data to the OpenTelemetry agents managed by the operator. 
 
-### o11y.splunk.com/inject-config
+### otel.splunk.com/inject-config
 
 When this instrumentation is set to `"true"` on a pod, the operator only configures the pod to send all telemetry data to the OpenTelemetry agents managed by the operator. Pods are not instrumented in this case and that is left to the user.
 

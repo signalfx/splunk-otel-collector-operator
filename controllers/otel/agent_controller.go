@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package o11y
+package otel
 
 import (
 	"context"
@@ -29,8 +29,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
-	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
+	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
+	otelv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/collector/reconcile"
 )
 
@@ -108,9 +108,9 @@ func NewReconciler(logger logr.Logger, client client.Client, scheme *runtime.Sch
 	}
 }
 
-//+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=o11y.splunk.com,resources=splunkotelagents/finalizers,verbs=update
+//+kubebuilder:rbac:groups=otel.splunk.com,resources=agents,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=otel.splunk.com,resources=agents/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=otel.splunk.com,resources=agents/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -120,9 +120,9 @@ func NewReconciler(logger logr.Logger, client client.Client, scheme *runtime.Sch
 func (r *SplunkOtelAgentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	log := r.logger.WithValues("splunkotelagent", req.NamespacedName)
+	log := r.logger.WithValues("agent", req.NamespacedName)
 
-	var instance v1alpha1.SplunkOtelAgent
+	var instance v1alpha1.Agent
 	if err := r.Get(ctx, req.NamespacedName, &instance); err != nil {
 		if !apierrors.IsNotFound(err) {
 			log.Error(err, "unable to fetch SplunkOtelAgent")
@@ -166,7 +166,7 @@ func (r *SplunkOtelAgentReconciler) RunTasks(ctx context.Context, params reconci
 // SetupWithManager sets up the controller with the Manager.
 func (r *SplunkOtelAgentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&o11yv1alpha1.SplunkOtelAgent{}).
+		For(&otelv1alpha1.Agent{}).
 		Owns(&corev1.ConfigMap{}).
 		Owns(&corev1.ServiceAccount{}).
 		Owns(&corev1.Service{}).

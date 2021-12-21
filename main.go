@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	o11yv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/o11y/v1alpha1"
-	o11ycontrollers "github.com/signalfx/splunk-otel-collector-operator/controllers/o11y"
+	otelv1alpha1 "github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
+	otelcontrollers "github.com/signalfx/splunk-otel-collector-operator/controllers/otel"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/version"
 	"github.com/signalfx/splunk-otel-collector-operator/internal/webhooks"
@@ -47,7 +47,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(o11yv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(otelv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -97,13 +97,13 @@ func main() {
 	}
 	distro := ad.Distro()
 
-	if err = (o11ycontrollers.NewReconciler(ctrl.Log.WithName("controllers").WithName("SplunkOtelAgent"), mgr.GetClient(), mgr.GetScheme(), mgr.GetEventRecorderFor("splunk-otel-operator"))).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "SplunkOtelAgent")
+	if err = (otelcontrollers.NewReconciler(ctrl.Log.WithName("controllers").WithName("Agent"), mgr.GetClient(), mgr.GetScheme(), mgr.GetEventRecorderFor("splunk-otel-operator"))).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Agent")
 		os.Exit(1)
 	}
 
-	if err = (&o11yv1alpha1.SplunkOtelAgent{}).SetupWebhookWithManager(mgr, distro); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "SplunkOtelAgent")
+	if err = (&otelv1alpha1.Agent{}).SetupWebhookWithManager(mgr, distro); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "Agent")
 		os.Exit(1)
 	}
 

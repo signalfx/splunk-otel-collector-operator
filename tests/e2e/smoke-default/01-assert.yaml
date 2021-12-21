@@ -1,5 +1,5 @@
-apiVersion: o11y.splunk.com/v1alpha1
-kind: SplunkOtelAgent
+apiVersion: otel.splunk.com/v1alpha1
+kind: Agent
 metadata:
   labels:
     app.kubernetes.io/managed-by: splunk-otel-collector-operator
