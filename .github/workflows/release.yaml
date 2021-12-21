@@ -18,8 +18,8 @@ jobs:
     - name: "install kubebuilder"
       run: ./hack/install-kubebuilder.sh
 
-    - name: "install kustomize"
-      run: ./hack/install-kustomize.sh
+    - name: "install tools"
+      run: make install-tools
 
     - uses: jpkrohling/setup-operator-sdk@v1.1.0
       with:
