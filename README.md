@@ -55,6 +55,54 @@ Replace `MY_CLUSTER_NAME` and `SPLUNK_REALM` with your values.
 **_WARNING:_** Until the OpenTelemetry Collector format is stable, changes may be required in the above example to remain
 compatible with the latest version of the Splunk OpenTelemetry Operator and Splunk OpenTelemetry Collector.
 
+## Automatically instrumenting k8s pods
+
+This operator can automatically inject configuration and instrumentation agents into Kubernetes pods on demand. In order to do so, you'll need to annotate the pods you want to instrument or auto-configure. For example, if your deployment looks like the following:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-java-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-java-app
+        image: my-java-app:latest
+```
+
+Then you can automatically instrument it by add `o11y.splunk.com/inject-java: "true"` to the Pod spec (not the deployment) so that it would look like the following:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-java-app
+spec:
+  template:
+    metadata:
+      annotations:
+        o11y.splunk.com/inject-java: "true"
+    spec:
+      containers:
+      - name: my-java-app
+        image: my-java-app:latest
+```
+
+This will automatically inject [Splunk OpenTelemetry Java Agent](github.com/signalfx/splunk-otel-java) into the pod and configure it to send telemetry to the OpenTelemetry agents deployed by the operator.
+
+Right now the following annotations are supported:
+
+### o11y.splunk.com/inject-java
+
+When this instrumentation is set to `"true"` on a pod, the operator automatically instruments the pod with the Splunk OpenTelemetry Java agent and configures it to send all telemetry data to the OpenTelemetry agents managed by the operator. 
+
+### o11y.splunk.com/inject-config
+
+When this instrumentation is set to `"true"` on a pod, the operator only configures the pod to send all telemetry data to the OpenTelemetry agents managed by the operator. Pods are not instrumented in this case and that is left to the user.
+
+
 ## Compatibility matrix
 
 ### OpenTelemetry Operator vs. Kubernetes
