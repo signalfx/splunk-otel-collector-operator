@@ -6135,6 +6135,20 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                 type: object
+              instrumentation:
+                description: Instrumentation is used to configure and customize Splunk
+                  OpenTelemetry SDKs and auto-instrumentation agents
+                properties:
+                  java:
+                    description: Java is used to configure Java SDK and auto-instrumentation
+                      agent.
+                    properties:
+                      image:
+                        description: Image specifies the auto-instrumentation docker
+                          image that should be used.
+                        type: string
+                    type: object
+                type: object
               realm:
                 description: Realm is the Splunk APM Realm your Splukn account exists
                   in. For example, us0, us1, etc.

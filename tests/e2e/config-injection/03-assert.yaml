@@ -5,6 +5,7 @@ metadata:
   namespace: config-injection-test-ns
   annotations:
     o11y.splunk.com/inject-config: "true"
+    o11y.splunk.com/injection-status: "success"
 spec:
   containers:
   - name: ubuntu

@@ -29,32 +29,46 @@ const (
 	envOTELExporterOTLPEndpoint = "OTEL_EXPORTER_OTLP_ENDPOINT"
 	envOTELTracesExporter       = "OTEL_TRACES_EXPORTER"
 	envOTELResourceAttrs        = "OTEL_RESOURCE_ATTRIBUTES"
+	envJavaToolsOptions         = "JAVA_TOOL_OPTIONS"
 
-	exporterOTLP   = "otlp"
-	exporterJaeger = "jaeger-thrift-splunk"
+	volumeName        = "splunk-instrumentation"
+	initContainerName = "splunk-instrumentation"
+	javaJVMArgument   = " -javaagent:/splunk/splunk-otel-javaagent-all.jar"
+	exporterOTLP      = "otlp"
+	exporterJaeger    = "jaeger-thrift-splunk"
 
-	annotationConfInjectionEnabled = "o11y.splunk.com/inject-config"
-	annotationStatus               = "o11y.splunk.com/injection-status"
-	annotationReason               = "o11y.splunk.com/injection-reason"
+	annotationJava   = "o11y.splunk.com/inject-java"
+	annotationConfig = "o11y.splunk.com/inject-config"
+	annotationStatus = "o11y.splunk.com/injection-status"
+	annotationReason = "o11y.splunk.com/injection-reason"
 )
 
+type injectFn func(ctx context.Context, cfg config, pod corev1.Pod, ns corev1.Namespace) (corev1.Pod, error)
+
 type handler struct {
-	client  client.Client
-	logger  logr.Logger
-	decoder *admission.Decoder
+	client    client.Client
+	logger    logr.Logger
+	decoder   *admission.Decoder
+	injectMap map[string]injectFn
 }
 
 type config struct {
-	exporter string
-	endpoint string
+	exporter  string
+	endpoint  string
+	javaImage string
 }
 
 // NewHandler creates a new WebhookHandler.
 func NewHandler(logger logr.Logger, cl client.Client) admission.Handler {
-	return &handler{
+	h := &handler{
 		client: cl,
 		logger: logger,
 	}
+	h.injectMap = map[string]injectFn{
+		annotationJava:   h.injectJava,
+		annotationConfig: h.injectConfig,
+	}
+	return h
 }
 
 func (h *handler) patch(req admission.Request, pod corev1.Pod, err error) admission.Response {
@@ -70,7 +84,6 @@ func (h *handler) patch(req admission.Request, pod corev1.Pod, err error) admiss
 	}
 
 	return admission.PatchResponseFromRaw(req.Object.Raw, marshaledPod)
-
 }
 
 func (h *handler) Handle(ctx context.Context, req admission.Request) admission.Response {
@@ -85,7 +98,19 @@ func (h *handler) Handle(ctx context.Context, req admission.Request) admission.R
 		pod.Annotations = map[string]string{}
 	}
 
-	if !strings.EqualFold(pod.Annotations[annotationConfInjectionEnabled], "true") {
+	injectFunctions := []injectFn{}
+	for ann, fn := range h.injectMap {
+		if strings.EqualFold(pod.Annotations[ann], "true") {
+			injectFunctions = append(injectFunctions, fn)
+		}
+	}
+
+	if len(injectFunctions) == 0 {
+		return admission.Allowed("")
+	}
+
+	if len(pod.Spec.Containers) < 1 {
+		h.logger.Info("no containers found in pod", "pod", pod.Name)
 		return admission.Allowed("")
 	}
 
@@ -106,7 +131,13 @@ func (h *handler) Handle(ctx context.Context, req admission.Request) admission.R
 
 	cfg := configFromSpec(spec)
 
-	pod = h.injectConfigIntoPod(ctx, cfg, pod, ns)
+	for _, fn := range injectFunctions {
+		pod, err = fn(ctx, cfg, pod, ns)
+		if err != nil {
+			return h.patch(req, pod, err)
+		}
+	}
+	pod.Annotations[annotationStatus] = "success"
 	return h.patch(req, pod, nil)
 }
 
@@ -126,14 +157,57 @@ func configFromSpec(spec *v1alpha1.SplunkOtelAgentSpec) config {
 		}
 	}
 
+	cfg.javaImage = spec.Instrumentation.Java.Image
+
 	return cfg
 }
 
-func (h *handler) injectConfigIntoPod(ctx context.Context, cfg config, pod corev1.Pod, ns corev1.Namespace) corev1.Pod {
-	if len(pod.Spec.Containers) < 1 {
-		h.logger.Info("no containers found in pod", "pod", pod.Name)
-		return pod
+func (h *handler) injectJava(ctx context.Context, cfg config, pod corev1.Pod, ns corev1.Namespace) (corev1.Pod, error) {
+	pod, err := h.injectConfig(ctx, cfg, pod, ns)
+	if err != nil {
+		return pod, err
 	}
+
+	container := &pod.Spec.Containers[0]
+	idx := getIndexOfEnv(container.Env, envJavaToolsOptions)
+	if idx == -1 {
+		container.Env = append(container.Env, corev1.EnvVar{
+			Name:  envJavaToolsOptions,
+			Value: javaJVMArgument,
+		})
+	} else {
+		if container.Env[idx].ValueFrom != nil {
+			msg := fmt.Sprintf("Skipping javaagent injection, the container defines JAVA_TOOL_OPTIONS env var value via ValueFrom for container %s", container.Name)
+			h.logger.Info(msg)
+			return pod, errors.New(msg)
+		}
+		container.Env[idx].Value = container.Env[idx].Value + javaJVMArgument
+	}
+	container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+		Name:      volumeName,
+		MountPath: "/splunk",
+	})
+
+	pod.Spec.Volumes = append(pod.Spec.Volumes, corev1.Volume{
+		Name: volumeName,
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		}})
+
+	pod.Spec.InitContainers = append(pod.Spec.InitContainers, corev1.Container{
+		Name:    initContainerName,
+		Image:   cfg.javaImage,
+		Command: []string{"cp", "/splunk-otel-javaagent-all.jar", "/splunk/splunk-otel-javaagent-all.jar"},
+		VolumeMounts: []corev1.VolumeMount{{
+			Name:      volumeName,
+			MountPath: "/splunk",
+		}},
+	})
+
+	return pod, nil
+}
+
+func (h *handler) injectConfig(ctx context.Context, cfg config, pod corev1.Pod, ns corev1.Namespace) (corev1.Pod, error) {
 
 	container := &pod.Spec.Containers[0]
 	resourceAttrs, resourceEnvIdx := h.createResourceMap(ctx, ns, pod)
@@ -165,7 +239,7 @@ func (h *handler) injectConfigIntoPod(ctx context.Context, cfg config, pod corev
 
 	container.Env = h.injectEnvVars(container.Env, newEnv)
 
-	return pod
+	return pod, nil
 }
 
 func (h *handler) injectEnvVars(old []corev1.EnvVar, new []corev1.EnvVar) []corev1.EnvVar {

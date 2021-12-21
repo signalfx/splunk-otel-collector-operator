@@ -223,6 +223,17 @@ spec:
           deployment(s).
         displayName: Volumes
         path: gateway.volumes
+      - description: Instrumentation is used to configure and customize Splunk OpenTelemetry
+          SDKs and auto-instrumentation agents
+        displayName: Instrumentation
+        path: instrumentation
+      - description: Java is used to configure Java SDK and auto-instrumentation agent.
+        displayName: Java
+        path: instrumentation.java
+      - description: Image specifies the auto-instrumentation docker image that should
+          be used.
+        displayName: Image
+        path: instrumentation.java.image
       - description: Realm is the Splunk APM Realm your Splukn account exists in.
           For example, us0, us1, etc.
         displayName: Realm
