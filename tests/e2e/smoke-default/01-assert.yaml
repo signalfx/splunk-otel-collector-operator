@@ -459,7 +459,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-        image: quay.io/signalfx/splunk-otel-collector:0.41.0
+        image: quay.io/signalfx/splunk-otel-collector:0.42.0
         imagePullPolicy: IfNotPresent
         name: otc-container
         resources: {}
