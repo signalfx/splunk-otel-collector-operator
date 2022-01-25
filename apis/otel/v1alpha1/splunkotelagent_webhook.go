@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	defaultJavaAgentImage = "quay.io/signalfx/splunk-otel-instrumentation-java:v1.6.0"
+	defaultJavaAgentImage = "quay.io/signalfx/splunk-otel-instrumentation-java:v1.7.1"
 )
 
 // log is for logging in this package.

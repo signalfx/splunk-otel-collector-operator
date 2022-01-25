@@ -19,12 +19,12 @@ To install the operator in an existing cluster, make sure you have [`cert-manage
 ### 2. Install the Operator
 #### 2.a Kubernetes
 ```
-kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/download/v0.0.2/splunk-otel-operator.yaml
+kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/download/v0.0.3/splunk-otel-operator.yaml
 ```
 
 #### 2.b OpenShift
 ```
-kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/download/v0.0.2/splunk-otel-operator-openshift.yaml
+kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/download/v0.0.3/splunk-otel-operator-openshift.yaml
 ```
 
 ### 3. Add your Splunk APM token
