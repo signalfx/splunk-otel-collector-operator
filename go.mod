@@ -18,5 +18,5 @@ require (
 	k8s.io/kubectl v0.22.4
 	sigs.k8s.io/controller-runtime v0.10.3
 	sigs.k8s.io/controller-tools v0.7.0
-	sigs.k8s.io/kustomize/kustomize/v4 v4.4.1
+	sigs.k8s.io/kustomize/kustomize/v4 v4.5.0
 )
