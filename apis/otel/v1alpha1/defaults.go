@@ -37,15 +37,20 @@ func newEnvVarWithFieldRef(name, path string) v1.EnvVar {
 	}
 }
 
-const defaultAgentConfig = `
+const (
+	defaultAgentCPU    = "200m"
+	defaultAgentMemory = "500Mi"
+	defaultAgentConfig = `
 extensions:
   health_check:
     endpoint: '0.0.0.0:13133'
-  zpages:
-    endpoint: '0.0.0.0:55679'
   k8s_observer:
     auth_type: serviceAccount
     node: '${MY_NODE_NAME}'
+  memory_ballast:
+    size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
+  zpages:
+    endpoint: '0.0.0.0:55679'
 receivers:
   jaeger:
     protocols:
@@ -126,7 +131,6 @@ processors:
       node: '${MY_NODE_NAME}'
   batch: null
   memory_limiter:
-    ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
     check_interval: 2s
     limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
   resource:
@@ -161,6 +165,7 @@ service:
   extensions:
     - health_check
     - k8s_observer
+    - memory_ballast
     - zpages
   pipelines:
     traces:
@@ -201,10 +206,14 @@ service:
         - signalfx
 `
 
-const defaultClusterReceiverConfig = `
+	defaultClusterReceiverCPU    = "200m"
+	defaultClusterReceiverMemory = "500Mi"
+	defaultClusterReceiverConfig = `
 extensions:
   health_check:
     endpoint: '0.0.0.0:13133'
+  memory_ballast:
+    size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
 receivers:
   k8s_cluster:
     auth_type: serviceAccount
@@ -230,7 +239,6 @@ exporters:
 processors:
   batch: null
   memory_limiter:
-    ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
     check_interval: 2s
     limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
   resource:
@@ -270,6 +278,7 @@ processors:
 service:
   extensions:
     - health_check
+    - memory_ballast
   pipelines:
     metrics:
       receivers:
@@ -292,10 +301,12 @@ service:
         - signalfx
 `
 
-const defaultClusterReceiverConfigOpenshift = `
+	defaultClusterReceiverConfigOpenshift = `
 extensions:
   health_check:
     endpoint: '0.0.0.0:13133'
+  memory_ballast:
+    size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
 receivers:
   k8s_cluster:
     distribution: openshift
@@ -322,7 +333,6 @@ exporters:
 processors:
   batch: null
   memory_limiter:
-    ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
     check_interval: 2s
     limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
   resource:
@@ -362,6 +372,7 @@ processors:
 service:
   extensions:
     - health_check
+    - memory_ballast
   pipelines:
     metrics:
       receivers:
@@ -383,3 +394,9 @@ service:
       exporters:
         - signalfx
 `
+
+	defaultGatewayCPU    = "4"
+	defaultGatewayMemory = "8Gi"
+
+	defaultJavaAgentImage = "quay.io/signalfx/splunk-otel-instrumentation-java:v1.7.1"
+)
