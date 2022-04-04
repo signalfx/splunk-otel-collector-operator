@@ -13,11 +13,13 @@ spec:
             endpoint: 0.0.0.0:6060
         health_check:
           endpoint: '0.0.0.0:13133'
-        zpages:
-          endpoint: '0.0.0.0:55679'
         k8s_observer:
           auth_type: serviceAccount
           node: '${MY_NODE_NAME}'
+        memory_ballast:
+          size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
+        zpages:
+          endpoint: '0.0.0.0:55679'
       receivers:
         jaeger:
           protocols:
@@ -98,7 +100,6 @@ spec:
             node: '${MY_NODE_NAME}'
         batch: null
         memory_limiter:
-          ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
           check_interval: 2s
           limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
         resource:
@@ -133,6 +134,7 @@ spec:
         extensions:
           - health_check
           - k8s_observer
+          - memory_ballast
           - zpages
         pipelines:
           traces:
@@ -181,6 +183,13 @@ spec:
         value: my-splunk-realm-custom
       - name: MY_CLUSTER_NAME
         value: test-cluster-custom
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200Mi
+      requests:
+        memory: 100Mi
+        cpu: 100m
   clusterReceiver:
     config: |2
       extensions:
@@ -189,6 +198,8 @@ spec:
             endpoint: 0.0.0.0:6061
         health_check:
           endpoint: '0.0.0.0:13133'
+        memory_ballast:
+          size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
       receivers:
         k8s_cluster:
           auth_type: serviceAccount
@@ -214,7 +225,6 @@ spec:
       processors:
         batch: null
         memory_limiter:
-          ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
           check_interval: 2s
           limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
         resource:
@@ -254,6 +264,7 @@ spec:
       service:
         extensions:
           - health_check
+          - memory_ballast
         pipelines:
           metrics:
             receivers:
@@ -274,12 +285,5 @@ spec:
               - resourcedetection
             exporters:
               - signalfx
-    resources:
-      requests:
-        memory: "100Mi"
-        cpu: "300m"
-      limits:
-        memory: "200Mi"
-        cpu: "400m"
   gateway:
     disabled: true
