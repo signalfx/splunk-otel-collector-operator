@@ -16,19 +16,17 @@ package v1alpha1
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/signalfx/splunk-otel-collector-operator/internal/autodetect"
-)
-
-const (
-	defaultJavaAgentImage = "quay.io/signalfx/splunk-otel-instrumentation-java:v1.7.1"
 )
 
 // log is for logging in this package.
@@ -162,9 +160,6 @@ func (r *Agent) defaultInstrumentation() {
 }
 
 func (r *Agent) defaultAgent() {
-	realm := r.Spec.Realm
-	clusterName := r.Spec.ClusterName
-
 	spec := &r.Spec.Agent
 	spec.HostNetwork = true
 
@@ -217,34 +212,8 @@ func (r *Agent) defaultAgent() {
 		}
 	}
 
-	if spec.Env == nil {
-		spec.Env = []v1.EnvVar{
-			{
-				Name: "SPLUNK_ACCESS_TOKEN",
-				ValueFrom: &v1.EnvVarSource{
-					SecretKeyRef: &v1.SecretKeySelector{
-						LocalObjectReference: v1.LocalObjectReference{Name: "splunk-access-token"},
-						Key:                  "access-token",
-					},
-				},
-			},
-			newEnvVar("SPLUNK_REALM", realm),
-			newEnvVar("MY_CLUSTER_NAME", clusterName),
-			newEnvVar("HOST_PROC", "/hostfs/proc"),
-			newEnvVar("HOST_SYS", "/hostfs/sys"),
-			newEnvVar("HOST_ETC", "/hostfs/etc"),
-			newEnvVar("HOST_VAR", "/hostfs/var"),
-			newEnvVar("HOST_RUN", "/hostfs/run"),
-			newEnvVar("HOST_DEV", "/hostfs/dev"),
-			newEnvVarWithFieldRef("MY_NODE_NAME", "spec.nodeName"),
-			newEnvVarWithFieldRef("MY_NODE_IP", "status.hostIP"),
-			newEnvVarWithFieldRef("MY_POD_IP", "status.podIP"),
-			newEnvVarWithFieldRef("MY_POD_NAME", "metadata.name"),
-			newEnvVarWithFieldRef("MY_POD_UID", "metadata.uid"),
-			newEnvVarWithFieldRef("MY_NAMESPACE", "metadata.namespace"),
-			// TODO(splunk) support ballast
-		}
-	}
+	setDefaultResources(spec, defaultAgentCPU, defaultAgentMemory)
+	setDefaultEnvVars(spec, r.Spec.Realm, r.Spec.ClusterName)
 
 	if spec.Config == "" {
 		spec.Config = defaultAgentConfig
@@ -252,40 +221,12 @@ func (r *Agent) defaultAgent() {
 }
 
 func (r *Agent) defaultClusterReceiver() {
-	realm := r.Spec.Realm
-	clusterName := r.Spec.ClusterName
-
 	spec := &r.Spec.ClusterReceiver
 	spec.HostNetwork = false
 
-	if spec.Env == nil {
-		spec.Env = []v1.EnvVar{
-			{
-				Name: "SPLUNK_ACCESS_TOKEN",
-				ValueFrom: &v1.EnvVarSource{
-					SecretKeyRef: &v1.SecretKeySelector{
-						LocalObjectReference: v1.LocalObjectReference{Name: "splunk-access-token"},
-						Key:                  "access-token",
-					},
-				},
-			},
-			newEnvVar("SPLUNK_REALM", realm),
-			newEnvVar("MY_CLUSTER_NAME", clusterName),
-			newEnvVar("HOST_PROC", "/hostfs/proc"),
-			newEnvVar("HOST_SYS", "/hostfs/sys"),
-			newEnvVar("HOST_ETC", "/hostfs/etc"),
-			newEnvVar("HOST_VAR", "/hostfs/var"),
-			newEnvVar("HOST_RUN", "/hostfs/run"),
-			newEnvVar("HOST_DEV", "/hostfs/dev"),
-			newEnvVarWithFieldRef("MY_NODE_NAME", "spec.nodeName"),
-			newEnvVarWithFieldRef("MY_NODE_IP", "status.hostIP"),
-			newEnvVarWithFieldRef("MY_POD_IP", "status.podIP"),
-			newEnvVarWithFieldRef("MY_POD_NAME", "metadata.name"),
-			newEnvVarWithFieldRef("MY_POD_UID", "metadata.uid"),
-			newEnvVarWithFieldRef("MY_NAMESPACE", "metadata.namespace"),
-			// TODO(splunk) support ballast
-		}
-	}
+	setDefaultResources(spec, defaultClusterReceiverCPU,
+		defaultClusterReceiverMemory)
+	setDefaultEnvVars(spec, r.Spec.Realm, r.Spec.ClusterName)
 
 	if spec.Config == "" {
 		if detectedDistro == autodetect.OpenShiftDistro {
@@ -301,4 +242,65 @@ func (r *Agent) defaultGateway() {
 	// TODO(splunk): forcibly disable gateway until we add support for it.
 	spec.Disabled = true
 	spec.HostNetwork = false
+
+	setDefaultResources(spec, defaultGatewayCPU, defaultGatewayMemory)
+	setDefaultEnvVars(spec, r.Spec.Realm, r.Spec.ClusterName)
+}
+
+func setDefaultResources(spec *CollectorSpec, defaultCPU string,
+	defaultMemory string) {
+	if spec.Resources.Limits == nil && spec.Resources.Requests == nil {
+		rr := v1.ResourceRequirements{
+			Limits: v1.ResourceList{
+				v1.ResourceCPU:    resource.MustParse(defaultCPU),
+				v1.ResourceMemory: resource.MustParse(defaultMemory),
+			},
+			Requests: v1.ResourceList{
+				v1.ResourceCPU:    resource.MustParse(defaultCPU),
+				v1.ResourceMemory: resource.MustParse(defaultMemory),
+			},
+		}
+		spec.Resources = rr
+	}
+}
+
+func setDefaultEnvVars(spec *CollectorSpec, realm string, clusterName string) {
+	if spec.Env == nil {
+		spec.Env = []v1.EnvVar{
+			{
+				Name: "SPLUNK_ACCESS_TOKEN",
+				ValueFrom: &v1.EnvVarSource{
+					SecretKeyRef: &v1.SecretKeySelector{
+						LocalObjectReference: v1.LocalObjectReference{Name: "splunk-access-token"},
+						Key:                  "access-token",
+					},
+				},
+			},
+			newEnvVar("SPLUNK_REALM", realm),
+			newEnvVar("MY_CLUSTER_NAME", clusterName),
+			newEnvVar("HOST_PROC", "/hostfs/proc"),
+			newEnvVar("HOST_SYS", "/hostfs/sys"),
+			newEnvVar("HOST_ETC", "/hostfs/etc"),
+			newEnvVar("HOST_VAR", "/hostfs/var"),
+			newEnvVar("HOST_RUN", "/hostfs/run"),
+			newEnvVar("HOST_DEV", "/hostfs/dev"),
+			newEnvVarWithFieldRef("MY_NODE_NAME", "spec.nodeName"),
+			newEnvVarWithFieldRef("MY_NODE_IP", "status.hostIP"),
+			newEnvVarWithFieldRef("MY_POD_IP", "status.podIP"),
+			newEnvVarWithFieldRef("MY_POD_NAME", "metadata.name"),
+			newEnvVarWithFieldRef("MY_POD_UID", "metadata.uid"),
+			newEnvVarWithFieldRef("MY_NAMESPACE", "metadata.namespace"),
+		}
+		if spec.Resources.Limits != nil {
+			if m, ok := spec.Resources.Limits[v1.ResourceMemory]; ok {
+				spec.Env = append(spec.Env,
+					newEnvVar("SPLUNK_MEMORY_TOTAL_MIB", getMemSizeInMiB(m)))
+			}
+		}
+	}
+}
+
+func getMemSizeInMiB(q resource.Quantity) string {
+	//  Mi = 1024 * 1024 bytes
+	return strconv.FormatInt(q.Value()/(1024*1024), 10)
 }

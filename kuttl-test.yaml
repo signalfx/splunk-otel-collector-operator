@@ -9,7 +9,7 @@ commands:
   - command: make cert-manager
   - command: kubectl apply -f ./tests/_build/manifests/01-splunk-otel-operator.yaml
   - command: kubectl wait --timeout=5m --for=condition=available deployment splunk-otel-operator-controller-manager -n splunk-otel-operator-system
-  - command: sleep 5s
+  - command: sleep 5
 testDirs:
   - ./tests/e2e/
 timeout: 150

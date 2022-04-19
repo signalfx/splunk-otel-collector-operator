@@ -19,11 +19,13 @@ data:
     extensions:
       health_check:
         endpoint: '0.0.0.0:13133'
-      zpages:
-        endpoint: '0.0.0.0:55679'
       k8s_observer:
         auth_type: serviceAccount
         node: '${MY_NODE_NAME}'
+      memory_ballast:
+        size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
+      zpages:
+        endpoint: '0.0.0.0:55679'
     receivers:
       jaeger:
         protocols:
@@ -104,7 +106,6 @@ data:
           node: '${MY_NODE_NAME}'
       batch: null
       memory_limiter:
-        ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
         check_interval: 2s
         limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
       resource:
@@ -139,6 +140,7 @@ data:
       extensions:
         - health_check
         - k8s_observer
+        - memory_ballast
         - zpages
       pipelines:
         traces:
@@ -190,6 +192,8 @@ data:
     extensions:
       health_check:
         endpoint: '0.0.0.0:13133'
+      memory_ballast:
+        size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
     receivers:
       k8s_cluster:
         auth_type: serviceAccount
@@ -215,7 +219,6 @@ data:
     processors:
       batch: null
       memory_limiter:
-        ballast_size_mib: '${SPLUNK_BALLAST_SIZE_MIB}'
         check_interval: 2s
         limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
       resource:
@@ -255,6 +258,7 @@ data:
     service:
       extensions:
         - health_check
+        - memory_ballast
       pipelines:
         metrics:
           receivers:
@@ -355,9 +359,17 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        - name: SPLUNK_MEMORY_TOTAL_MIB
+          value: "500"
         imagePullPolicy: IfNotPresent
         name: otc-container
-        resources: {}
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 500Mi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
@@ -459,10 +471,18 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        - name: SPLUNK_MEMORY_TOTAL_MIB
+          value: "500"
         image: quay.io/signalfx/splunk-otel-collector:0.42.0
         imagePullPolicy: IfNotPresent
         name: otc-container
-        resources: {}
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 500Mi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
