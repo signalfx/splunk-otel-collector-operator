@@ -40,3 +40,6 @@ local
 kubeconfig
 tests/_build/
 testbin/
+
+# temp files
+*.tmp
