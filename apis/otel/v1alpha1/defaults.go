@@ -398,5 +398,7 @@ service:
 	defaultGatewayCPU    = "4"
 	defaultGatewayMemory = "8Gi"
 
-	defaultJavaAgentImage = "quay.io/signalfx/splunk-otel-instrumentation-java:v1.7.1"
+	// the javaagent version is managed by the update-javaagent-version.sh script.
+	defaultJavaAgentVersion = "v1.14.2"
+	defaultJavaAgentImage   = "quay.io/signalfx/splunk-otel-instrumentation-java:" + defaultJavaAgentVersion
 )
