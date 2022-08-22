@@ -65,7 +65,7 @@ spec:
         path: agent.imagePullPolicy
       - description: Ports allows a set of ports to be exposed by the underlying v1.Service.
           By default, the operator will attempt to infer the required ports by parsing
-          the .Spec.Config property but this property can be used to open aditional
+          the .Spec.Config property but this property can be used to open additional
           ports that can't be inferred by the operator, like for custom receivers.
         displayName: Ports
         path: agent.ports
@@ -100,7 +100,7 @@ spec:
         displayName: Cluster Name
         path: clusterName
       - description: ClusterReceiver is a single instance Splunk OpenTelemetry Collector
-          deployement used to monitor the entire cluster.
+          deployment used to monitor the entire cluster.
         displayName: Cluster Receiver
         path: clusterReceiver
       - description: Args is the set of arguments to pass to the OpenTelemetry Collector
@@ -137,7 +137,7 @@ spec:
         path: clusterReceiver.imagePullPolicy
       - description: Ports allows a set of ports to be exposed by the underlying v1.Service.
           By default, the operator will attempt to infer the required ports by parsing
-          the .Spec.Config property but this property can be used to open aditional
+          the .Spec.Config property but this property can be used to open additional
           ports that can't be inferred by the operator, like for custom receivers.
         displayName: Ports
         path: clusterReceiver.ports
@@ -167,7 +167,7 @@ spec:
           deployment(s).
         displayName: Volumes
         path: clusterReceiver.volumes
-      - description: ClusterReceiver is a Splunk OpenTelemetry Collector deployement
+      - description: ClusterReceiver is a Splunk OpenTelemetry Collector deployment
           used to export data to Splunk APM.
         displayName: Gateway
         path: gateway
@@ -205,7 +205,7 @@ spec:
         path: gateway.imagePullPolicy
       - description: Ports allows a set of ports to be exposed by the underlying v1.Service.
           By default, the operator will attempt to infer the required ports by parsing
-          the .Spec.Config property but this property can be used to open aditional
+          the .Spec.Config property but this property can be used to open additional
           ports that can't be inferred by the operator, like for custom receivers.
         displayName: Ports
         path: gateway.ports

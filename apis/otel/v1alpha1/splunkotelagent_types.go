@@ -87,7 +87,7 @@ type CollectorSpec struct {
 
 	// Ports allows a set of ports to be exposed by the underlying v1.Service. By default, the operator
 	// will attempt to infer the required ports by parsing the .Spec.Config property but this property can be
-	// used to open aditional ports that can't be inferred by the operator, like for custom receivers.
+	// used to open additional ports that can't be inferred by the operator, like for custom receivers.
 	// +kubebuilder:validation:Optional
 	// +listType=atomic
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
@@ -151,12 +151,12 @@ type AgentSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Agent CollectorSpec `json:"agent,omitempty"`
 
-	// ClusterReceiver is a single instance Splunk OpenTelemetry Collector deployement used to monitor the entire cluster.
+	// ClusterReceiver is a single instance Splunk OpenTelemetry Collector deployment used to monitor the entire cluster.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ClusterReceiver CollectorSpec `json:"clusterReceiver,omitempty"`
 
-	// ClusterReceiver is a Splunk OpenTelemetry Collector deployement used to export data to Splunk APM.
+	// ClusterReceiver is a Splunk OpenTelemetry Collector deployment used to export data to Splunk APM.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Gateway CollectorSpec `json:"gateway,omitempty"`
