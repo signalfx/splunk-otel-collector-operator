@@ -13,8 +13,8 @@
 // limitations under the License.
 
 // Package v1 contains API Schema definitions for the otel v1 API group
-//+kubebuilder:object:generate=true
-//+groupName=otel.splunk.com
+// +kubebuilder:object:generate=true
+// +groupName=otel.splunk.com
 package v1alpha1
 
 import (

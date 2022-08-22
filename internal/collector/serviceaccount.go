@@ -32,7 +32,7 @@ func ServiceAccountName(instance v1alpha1.Agent) string {
 	return instance.Spec.Agent.ServiceAccount
 }
 
-//ServiceAccount returns the service account for the given instance.
+// ServiceAccount returns the service account for the given instance.
 func ServiceAccount(otelcol v1alpha1.Agent) corev1.ServiceAccount {
 	labels := Labels(otelcol)
 	labels["app.kubernetes.io/name"] = naming.ServiceAccount(otelcol)
