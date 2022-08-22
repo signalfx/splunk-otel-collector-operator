@@ -18,7 +18,6 @@ package reconcile
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -83,7 +82,7 @@ func TestMain(m *testing.M) {
 
 func params() Params {
 	replicas := int32(2)
-	configYAML, err := ioutil.ReadFile("test.yaml")
+	configYAML, err := os.ReadFile("test.yaml")
 	if err != nil {
 		fmt.Printf("Error getting yaml file: %v", err)
 	}

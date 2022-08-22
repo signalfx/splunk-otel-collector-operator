@@ -187,8 +187,13 @@ clean-e2e: ## delete kind cluster
 set-test-image-vars:
 	$(eval IMG=local/splunk-otel-operator:e2e)
 
-start-kind: 
-	kind create cluster --config $(KIND_CONFIG)
+start-kind:
+	if kind get clusters | grep kind; then \
+		echo "kind cluster has already been created"; \
+	else \
+		kind create cluster --config $(KIND_CONFIG); \
+	fi
+
 	kind load docker-image local/splunk-otel-operator:e2e
 
 cert-manager:
