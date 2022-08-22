@@ -47,17 +47,17 @@ func TestDefaultResourceLimits(t *testing.T) {
 			outSpec: a.Spec.Agent.Resources.Limits[v1.ResourceCPU]},
 		{in: defaultAgentMemory,
 			outSpec: a.Spec.Agent.Resources.Limits[v1.ResourceMemory],
-			outEnv: a.Spec.Agent.Env},
+			outEnv:  a.Spec.Agent.Env},
 		{in: defaultClusterReceiverCPU,
 			outSpec: a.Spec.ClusterReceiver.Resources.Limits[v1.ResourceCPU]},
 		{in: defaultClusterReceiverMemory,
 			outSpec: a.Spec.ClusterReceiver.Resources.Limits[v1.ResourceMemory],
-			outEnv: a.Spec.ClusterReceiver.Env},
+			outEnv:  a.Spec.ClusterReceiver.Env},
 		{in: defaultGatewayCPU,
 			outSpec: a.Spec.Gateway.Resources.Limits[v1.ResourceCPU]},
 		{in: defaultGatewayMemory,
 			outSpec: a.Spec.Gateway.Resources.Limits[v1.ResourceMemory],
-			outEnv: a.Spec.Gateway.Env},
+			outEnv:  a.Spec.Gateway.Env},
 	}
 	for _, c := range testCases {
 		assert.Equal(t, resource.MustParse(c.in), c.outSpec)

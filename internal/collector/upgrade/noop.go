@@ -21,7 +21,7 @@ import (
 	"github.com/signalfx/splunk-otel-collector-operator/apis/otel/v1alpha1"
 )
 
-//nolint unused
+// nolint unused
 func noop(cl client.Client, otelcol *v1alpha1.Agent) (*v1alpha1.Agent, error) {
 	return otelcol, nil
 }
