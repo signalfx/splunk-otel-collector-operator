@@ -28,7 +28,7 @@ KUTTL=$(shell which kubectl-kuttl)
 CONTROLLER_GEN = $(shell which controller-gen)
 KUSTOMIZE = $(shell which kustomize)
 
-KUBE_VERSION ?= 1.21
+KUBE_VERSION ?= 1.24
 KIND_CONFIG ?= kind-$(KUBE_VERSION).yaml
 
 all: build
@@ -54,12 +54,12 @@ help: ## Display this help.
 # ensure-generate-is-noop: VERSION=$(OPERATOR_VERSION)
 ensure-generate-is-noop: USER=signalfx
 ensure-generate-is-noop: set-image-controller generate bundle
-	@# on make bundle config/manager/kustomization.yaml includes changes, which should be ignored for the below check
-	@git restore config/manager/kustomization.yaml
-	# TODO(splunk): Check if resources are in sync another way, this only checks if the resources are in sync from the last commit.
-	@git diff --exit-code apis/otel/v1alpha1/zz_generated.*.go || (echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1)
-	@git diff --exit-code bundle config || (echo "Build failed: the bundle, config files has been changed but the generated bundle, config files aren't up to date. Run 'make bundle' and update your PR." && exit 1)
-
+	if [[ `git status --porcelain` ]]; then \
+		git diff; \
+		echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1; \
+	else \
+		echo "All models are in sync with generated resources."; \
+	fi
 
 manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases 
@@ -79,12 +79,12 @@ lint:
 
 lint-all: generate ensure-generate-is-noop fmt vet lint
 
-ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
+ENVTEST=$(shell pwd)/testbin
 #test: manifests generate fmt vet ## Run tests.
 test:
-	mkdir -p ${ENVTEST_ASSETS_DIR}
-	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.8.3/hack/setup-envtest.sh
-	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test ./... -coverprofile cover.out
+	mkdir -p ${ENVTEST}
+	# setup-envtest creates the api-server, etcd and kubectl binaries in the ENVTEST/KUBEBUILDER_ASSETS directory.
+	KUBEBUILDER_ASSETS="$(shell setup-envtest use $(KUBE_VERSION) -p path --bin-dir $(ENVTEST))" go test ${GOTEST_OPTS} ./...
 
 ##@ Build
 
@@ -116,9 +116,10 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
 install-tools : ## Download CLI tools
-	go install sigs.k8s.io/kustomize/kustomize/v4
-	go install sigs.k8s.io/controller-tools/cmd/controller-gen
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest # Only used to setup testing environments
+	go install sigs.k8s.io/controller-tools/cmd/controller-gen
+	go install sigs.k8s.io/kustomize/kustomize/v4
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
