@@ -11,7 +11,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.17
+        go-version: 1.19
 
     - uses: actions/checkout@v3
 
@@ -23,7 +23,7 @@ jobs:
 
     - uses: jpkrohling/setup-operator-sdk@v1.1.0
       with:
-        operator-sdk-version: v1.10.1
+        operator-sdk-version: v1.23.0
 
     - name: "generate release resources"
       run: make release-artifacts IMG_PREFIX="quay.io/signalfx"
