@@ -116,7 +116,7 @@ func TestInjectConfig(t *testing.T) {
 	}
 
 	h := &handler{
-		logger: logr.DiscardLogger{},
+		logger: logr.Discard(),
 	}
 
 	for _, tc := range cases {
@@ -184,7 +184,7 @@ func TestInjectJava(t *testing.T) {
 	}
 
 	h := &handler{
-		logger: logr.DiscardLogger{},
+		logger: logr.Discard(),
 	}
 
 	for _, tc := range cases {

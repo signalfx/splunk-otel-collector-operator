@@ -73,7 +73,7 @@ func TestCreateResourceMap(t *testing.T) {
 	}
 
 	h := &handler{
-		logger: logr.DiscardLogger{},
+		logger: logr.Discard(),
 	}
 
 	for _, c := range cases {
