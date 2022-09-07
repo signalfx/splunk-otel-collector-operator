@@ -111,12 +111,12 @@ We strive to be compatible with the widest range of Kubernetes versions as possi
 
 Our promise is that we'll follow what's common practice in the Kubernetes world and support N-2 versions, based on the release date of the OpenTelemetry Operator.
 
-The OpenTelemetry Operator *might* work on versions outside of the given range, but when opening new issues, please make sure to test your scenario on a supported version.
+The Splunk OpenTelemetry Collector Operator *might* work on versions outside of the given range, but when opening new issues, please make sure to test your scenario on a supported version.
 
-| OpenTelemetry Operator | Kubernetes           |
-|------------------------|----------------------|
-| v0.1.0                 | v1.20 to v1.22       |
-| v0.2.0                 | v1.20 to v1.23       |
+| Operator   | Kubernetes           |
+|------------|----------------------|
+| v0.0.3     | v1.20 to v1.23       |
+| v0.0.4     | v1.23 to v1.25       |
 
 ## License
   
