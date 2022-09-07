@@ -113,10 +113,10 @@ Our promise is that we'll follow what's common practice in the Kubernetes world 
 
 The OpenTelemetry Operator *might* work on versions outside of the given range, but when opening new issues, please make sure to test your scenario on a supported version.
 
-| OpenTelemetry Operator | Kubernetes           |
+| Splunk Otel Operator   | Kubernetes           |
 |------------------------|----------------------|
-| v0.1.0                 | v1.20 to v1.22       |
-| v0.2.0                 | v1.20 to v1.23       |
+| v0.0.3                 | v1.20 to v1.23       |
+| v0.0.4                 | v1.23 to v1.25       |
 
 ## License
   
