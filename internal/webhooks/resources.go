@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
+	semconv "go.opentelemetry.io/collector/semconv/v1.9.0"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/semconv"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,19 +26,19 @@ func serviceName(pod corev1.Pod, resources map[string]string) string {
 	if name := pod.Annotations[annotationName]; name != "" {
 		return name
 	}
-	if name := resources[string(semconv.K8SDeploymentNameKey)]; name != "" {
+	if name := resources[string(semconv.AttributeK8SDeploymentName)]; name != "" {
 		return name
 	}
-	if name := resources[string(semconv.K8SStatefulSetNameKey)]; name != "" {
+	if name := resources[string(semconv.AttributeK8SStatefulSetName)]; name != "" {
 		return name
 	}
-	if name := resources[string(semconv.K8SJobNameKey)]; name != "" {
+	if name := resources[string(semconv.AttributeK8SJobName)]; name != "" {
 		return name
 	}
-	if name := resources[string(semconv.K8SCronJobNameKey)]; name != "" {
+	if name := resources[string(semconv.AttributeK8SCronJobName)]; name != "" {
 		return name
 	}
-	if name := resources[string(semconv.K8SPodNameKey)]; name != "" {
+	if name := resources[string(semconv.AttributeK8SPodName)]; name != "" {
 		return name
 	}
 	return pod.Spec.Containers[0].Name
@@ -49,13 +49,13 @@ func serviceName(pod corev1.Pod, resources map[string]string) string {
 func (h *handler) createResourceMap(ctx context.Context, ns corev1.Namespace, pod corev1.Pod) (map[string]string, int) {
 
 	k8sResources := map[attribute.Key]string{}
-	k8sResources[semconv.K8SNamespaceNameKey] = ns.Name
-	k8sResources[semconv.K8SContainerNameKey] = pod.Spec.Containers[0].Name
+	k8sResources[semconv.AttributeK8SNamespaceName] = ns.Name
+	k8sResources[semconv.AttributeK8SContainerName] = pod.Spec.Containers[0].Name
 	// Some fields might be empty - node name, pod name
 	// The pod name might be empty if the pod is created form deployment template
-	k8sResources[semconv.K8SPodNameKey] = pod.Name
-	k8sResources[semconv.K8SPodUIDKey] = string(pod.UID)
-	k8sResources[semconv.K8SNodeNameKey] = pod.Spec.NodeName
+	k8sResources[semconv.AttributeK8SPodName] = pod.Name
+	k8sResources[semconv.AttributeK8SPodUID] = string(pod.UID)
+	k8sResources[semconv.AttributeK8SNodeName] = pod.Spec.NodeName
 	h.addParentResourceLabels(ctx, ns, pod.ObjectMeta, k8sResources)
 
 	res := map[string]string{}
@@ -86,8 +86,8 @@ func (h *handler) addParentResourceLabels(ctx context.Context, ns corev1.Namespa
 	for _, owner := range objectMeta.OwnerReferences {
 		switch strings.ToLower(owner.Kind) {
 		case "replicaset":
-			resources[semconv.K8SReplicaSetNameKey] = owner.Name
-			resources[semconv.K8SReplicaSetUIDKey] = string(owner.UID)
+			resources[semconv.AttributeK8SReplicaSetName] = owner.Name
+			resources[semconv.AttributeK8SReplicaSetUID] = string(owner.UID)
 			// parent of ReplicaSet is e.g. Deployment which we are interested to know
 			rs := appsv1.ReplicaSet{}
 			// ignore the error. The object might not exist, the error is not important, getting labels is just the best effort
@@ -98,20 +98,20 @@ func (h *handler) addParentResourceLabels(ctx context.Context, ns corev1.Namespa
 			}, &rs)
 			h.addParentResourceLabels(ctx, ns, rs.ObjectMeta, resources)
 		case "deployment":
-			resources[semconv.K8SDeploymentNameKey] = owner.Name
-			resources[semconv.K8SDeploymentUIDKey] = string(owner.UID)
+			resources[semconv.AttributeK8SDeploymentName] = owner.Name
+			resources[semconv.AttributeK8SDeploymentUID] = string(owner.UID)
 		case "statefulset":
-			resources[semconv.K8SStatefulSetNameKey] = owner.Name
-			resources[semconv.K8SStatefulSetUIDKey] = string(owner.UID)
+			resources[semconv.AttributeK8SStatefulSetName] = owner.Name
+			resources[semconv.AttributeK8SStatefulSetUID] = string(owner.UID)
 		case "daemonset":
-			resources[semconv.K8SDaemonSetNameKey] = owner.Name
-			resources[semconv.K8SDaemonSetUIDKey] = string(owner.UID)
+			resources[semconv.AttributeK8SDaemonSetName] = owner.Name
+			resources[semconv.AttributeK8SDaemonSetUID] = string(owner.UID)
 		case "job":
-			resources[semconv.K8SJobNameKey] = owner.Name
-			resources[semconv.K8SJobUIDKey] = string(owner.UID)
+			resources[semconv.AttributeK8SJobName] = owner.Name
+			resources[semconv.AttributeK8SJobUID] = string(owner.UID)
 		case "cronjob":
-			resources[semconv.K8SCronJobNameKey] = owner.Name
-			resources[semconv.K8SCronJobUIDKey] = string(owner.UID)
+			resources[semconv.AttributeK8SCronJobName] = owner.Name
+			resources[semconv.AttributeK8SCronJobUID] = string(owner.UID)
 		}
 	}
 }
