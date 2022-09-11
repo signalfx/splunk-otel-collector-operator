@@ -124,7 +124,7 @@ func (h *handler) Handle(ctx context.Context, req admission.Request) admission.R
 
 	spec, err := h.getAgentSpec(ctx)
 	if err != nil {
-		msg := "unable to get splunk agent spec. make sure SpluknOtelAgent is deployed"
+		msg := "unable to get splunk agent spec. make sure SplunkOtelAgent is deployed"
 		h.logger.Error(err, msg)
 		return h.patch(req, pod, errors.New(msg))
 	}
