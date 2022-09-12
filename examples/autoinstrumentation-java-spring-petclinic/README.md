@@ -49,7 +49,7 @@ export REPOSITORY_PREFIX=springcommunity
 ./scripts/deployToKubernetes.sh
 ```
 
-#### 2.4 Verify the pet clinic pods are running
+#### 2.4 Verify the spring-petclinic pods are running
 
 ```
 kubectl get pods -n spring-petclinic
