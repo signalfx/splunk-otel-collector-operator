@@ -3,7 +3,7 @@ In this example we will setup the spring-petclinic project in Kubernetes. We
 will then use the operator to auto instrument the java applications from the
 spring-petclinic project.
 
-### 1. Complete the [Getting Started](https://github.com/signalfx/splunk-otel-collector-operator/README.md#getting-started) steps
+### 1. Complete the [Getting Started](https://github.com/signalfx/splunk-otel-collector-operator#getting-started) steps
 
 ### 2. Deploy the spring-petclinic (cloud version) project
 Original Instructions: [spring-petclinic-cloud Setting Things Up In Kubernetes](https://github.com/spring-petclinic/spring-petclinic-cloud#setting-things-up-in-kubernetes)
