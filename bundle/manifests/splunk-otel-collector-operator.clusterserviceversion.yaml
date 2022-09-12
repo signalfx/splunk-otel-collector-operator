@@ -399,7 +399,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/signalfx/splunk-otel-operator:v0.0.4
+                image: jvsplk/splunk-otel-collector-operator:v0.0.4
                 livenessProbe:
                   httpGet:
                     path: /healthz

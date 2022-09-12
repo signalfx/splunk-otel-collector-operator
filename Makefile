@@ -5,9 +5,15 @@ VERSION_COLLECTOR ?= "$(shell grep -v '\#' versions.txt | grep splunk-otel-colle
 LD_FLAGS ?= "-X ${VERSION_PKG}.version=${VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.collectorVersion=${VERSION_COLLECTOR}"
 
 # Image URL to use all building/pushing image targets
-QUAY_USER ?= signalfx
-IMG_PREFIX ?= quay.io/${QUAY_USER}
-IMG_REPO ?= splunk-otel-operator
+# TODO: Once release pipelines are functional, remove this temporary redirect
+# back to quay.io from hub.docker.com/jvsplk/splunk-otel-collector-operator back
+# to quay.io/signalfx/splunk-otel-operator
+#QUAY_USER ?= signalfx
+#IMG_PREFIX ?= quay.io/${QUAY_USER}
+#IMG_REPO ?= splunk-otel-operator
+QUAY_USER ?= jvsplk
+IMG_PREFIX ?= ${QUAY_USER}
+IMG_REPO ?= splunk-otel-collector-operator
 IMG ?= ${IMG_PREFIX}/${IMG_REPO}:$(addprefix v,${VERSION})
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
