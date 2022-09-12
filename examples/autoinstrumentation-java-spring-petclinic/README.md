@@ -34,7 +34,6 @@ management.metrics.export.wavefront.uri=https://wavefront.surf
 #### 2.3 Setup the spring-petclinic namespace and related resources
 
 ```
-
 kubectl apply -f k8s/init-namespace/
 kubectl create secret generic wavefront -n spring-petclinic --from-literal=wavefront-url=https://wavefront.surf --from-literal=wavefront-api-token={CHANGEME}
 kubectl apply -f k8s/init-services
@@ -53,11 +52,15 @@ export REPOSITORY_PREFIX=springcommunity
 
 ```
 kubectl get pods -n spring-petclinic
-NAME                              READY   STATUS    RESTARTS   AGE
-customers-db-mysql-0              1/1     Running   0          3m29s
-vets-db-mysql-0                   1/1     Running   0          3m43s
-visits-db-mysql-0                 1/1     Running   0          3m37s
-wavefront-proxy-959678c94-lmfnx   1/1     Running   0          11s
+NAME                                 READY   STATUS    RESTARTS      AGE
+api-gateway-94b56b968-l992w          1/1     Running   0             15m
+customers-db-mysql-0                 1/1     Running   0             15m
+customers-service-7898648d85-xp6q4   1/1     Running   0             15m
+vets-db-mysql-0                      1/1     Running   0             15m
+vets-service-5d6b88744f-5rtvp        1/1     Running   0             15m
+visits-db-mysql-0                    1/1     Running   0             15m
+visits-service-56795b6965-ss855      1/1     Running   0             15m
+wavefront-proxy-84b7d4d6f4-snpz4     1/1     Running   0             15m
 ```
 
 ### 3. Instrument the spring-petclinic pods by patching the related deployments
@@ -76,4 +79,5 @@ If a pod is properly instrumented, it should have a running container that is
 using the splunk-otel-instrumentation-java image they should have the pod
 annotation "otel.splunk.com/injection-status: success".
 
- 
+### 4. Visit the APM console in Splunk Observability to view the results.
+

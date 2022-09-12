@@ -43,7 +43,8 @@ A new users could obtain a token by starting a [Splunk Observability trial](http
 
 ### 4. Deploy the Splunk OpenTelemetry Collector  
   
-Once the `splunk-otel--operator` deployment is ready, create an Splunk OpenTelemetry Collector instance, like:  
+Once the `splunk-otel-operator` deployment is ready, create a Splunk OpenTelemetry Collector instance:
+
   
 ```console  
 $ kubectl apply -f - <<EOF  
@@ -92,16 +93,33 @@ spec:
       containers:  
       - name: my-java-app  
         image: my-java-app:latest  
-```  
-  
+```
+
 Then you can automatically instrument it by adding the `otel.splunk.com/inject-java: "true"` annotation to the Pod spec (not the deployment):
 
 ```
-kubectl patch deployment my-java-app -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' --namespace splunk-otel-operator-system 
-```  
+kubectl patch deployment my-java-app -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' --namespace my-java-app-namespace
+```
 
-Then your deployment would look like the following:  
-  
+It may take a short moment for instrumentation of your the pods to complete. Once a pod has been instrumented, the pod will have the annotation "otel.splunk.com/injection-status: success".
+
+## Compatibility matrix
+
+### OpenTelemetry Operator vs. Kubernetes
+
+We strive to be compatible with the widest range of Kubernetes versions as possible, but some changes to Kubernetes itself require us to break compatibility with older Kubernetes versions, be it because of code incompatibilities, or in the name of maintainability.
+
+Our promise is that we'll follow what's common practice in the Kubernetes world and support N-2 versions, based on the release date of the OpenTelemetry Operator.
+
+The Splunk OpenTelemetry Collector Operator *might* work on versions outside of the given range, but when opening new issues, please make sure to test your scenario on a supported version.
+
+| Operator   | Kubernetes           |
+|------------|----------------------|
+| v0.0.3     | v1.20 to v1.23       |
+| v0.0.4     | v1.23 to v1.25       |
+
+## License
+
 [Apache 2.0 License](./LICENSE).
 
 [github-workflow]: https://github.com/signalfx/splunk-otel-collector-operator/actions
