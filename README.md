@@ -12,7 +12,7 @@ The OpenTelemetry Operator is an implementation of a [Kubernetes Operator](https
 It helps deploy and manage [Splunk OpenTelemetry Collector](https://github.com/signalfx/splunk-otel-collector)
 
 ## Getting started
-### 1. Deploy the [cert-manager](https://cert-manager.io/docs/)
+### 1. If [cert-manager](https://cert-manager.io/docs/) is not already deployed and available to this operator, then deploy it.
 
 ```  
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.2/cert-manager.yaml
@@ -76,32 +76,58 @@ splunk-otel-operator-controller-manager-67b86fcf5c-f2sqq   1/1     Running   0  
 ```
 
 **_WARNING:_** Until the OpenTelemetry Collector format is stable, changes may be required in the above example to remain  
-compatible with the latest version of the Splunk OpenTelemetry Operator and Splunk OpenTelemetry Collector.  
-  
-## Automatically instrumenting k8s pods  
-  
-This operator can automatically inject configuration and instrumentation agents into Kubernetes pods on demand. In order to do so, you'll need to annotate the pods you want to instrument or auto-configure. For example, if your deployment looks like the following:  
-  
-```yaml  
-apiVersion: apps/v1  
-kind: Deployment  
-metadata:  
-  name: my-java-app  
-spec:  
-  template:  
-    spec:  
-      containers:  
-      - name: my-java-app  
-        image: my-java-app:latest  
+compatible with the latest version of the Splunk OpenTelemetry Operator and Splunk OpenTelemetry Collector.
+
+## Automatically instrumenting k8s pods
+
+This operator can automatically inject configuration and instrumentation agents into Kubernetes pods on demand. In order to do so, you'll need to annotate the pods you want to instrument or auto-configure. For example, if your deployment looks like the following:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-java-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-java-app
+        image: my-java-app:latest
 ```
 
-Then you can automatically instrument it by adding the `otel.splunk.com/inject-java: "true"` annotation to the Pod spec (not the deployment):
+Then you can automatically instrument it by adding `otel.splunk.com/inject-java: "true"` to the Pod spec (not the deployment) so that it would look like the following:
 
-```
-kubectl patch deployment my-java-app -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' --namespace my-java-app-namespace
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-java-app
+spec:
+  template:
+    metadata:
+      annotations:
+        otel.splunk.com/inject-java: "true"
+    spec:
+      containers:
+      - name: my-java-app
+        image: my-java-app:latest
 ```
 
-It may take a short moment for instrumentation of your the pods to complete. Once a pod has been instrumented, the pod will have the annotation "otel.splunk.com/injection-status: success".
+This will automatically inject [Splunk OpenTelemetry Java Agent](github.com/signalfx/splunk-otel-java) into the pod and configure it to send telemetry to the OpenTelemetry agents deployed by the operator.
+
+Right now the following annotations are supported:
+
+- otel.splunk.com/inject-java
+
+When this instrumentation is set to `"true"` on a pod, the operator automatically instruments the pod with the Splunk OpenTelemetry Java agent and configures it to send all telemetry data to the OpenTelemetry agents managed by the operator.
+
+- otel.splunk.com/inject-config
+
+When this instrumentation is set to `"true"` on a pod, the operator only configures the pod to send all telemetry data to the OpenTelemetry agents managed by the operator. Pods are not instrumented in this case and that is left to the user.
+
+Automatic Instrumentation Examples:
+
+- [autoinstrumentation-java-spring-petclinic](https://https://github.com/signalfx/splunk-otel-collector-operator/examples/autoinstrumentation-java-spring-petclinic)
 
 ## Compatibility matrix
 
