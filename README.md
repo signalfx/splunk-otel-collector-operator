@@ -12,47 +12,70 @@ The OpenTelemetry Operator is an implementation of a [Kubernetes Operator](https
 It helps deploy and manage [Splunk OpenTelemetry Collector](https://github.com/signalfx/splunk-otel-collector)
 
 ## Getting started
+### 1. If [cert-manager](https://cert-manager.io/docs/) is not already deployed and available to this operator, then deploy it.
 
-### 1. Ensure Cert Manager is installed and available in your cluster
-To install the operator in an existing cluster, make sure you have [`cert-manager` installed](https://cert-manager.io/docs/installation/) and run:
+```  
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.2/cert-manager.yaml
+```
 
-### 2. Install the Operator
+The cert-manager adds certificates and certificate issuers as resource types in Kubernetes clusters, and simplifies the process of obtaining, renewing and using those certificates. 
+
+
+### 2. Deploy the Operator  
 #### 2.a Kubernetes
-```
-kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/latest/download/splunk-otel-operator.yaml
-```
 
+```  
+kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/latest/download/splunk-otel-operator.yaml  
+```  
+  
 #### 2.b OpenShift
-```
-kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/latest/download/splunk-otel-operator-openshift.yaml
-```
 
-### 3. Add your Splunk APM token
+```  
+kubectl apply -f https://github.com/signalfx/splunk-otel-collector-operator/releases/latest/download/splunk-otel-operator-openshift.yaml  
+```  
+  
+### 3. Add your Splunk token  
+  
+```  
+kubectl create secret generic splunk-access-token --namespace splunk-otel-operator-system --from-literal=access-token=SPLUNK_ACCESS_TOKEN  
+```  
+A new users could obtain a token by starting a [Splunk Observability trial](https://www.splunk.com/en_us/download/o11y-cloud-free-trial.html) and following these steps for [creating a token](https://docs.splunk.com/Observability/admin/authentication-tokens/tokens.html).
 
-```
-kubectl create secret generic splunk-access-token --namespace splunk-otel-operator-system --from-literal=access-token=SPLUNK_ACCESS_TOKEN
-```
+### 4. Deploy the Splunk OpenTelemetry Collector  
+  
+Once the `splunk-otel-operator` deployment is ready, create a Splunk OpenTelemetry Collector instance:
 
-### 4. Deploy Splunk OpenTelemetry Collector
-
-Once the `splunk-otel--operator` deployment is ready, create an Splunk OpenTelemetry Collector instance, like:
-
-```console
-$ kubectl apply -f - <<EOF
-apiVersion: otel.splunk.com/v1alpha1
-kind: Agent
-metadata:
-  name: splunk-otel
-  namespace: splunk-otel-operator-system
-spec:
-  clusterName: <MY_CLUSTER_NAME>
-  realm: <SPLUNK_REALM>
-EOF
-```
-
+  
+```console  
+$ kubectl apply -f - <<EOF  
+apiVersion: otel.splunk.com/v1alpha1  
+kind: Agent  
+metadata:  
+  name: splunk-otel  
+  namespace: splunk-otel-operator-system  
+spec:  
+  clusterName: <MY_CLUSTER_NAME>  
+  realm: <SPLUNK_REALM>  
+EOF  
+```  
+  
 Replace `MY_CLUSTER_NAME` and `SPLUNK_REALM` with your values.
 
-**_WARNING:_** Until the OpenTelemetry Collector format is stable, changes may be required in the above example to remain
+### 4. Verify the cert-manager, operator, and collector are up and running properly.
+```
+kubectl get pods -n cert-manager
+NAME                                       READY   STATUS    RESTARTS   AGE
+cert-manager-7c9c58cbcb-jwwkk              1/1     Running   0          5m1s
+cert-manager-cainjector-5d88544c9c-chwhr   1/1     Running   0          5m1s
+cert-manager-webhook-85f88ffb5b-4hrpb      1/1     Running   0          5m1s
+kubectl get pods -n splunk-otel-operator-system
+NAME                                                       READY   STATUS    RESTARTS   AGE
+splunk-otel-agent-pp8wn                                    1/1     Running   0          68s
+splunk-otel-cluster-receiver-8f666b5b8-wbncp               1/1     Running   0          68s
+splunk-otel-operator-controller-manager-67b86fcf5c-f2sqq   1/1     Running   0          3m38s
+```
+
+**_WARNING:_** Until the OpenTelemetry Collector format is stable, changes may be required in the above example to remain  
 compatible with the latest version of the Splunk OpenTelemetry Operator and Splunk OpenTelemetry Collector.
 
 ## Automatically instrumenting k8s pods
@@ -72,7 +95,7 @@ spec:
         image: my-java-app:latest
 ```
 
-Then you can automatically instrument it by add `otel.splunk.com/inject-java: "true"` to the Pod spec (not the deployment) so that it would look like the following:
+Then you can automatically instrument it by adding `otel.splunk.com/inject-java: "true"` to the Pod spec (not the deployment) so that it would look like the following:
 
 ```yaml
 apiVersion: apps/v1
@@ -94,14 +117,17 @@ This will automatically inject [Splunk OpenTelemetry Java Agent](github.com/sign
 
 Right now the following annotations are supported:
 
-### otel.splunk.com/inject-java
+- otel.splunk.com/inject-java
 
-When this instrumentation is set to `"true"` on a pod, the operator automatically instruments the pod with the Splunk OpenTelemetry Java agent and configures it to send all telemetry data to the OpenTelemetry agents managed by the operator. 
+When this instrumentation is set to `"true"` on a pod, the operator automatically instruments the pod with the Splunk OpenTelemetry Java agent and configures it to send all telemetry data to the OpenTelemetry agents managed by the operator.
 
-### otel.splunk.com/inject-config
+- otel.splunk.com/inject-config
 
 When this instrumentation is set to `"true"` on a pod, the operator only configures the pod to send all telemetry data to the OpenTelemetry agents managed by the operator. Pods are not instrumented in this case and that is left to the user.
 
+Automatic Instrumentation Examples:
+
+- [autoinstrumentation-java-spring-petclinic](https://https://github.com/signalfx/splunk-otel-collector-operator/examples/autoinstrumentation-java-spring-petclinic)
 
 ## Compatibility matrix
 
@@ -119,7 +145,7 @@ The Splunk OpenTelemetry Collector Operator *might* work on versions outside of 
 | v0.0.4     | v1.23 to v1.25       |
 
 ## License
-  
+
 [Apache 2.0 License](./LICENSE).
 
 [github-workflow]: https://github.com/signalfx/splunk-otel-collector-operator/actions
