@@ -127,7 +127,7 @@ When this instrumentation is set to `"true"` on a pod, the operator only configu
 
 Automatic Instrumentation Examples:
 
-- [autoinstrumentation-java-spring-petclinic](https://https://github.com/signalfx/splunk-otel-collector-operator/examples/autoinstrumentation-java-spring-petclinic)
+- [autoinstrumentation-java-spring-petclinic](https://github.com/signalfx/splunk-otel-collector-operator/tree/main/examples/autoinstrumentation-java-spring-petclinic)
 
 ## Compatibility matrix
 
