@@ -2,7 +2,7 @@ apiVersion: otel.splunk.com/v1alpha1
 kind: Agent
 metadata:
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-collector-operator
+    app.kubernetes.io/managed-by: splunk-otel-operator
 spec:
   clusterName: test-cluster
   realm: my-splunk-realm
