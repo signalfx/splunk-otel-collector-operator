@@ -55,7 +55,7 @@ func (r *Agent) Default() {
 		r.Labels = map[string]string{}
 	}
 	if r.Labels["app.kubernetes.io/managed-by"] == "" {
-		r.Labels["app.kubernetes.io/managed-by"] = "splunk-otel-collector-operator"
+		r.Labels["app.kubernetes.io/managed-by"] = "splunk-otel-operator"
 	}
 
 	r.defaultInstrumentation()
