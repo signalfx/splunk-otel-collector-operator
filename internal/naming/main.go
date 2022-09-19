@@ -48,7 +48,7 @@ func Agent(otelcol v1alpha1.Agent) string {
 }
 
 // ClusterReceiver builds the agent name based on the instance.
-func ClusterReciever(otelcol v1alpha1.Agent) string {
+func ClusterReceiver(otelcol v1alpha1.Agent) string {
 	return fmt.Sprintf("%s-cluster-receiver", otelcol.Name)
 }
 
