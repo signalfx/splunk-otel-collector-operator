@@ -61,6 +61,7 @@ func TestExpectedClusterReceivers(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
 			"app.kubernetes.io/managed-by": "splunk-otel-operator",
+			"app.kubernetes.io/name":       "test-cluster-receiver",
 		}
 		deploy := v1.Deployment{}
 		deploy.Name = "dummy"

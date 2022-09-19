@@ -26,6 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/signalfx/splunk-otel-collector-operator/internal/collector"
+	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
 // +kubebuilder:rbac:groups="apps",resources=deployments,verbs=get;list;watch;create;update;patch;delete
@@ -109,6 +110,8 @@ func deleteClusterReceivers(ctx context.Context, params Params, expected []appsv
 		client.MatchingLabels(map[string]string{
 			"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", params.Instance.Namespace, params.Instance.Name),
 			"app.kubernetes.io/managed-by": "splunk-otel-operator",
+			// Without this name label match, this method could delete gateway deployments.
+			"app.kubernetes.io/name": naming.ClusterReceiver(params.Instance),
 		}),
 	}
 	list := &appsv1.DeploymentList{}
