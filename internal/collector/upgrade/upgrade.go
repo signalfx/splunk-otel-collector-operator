@@ -35,7 +35,7 @@ func ManagedInstances(ctx context.Context, logger logr.Logger, ver version.Versi
 
 	opts := []client.ListOption{
 		client.MatchingLabels(map[string]string{
-			"app.kubernetes.io/managed-by": "splunk-otel-operator",
+			"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 		}),
 	}
 	list := &v1alpha1.AgentList{}

@@ -41,7 +41,7 @@ func TestShouldUpgradeAllToLatest(t *testing.T) {
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
 			Labels: map[string]string{
-				"app.kubernetes.io/managed-by": "splunk-otel-operator",
+				"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 			},
 		},
 	}
@@ -82,7 +82,7 @@ func TestUpgradeUpToLatestKnownVersion(t *testing.T) {
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
 			Labels: map[string]string{
-				"app.kubernetes.io/managed-by": "splunk-otel-operator",
+				"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 			},
 		},
 	}
@@ -118,7 +118,7 @@ func TestVersionsShouldNotBeChanged(t *testing.T) {
 					Name:      nsn.Name,
 					Namespace: nsn.Namespace,
 					Labels: map[string]string{
-						"app.kubernetes.io/managed-by": "splunk-otel-operator",
+						"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 					},
 				},
 			}

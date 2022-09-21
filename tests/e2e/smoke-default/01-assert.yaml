@@ -2,7 +2,7 @@ apiVersion: otel.splunk.com/v1alpha1
 kind: Agent
 metadata:
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
 spec:
   clusterName: test-cluster
   realm: my-splunk-realm
@@ -12,7 +12,7 @@ kind: ConfigMap
 metadata:
   name: test-default-agent
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
 data:
   collector.yaml: |2
     
@@ -185,7 +185,7 @@ kind: ConfigMap
 metadata:
   name: test-default-cluster-receiver
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
 data:
   collector.yaml: |2+
     
@@ -291,8 +291,7 @@ metadata:
     prometheus.io/scrape: "true"
   labels:
     app.kubernetes.io/component: splunk-otel-collector
-# TODO: managed-by needs fxing to splunk-otel-operator-collector
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
     app.kubernetes.io/name: test-default-cluster-receiver
     app.kubernetes.io/part-of: opentelemetry
 spec:
@@ -300,7 +299,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/component: splunk-otel-collector
-        app.kubernetes.io/managed-by: splunk-otel-operator
+        app.kubernetes.io/managed-by: splunk-otel-collector-operator
         app.kubernetes.io/name: test-default-cluster-receiver
         app.kubernetes.io/part-of: opentelemetry
     spec:
@@ -404,7 +403,7 @@ metadata:
     prometheus.io/scrape: "true"
   labels:
     app.kubernetes.io/component: splunk-otel-collector
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
     app.kubernetes.io/name: test-default-agent
     app.kubernetes.io/part-of: opentelemetry
 spec:
@@ -412,7 +411,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/component: splunk-otel-collector
-        app.kubernetes.io/managed-by: splunk-otel-operator
+        app.kubernetes.io/managed-by: splunk-otel-collector-operator
         app.kubernetes.io/name: test-default-agent
         app.kubernetes.io/part-of: opentelemetry
     spec:

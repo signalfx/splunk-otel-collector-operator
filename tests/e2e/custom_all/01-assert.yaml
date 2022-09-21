@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: test-custom-agent
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
 data:
   collector.yaml: |2
     extensions:
@@ -178,7 +178,7 @@ kind: ConfigMap
 metadata:
   name: test-custom-cluster-receiver
   labels:
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
 data:
   collector.yaml: |2+
     extensions:
@@ -286,7 +286,7 @@ metadata:
     prometheus.io/scrape: "true"
   labels:
     app.kubernetes.io/component: splunk-otel-collector
-    app.kubernetes.io/managed-by: splunk-otel-operator
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
     app.kubernetes.io/name: test-custom-agent
     app.kubernetes.io/part-of: opentelemetry
 spec:
@@ -294,7 +294,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/component: splunk-otel-collector
-        app.kubernetes.io/managed-by: splunk-otel-operator
+        app.kubernetes.io/managed-by: splunk-otel-collector-operator
         app.kubernetes.io/name: test-custom-agent
         app.kubernetes.io/part-of: opentelemetry
     spec:
