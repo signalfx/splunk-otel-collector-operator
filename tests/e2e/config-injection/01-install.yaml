@@ -2,7 +2,6 @@ apiVersion: otel.splunk.com/v1alpha1
 kind: Agent
 metadata:
   name: test-conf-injection
-  namespace: splunk-otel-operator-system
 spec:
   clusterName: test-cluster
   realm: my-splunk-realm

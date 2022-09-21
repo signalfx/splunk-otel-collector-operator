@@ -30,7 +30,7 @@ import (
 
 func TestDesiredConfigMap(t *testing.T) {
 	expectedLables := map[string]string{
-		"app.kubernetes.io/managed-by": "splunk-otel-operator",
+		"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 		"app.kubernetes.io/instance":   "default.test",
 		"app.kubernetes.io/part-of":    "opentelemetry",
 	}
@@ -137,7 +137,7 @@ func TestExpectedConfigMap(t *testing.T) {
 				Namespace: "default",
 				Labels: map[string]string{
 					"app.kubernetes.io/instance":   "default.test",
-					"app.kubernetes.io/managed-by": "splunk-otel-operator",
+					"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 				},
 			},
 		}

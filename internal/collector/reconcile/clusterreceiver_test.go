@@ -60,7 +60,8 @@ func TestExpectedClusterReceivers(t *testing.T) {
 	t.Run("should delete deployment", func(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
-			"app.kubernetes.io/managed-by": "splunk-otel-operator",
+			"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
+			"app.kubernetes.io/name":       "test-cluster-receiver",
 		}
 		deploy := v1.Deployment{}
 		deploy.Name = "dummy"
@@ -97,7 +98,7 @@ func TestExpectedClusterReceivers(t *testing.T) {
 	t.Run("should not delete deployment", func(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
-			"app.kubernetes.io/managed-by": "helm-splunk-otel-operator",
+			"app.kubernetes.io/managed-by": "helm-splunk-otel-collector-operator",
 		}
 		deploy := v1.Deployment{}
 		deploy.Name = "dummy"

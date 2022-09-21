@@ -36,7 +36,7 @@ func TestInfluxdbReceiverPropertyDrop(t *testing.T) {
 			Name:      nsn.Name,
 			Namespace: nsn.Namespace,
 			Labels: map[string]string{
-				"app.kubernetes.io/managed-by": "splunk-otel-operator",
+				"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 			},
 		},
 		Spec: v1alpha1.AgentSpec{

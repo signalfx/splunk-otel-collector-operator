@@ -149,7 +149,7 @@ func deleteConfigMaps(ctx context.Context, params Params, expected []corev1.Conf
 		client.InNamespace(params.Instance.Namespace),
 		client.MatchingLabels(map[string]string{
 			"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", params.Instance.Namespace, params.Instance.Name),
-			"app.kubernetes.io/managed-by": "splunk-otel-operator",
+			"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 		}),
 	}
 	list := &corev1.ConfigMapList{}

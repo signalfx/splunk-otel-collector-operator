@@ -31,8 +31,8 @@ func Labels(instance v1alpha1.Agent) map[string]string {
 		}
 	}
 
-	base["app.kubernetes.io/managed-by"] = "splunk-otel-operator"
 	base["app.kubernetes.io/instance"] = fmt.Sprintf("%s.%s", instance.Namespace, instance.Name)
+	base["app.kubernetes.io/managed-by"] = "splunk-otel-collector-operator"
 	base["app.kubernetes.io/part-of"] = "opentelemetry"
 	base["app.kubernetes.io/component"] = "splunk-otel-collector"
 

@@ -28,13 +28,13 @@ import (
 // ClusterReceiver builds the Splunk Cluster Receiver instance (deployment) for the given instance.
 func ClusterReceiver(logger logr.Logger, otelcol v1alpha1.Agent) appsv1.Deployment {
 	labels := Labels(otelcol)
-	labels["app.kubernetes.io/name"] = naming.ClusterReciever(otelcol)
+	labels["app.kubernetes.io/name"] = naming.ClusterReceiver(otelcol)
 
 	annotations := Annotations(otelcol)
 
 	return appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        naming.ClusterReciever(otelcol),
+			Name:        naming.ClusterReceiver(otelcol),
 			Namespace:   otelcol.Namespace,
 			Labels:      labels,
 			Annotations: annotations,

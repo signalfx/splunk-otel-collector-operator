@@ -67,7 +67,7 @@ func TestDeleteServiceAccounts(t *testing.T) {
 				Namespace: "default",
 				Labels: map[string]string{
 					"app.kubernetes.io/instance":   "default.test",
-					"app.kubernetes.io/managed-by": "splunk-otel-operator",
+					"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
 				},
 			},
 		}
