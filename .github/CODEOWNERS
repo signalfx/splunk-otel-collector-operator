@@ -13,3 +13,14 @@
 #
 
 * @open-telemetry/collector-approvers @open-telemetry/operator-approvers
+
+#####################################################
+#
+# Docs reviewers
+#
+#####################################################
+
+*.md @signalfx/gdi-docs @open-telemetry/collector-approvers @open-telemetry/operator-approvers
+*.rst @signalfx/gdi-docs @open-telemetry/collector-approvers @open-telemetry/operator-approvers
+docs/ @signalfx/gdi-docs @open-telemetry/collector-approvers @open-telemetry/operator-approvers
+README* @signalfx/gdi-docs @open-telemetry/collector-approvers @open-telemetry/operator-approvers
