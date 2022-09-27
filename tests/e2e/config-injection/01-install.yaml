@@ -5,3 +5,9 @@ metadata:
 spec:
   clusterName: test-cluster
   realm: my-splunk-realm
+  agent:
+    enabled: true
+  clusterReceiver:
+    enabled: false
+  gateway:
+    enabled: false

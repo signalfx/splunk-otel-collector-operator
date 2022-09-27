@@ -85,13 +85,11 @@ func NewReconciler(logger logr.Logger, client client.Client, scheme *runtime.Sch
 			reconcile.Agents,
 			true,
 		},
-		/*
-			{
-				"gateway",
-				reconcile.Gateway,
-				true,
-			},
-		*/
+		{
+			"gateway",
+			reconcile.Gateways,
+			true,
+		},
 		{
 			"splunk opentelemetry",
 			reconcile.Self,

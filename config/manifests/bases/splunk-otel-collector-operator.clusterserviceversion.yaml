@@ -155,8 +155,8 @@ spec:
           deployment(s).
         displayName: Volumes
         path: clusterReceiver.volumes
-      - description: ClusterReceiver is a Splunk OpenTelemetry Collector deployment
-          used to export data to Splunk APM.
+      - description: Gateway is a Splunk OpenTelemetry Collector deployment used to
+          export data to Splunk APM.
         displayName: Gateway
         path: gateway
       - description: Args is the set of arguments to pass to the OpenTelemetry Collector

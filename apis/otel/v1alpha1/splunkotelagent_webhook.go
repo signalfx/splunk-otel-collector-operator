@@ -119,7 +119,7 @@ func (r *Agent) validateCRDAgentSpec() error {
 	spec := r.Spec.Agent
 
 	if spec.Replicas != nil {
-		return fmt.Errorf("`replicas` is not supported by clusterReceiver")
+		return fmt.Errorf("`replicas` is not supported by the agent")
 	}
 
 	return nil
@@ -129,11 +129,11 @@ func (r *Agent) validateCRDClusterReceiverSpec() error {
 	spec := r.Spec.ClusterReceiver
 
 	if spec.Replicas != nil {
-		return fmt.Errorf("`replicas` is not supported by clusterReceiver")
+		return fmt.Errorf("`replicas` is not supported by the clusterReceiver")
 	}
 
 	if spec.HostNetwork {
-		return fmt.Errorf("`hostNetwork` cannot be true for clusterReceiver")
+		return fmt.Errorf("`hostNetwork` cannot be true for the clusterReceiver")
 	}
 
 	return nil
@@ -141,10 +141,6 @@ func (r *Agent) validateCRDClusterReceiverSpec() error {
 
 func (r *Agent) validateCRDGatewaySpec() error {
 	spec := r.Spec.Gateway
-
-	if r.Spec.Gateway.Enabled != nil && *r.Spec.Gateway.Enabled {
-		return fmt.Errorf("gateway is not supported at the moment")
-	}
 
 	if spec.HostNetwork {
 		return fmt.Errorf("`hostNetwork` cannot be true for clusterReceiver")
@@ -249,8 +245,6 @@ func (r *Agent) defaultClusterReceiver() {
 
 func (r *Agent) defaultGateway() {
 	spec := &r.Spec.Gateway
-	// TODO(splunk): forcibly disable gateway until we add support for it.
-	spec.Enabled = &[]bool{false}[0]
 	spec.HostNetwork = false
 
 	// The gateway is not enabled by default
@@ -259,8 +253,115 @@ func (r *Agent) defaultGateway() {
 		spec.Enabled = &s
 	}
 
+	if spec.Replicas == nil {
+		s := int32(3)
+		spec.Replicas = &s
+	}
+
+	if spec.Ports == nil {
+		spec.Ports = []v1.ServicePort{
+			{
+				Name:     "otlp",
+				Protocol: "TCP",
+				Port:     4317,
+			},
+			{
+				Name:     "otlp-http",
+				Protocol: "TCP",
+				Port:     4318,
+			},
+			{
+				Protocol: "TCP",
+				Port:     55681,
+			},
+			{
+				Name:     "jaeger-thrift",
+				Protocol: "TCP",
+				Port:     14268,
+			},
+			{
+				Name:     "jaeger-grpc",
+				Protocol: "TCP",
+				Port:     14250,
+			},
+			{
+				Name:     "zipkin",
+				Protocol: "TCP",
+				Port:     9411,
+			},
+			{
+				Name:     "signalfx",
+				Protocol: "TCP",
+				Port:     9943,
+			},
+			{
+				Name:     "http-forwarder",
+				Protocol: "TCP",
+				Port:     6060,
+			},
+		}
+	}
+
+	if spec.Enabled == nil {
+		s := false
+		spec.Enabled = &s
+	}
+
+	if spec.Replicas == nil {
+		s := int32(3)
+		spec.Replicas = &s
+	}
+
+	if spec.Ports == nil {
+		spec.Ports = []v1.ServicePort{
+			{
+				Name:     "otlp",
+				Protocol: "TCP",
+				Port:     4317,
+			},
+			{
+				Name:     "otlp-http",
+				Protocol: "TCP",
+				Port:     4318,
+			},
+			{
+				Protocol: "TCP",
+				Port:     55681,
+			},
+			{
+				Name:     "jaeger-thrift",
+				Protocol: "TCP",
+				Port:     14268,
+			},
+			{
+				Name:     "jaeger-grpc",
+				Protocol: "TCP",
+				Port:     14250,
+			},
+			{
+				Name:     "zipkin",
+				Protocol: "TCP",
+				Port:     9411,
+			},
+			{
+				Name:     "signalfx",
+				Protocol: "TCP",
+				Port:     9943,
+			},
+			{
+				Name:     "http-forwarder",
+				Protocol: "TCP",
+				Port:     6060,
+			},
+		}
+	}
+
 	setDefaultResources(spec, defaultGatewayCPU, defaultGatewayMemory)
 	setDefaultEnvVars(spec, r.Spec.Realm, r.Spec.ClusterName)
+
+	if spec.Config == "" {
+		spec.Config = defaultGatewayConfig
+	}
 }
 
 func setDefaultResources(spec *CollectorSpec, defaultCPU string,

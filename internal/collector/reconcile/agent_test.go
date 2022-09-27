@@ -60,6 +60,7 @@ func TestExpectedDaemonsets(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
 			"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
+			"app.kubernetes.io/name":       "test-agent",
 		}
 		ds := v1.DaemonSet{}
 		ds.Name = "dummy"

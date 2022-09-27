@@ -1,0 +1,319 @@
+apiVersion: otel.splunk.com/v1alpha1
+kind: Agent
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
+spec:
+  clusterName: test-cluster-gateway-only
+  realm: my-splunk-realm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-gateway-only-gateway
+  labels:
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
+data:
+  collector.yaml: |2
+
+        exporters:
+          sapm:
+            access_token: ${SPLUNK_ACCESS_TOKEN}
+            endpoint: https://ingest.${SPLUNK_REALM}.signalfx.com/v2/trace
+          signalfx:
+            access_token: ${SPLUNK_ACCESS_TOKEN}
+            api_url: https://api.${SPLUNK_REALM}.signalfx.com
+            ingest_url: https://ingest.${SPLUNK_REALM}.signalfx.com
+        extensions:
+          health_check: null
+          http_forwarder:
+            egress:
+              endpoint: https://api.${SPLUNK_REALM}.signalfx.com
+          memory_ballast:
+            size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
+          zpages: null
+        processors:
+          batch: null
+          filter/logs:
+            logs:
+              exclude:
+                match_type: strict
+                resource_attributes:
+                - key: splunk.com/exclude
+                  value: "true"
+          k8sattributes:
+            extract:
+              annotations:
+              - from: pod
+                key: splunk.com/sourcetype
+              - from: namespace
+                key: splunk.com/exclude
+                tag_name: splunk.com/exclude
+              - from: pod
+                key: splunk.com/exclude
+                tag_name: splunk.com/exclude
+              - from: namespace
+                key: splunk.com/index
+                tag_name: com.splunk.index
+              - from: pod
+                key: splunk.com/index
+                tag_name: com.splunk.index
+              labels:
+              - key: app
+              metadata:
+              - k8s.namespace.name
+              - k8s.node.name
+              - k8s.pod.name
+              - k8s.pod.uid
+            pod_association:
+            - from: resource_attribute
+              name: k8s.pod.uid
+            - from: resource_attribute
+              name: k8s.pod.ip
+            - from: resource_attribute
+              name: ip
+            - from: connection
+            - from: resource_attribute
+              name: host.name
+          memory_limiter:
+            check_interval: 2s
+            limit_mib: ${SPLUNK_MEMORY_LIMIT_MIB}
+          resource/add_cluster_name:
+            attributes:
+            - action: upsert
+              key: k8s.cluster.name
+              value: ${MY_CLUSTER_NAME}
+          resource/add_collector_k8s:
+            attributes:
+            - action: insert
+              key: k8s.node.name
+              value: ${K8S_NODE_NAME}
+            - action: insert
+              key: k8s.pod.name
+              value: ${K8S_POD_NAME}
+            - action: insert
+              key: k8s.pod.uid
+              value: ${K8S_POD_UID}
+            - action: insert
+              key: k8s.namespace.name
+              value: ${K8S_NAMESPACE}
+          resource/logs:
+            attributes:
+            - action: upsert
+              from_attribute: k8s.pod.annotations.splunk.com/sourcetype
+              key: com.splunk.sourcetype
+            - action: delete
+              key: k8s.pod.annotations.splunk.com/sourcetype
+            - action: delete
+              key: splunk.com/exclude
+          resourcedetection:
+            detectors:
+            - env
+            - system
+            override: true
+            timeout: 10s
+        receivers:
+          jaeger:
+            protocols:
+              grpc:
+                endpoint: 0.0.0.0:14250
+              thrift_http:
+                endpoint: 0.0.0.0:14268
+          otlp:
+            protocols:
+              grpc:
+                endpoint: 0.0.0.0:4317
+              http:
+                endpoint: 0.0.0.0:4318
+          prometheus/collector:
+            config:
+              scrape_configs:
+              - job_name: otel-collector
+                scrape_interval: 10s
+                static_configs:
+                - targets:
+                  - ${K8S_POD_IP}:8889
+          signalfx:
+            access_token_passthrough: true
+            endpoint: 0.0.0.0:9943
+          zipkin:
+            endpoint: 0.0.0.0:9411
+        service:
+          extensions:
+          - health_check
+          - memory_ballast
+          - zpages
+          - http_forwarder
+          pipelines:
+            logs/signalfx-events:
+              exporters:
+              - signalfx
+              processors:
+              - memory_limiter
+              - batch
+              receivers:
+              - signalfx
+            metrics:
+              exporters:
+              - signalfx
+              processors:
+              - memory_limiter
+              - batch
+              - resource/add_cluster_name
+              receivers:
+              - otlp
+              - signalfx
+            metrics/collector:
+              exporters:
+              - signalfx
+              processors:
+              - memory_limiter
+              - batch
+              - resource/add_collector_k8s
+              - resourcedetection
+              - resource/add_cluster_name
+              receivers:
+              - prometheus/collector
+            traces:
+              exporters:
+              - sapm
+              processors:
+              - memory_limiter
+              - batch
+              - k8sattributes
+              - resource/add_cluster_name
+              receivers:
+              - otlp
+              - jaeger
+              - zipkin
+          telemetry:
+            metrics:
+              address: 0.0.0.0:8889
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8888"
+    prometheus.io/scrape: "true"
+  labels:
+    app.kubernetes.io/component: splunk-otel-collector
+    app.kubernetes.io/managed-by: splunk-otel-collector-operator
+    app.kubernetes.io/name: test-gateway-only-gateway
+    app.kubernetes.io/part-of: opentelemetry
+  name: test-gateway-only-gateway
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: splunk-otel-collector
+      app.kubernetes.io/managed-by: splunk-otel-collector-operator
+      app.kubernetes.io/name: test-gateway-only-gateway
+      app.kubernetes.io/part-of: opentelemetry
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: splunk-otel-collector
+        app.kubernetes.io/managed-by: splunk-otel-collector-operator
+        app.kubernetes.io/name: test-gateway-only-gateway
+        app.kubernetes.io/part-of: opentelemetry
+    spec:
+      containers:
+        - args:
+            - --config=/conf/collector.yaml
+          env:
+            - name: SPLUNK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: access-token
+                  name: splunk-access-token
+            - name: SPLUNK_REALM
+              value: my-splunk-realm
+            - name: MY_CLUSTER_NAME
+              value: test-cluster-gateway-only
+            - name: HOST_PROC
+              value: /hostfs/proc
+            - name: HOST_SYS
+              value: /hostfs/sys
+            - name: HOST_ETC
+              value: /hostfs/etc
+            - name: HOST_VAR
+              value: /hostfs/var
+            - name: HOST_RUN
+              value: /hostfs/run
+            - name: HOST_DEV
+              value: /hostfs/dev
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: MY_NODE_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: MY_POD_UID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.uid
+            - name: MY_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: SPLUNK_MEMORY_TOTAL_MIB
+              value: "200"
+          image: quay.io/signalfx/splunk-otel-collector:0.58.0
+          imagePullPolicy: IfNotPresent
+          name: otc-container
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /conf
+              name: otc-internal
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: { }
+      serviceAccount: splunk-otel-operator-acccount
+      serviceAccountName: splunk-otel-operator-acccount
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: collector.yaml
+                path: collector.yaml
+            name: test-gateway-only-gateway
+          name: otc-internal
+status:
+  availableReplicas: 1
+  readyReplicas: 1
+  replicas: 1
