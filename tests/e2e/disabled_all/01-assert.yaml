@@ -5,13 +5,13 @@ timeout: 350
 apiVersion: otel.splunk.com/v1alpha1
 kind: Agent
 metadata:
-  name: test-default
+  name: test-disabled-all
 spec:
   clusterName: test-cluster-disabled
   realm: my-splunk-realm-disabled
   agent:
-    disabled: true
+    enabled: false
   clusterReceiver:
-    disabled: true
+    enabled: false
   gateway:
-    disabled: true
+    enabled: false

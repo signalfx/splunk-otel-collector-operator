@@ -23,10 +23,10 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type CollectorSpec struct {
-	// Disabled determines whether this spec will be depoyed or not.
+	// Enabled determines whether this spec will be deployed or not.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
-	Disabled bool `json:"disabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 
 	// Config is the raw YAML to be used as the collector's configuration. Refer to the OpenTelemetry Collector documentation for details.
 	// This will be automatically set by the operator but can be overridden by the user.

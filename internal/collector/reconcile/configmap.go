@@ -37,13 +37,13 @@ import (
 func ConfigMaps(ctx context.Context, params Params) error {
 	desired := []corev1.ConfigMap{}
 
-	if !params.Instance.Spec.Agent.Disabled {
+	if params.Instance.Spec.Agent.Enabled == nil || *params.Instance.Spec.Agent.Enabled {
 		desired = append(desired, desiredConfigMap(ctx, params, params.Instance.Spec.Agent.Config, "agent"))
 	}
-	if !params.Instance.Spec.ClusterReceiver.Disabled {
+	if params.Instance.Spec.ClusterReceiver.Enabled == nil || *params.Instance.Spec.ClusterReceiver.Enabled {
 		desired = append(desired, desiredConfigMap(ctx, params, params.Instance.Spec.ClusterReceiver.Config, "cluster-receiver"))
 	}
-	if !params.Instance.Spec.Gateway.Disabled {
+	if params.Instance.Spec.Gateway.Enabled != nil && *params.Instance.Spec.Gateway.Enabled {
 		desired = append(desired, desiredConfigMap(ctx, params, params.Instance.Spec.Gateway.Config, "gateway"))
 	}
 

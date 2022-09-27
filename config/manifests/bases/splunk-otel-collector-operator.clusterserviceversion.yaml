@@ -30,9 +30,9 @@ spec:
           set by the operator. User provided config always overrides the default config.
         displayName: Config
         path: agent.config
-      - description: Disabled determines whether this spec will be depoyed or not.
-        displayName: Disabled
-        path: agent.disabled
+      - description: Enabled determines whether this spec will be deployed or not.
+        displayName: Enabled
+        path: agent.enabled
       - description: ENV vars to set on the OpenTelemetry Collector's Pods. These
           can then in certain cases be consumed in the config file for the Collector.
           Setting this field will override any existing environment variables set
@@ -102,9 +102,9 @@ spec:
           set by the operator. User provided config always overrides the default config.
         displayName: Config
         path: clusterReceiver.config
-      - description: Disabled determines whether this spec will be depoyed or not.
-        displayName: Disabled
-        path: clusterReceiver.disabled
+      - description: Enabled determines whether this spec will be deployed or not.
+        displayName: Enabled
+        path: clusterReceiver.enabled
       - description: ENV vars to set on the OpenTelemetry Collector's Pods. These
           can then in certain cases be consumed in the config file for the Collector.
           Setting this field will override any existing environment variables set
@@ -170,9 +170,9 @@ spec:
           set by the operator. User provided config always overrides the default config.
         displayName: Config
         path: gateway.config
-      - description: Disabled determines whether this spec will be depoyed or not.
-        displayName: Disabled
-        path: gateway.disabled
+      - description: Enabled determines whether this spec will be deployed or not.
+        displayName: Enabled
+        path: gateway.enabled
       - description: ENV vars to set on the OpenTelemetry Collector's Pods. These
           can then in certain cases be consumed in the config file for the Collector.
           Setting this field will override any existing environment variables set

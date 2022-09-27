@@ -145,16 +145,16 @@ func configFromSpec(spec *v1alpha1.AgentSpec) config {
 
 	cfg := config{
 		exporter: exporterOTLP,
-		endpoint: "http://$(SPLUNK_OTEL_AGENT):4317",
 	}
 
-	if spec.Agent.Disabled {
-		if !spec.Gateway.Disabled {
-			cfg.endpoint = fmt.Sprintf("http://splunk-otel-collector.%s:4317", operatorNamespace)
-		} else {
-			cfg.exporter = exporterJaeger
-			cfg.endpoint = fmt.Sprintf("https://ingest.%s.signalfx.com/v2/trace", spec.Realm)
-		}
+	// If the agent is not Enabled, use a gateway or ingest endpoint.
+	if spec.Agent.Enabled == nil || *spec.Agent.Enabled {
+		cfg.endpoint = "http://$(SPLUNK_OTEL_AGENT):4317"
+	} else if spec.Gateway.Enabled != nil && *spec.Gateway.Enabled {
+		cfg.endpoint = fmt.Sprintf("http://splunk-otel-collector.%s:4317", operatorNamespace)
+	} else {
+		cfg.exporter = exporterJaeger
+		cfg.endpoint = fmt.Sprintf("https://ingest.%s.signalfx.com/v2/trace", spec.Realm)
 	}
 
 	cfg.javaImage = spec.Instrumentation.Java.Image
