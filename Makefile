@@ -64,7 +64,7 @@ ensure-generate-is-noop: USER=signalfx
 ensure-generate-is-noop: set-image-controller generate bundle
 	if [[ `git status --porcelain` ]]; then \
 		git diff; \
-		echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate' and update your PR." && exit 1; \
+		echo "Build failed: a model has been changed but the generated resources aren't up to date. Run 'make generate manifests bundle' and update your PR." && exit 1; \
 	else \
 		echo "All models are in sync with generated resources."; \
 	fi
