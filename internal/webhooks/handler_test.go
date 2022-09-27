@@ -49,7 +49,39 @@ func TestConfigFromSpec(t *testing.T) {
 		},
 		{
 			spec: &v1alpha1.AgentSpec{
-				Agent: v1alpha1.CollectorSpec{Disabled: true},
+				Agent:   v1alpha1.CollectorSpec{Enabled: &[]bool{true}[0]},
+				Gateway: v1alpha1.CollectorSpec{Enabled: &[]bool{true}[0]},
+				Instrumentation: v1alpha1.Instrumentation{
+					Java: v1alpha1.AutoInstrumentation{
+						Image: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.2.3",
+					},
+				},
+			},
+			cfg: config{
+				exporter:  "otlp",
+				endpoint:  "http://$(SPLUNK_OTEL_AGENT):4317",
+				javaImage: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.2.3",
+			},
+		},
+		{
+			spec: &v1alpha1.AgentSpec{
+				Agent: v1alpha1.CollectorSpec{},
+				Instrumentation: v1alpha1.Instrumentation{
+					Java: v1alpha1.AutoInstrumentation{
+						Image: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.2.3",
+					},
+				},
+			},
+			cfg: config{
+				exporter:  "otlp",
+				endpoint:  "http://$(SPLUNK_OTEL_AGENT):4317",
+				javaImage: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.2.3",
+			},
+		},
+		{
+			spec: &v1alpha1.AgentSpec{
+				Agent:   v1alpha1.CollectorSpec{Enabled: &[]bool{false}[0]},
+				Gateway: v1alpha1.CollectorSpec{Enabled: &[]bool{true}[0]},
 				Instrumentation: v1alpha1.Instrumentation{
 					Java: v1alpha1.AutoInstrumentation{
 						Image: "quay.io/signalfx/splunk-otel-instrumentation-java:v1.6.0",
@@ -64,8 +96,8 @@ func TestConfigFromSpec(t *testing.T) {
 		},
 		{
 			spec: &v1alpha1.AgentSpec{
-				Agent:   v1alpha1.CollectorSpec{Disabled: true},
-				Gateway: v1alpha1.CollectorSpec{Disabled: true},
+				Agent:   v1alpha1.CollectorSpec{Enabled: &[]bool{false}[0]},
+				Gateway: v1alpha1.CollectorSpec{Enabled: &[]bool{false}[0]},
 				Realm:   "mars0",
 				Instrumentation: v1alpha1.Instrumentation{
 					Java: v1alpha1.AutoInstrumentation{

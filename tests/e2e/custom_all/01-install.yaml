@@ -285,5 +285,6 @@ spec:
               - resourcedetection
             exporters:
               - signalfx
+  // TODO(splunk): Expand test coverage here to include the gateway
   gateway:
-    disabled: true
+    enabled: false

@@ -34,6 +34,15 @@ func TestDefaultSpecNoNils(t *testing.T) {
 	assert.NotNil(t, a.Spec.Instrumentation)
 }
 
+func TestDefaultAgentValues(t *testing.T) {
+	var a = Agent{}
+	a.Default()
+	assert.True(t, *a.Spec.Agent.Enabled, "The agent should be enabled by default")
+	assert.True(t, *a.Spec.ClusterReceiver.Enabled, "The cluster receiver should be enabled by default")
+	assert.False(t, *a.Spec.Gateway.Enabled, "The gateway should not be enabled by default")
+	assert.Equal(t, a.Spec.Instrumentation.Java.Image, defaultJavaAgentImage, "The java image should have a default value")
+}
+
 func TestDefaultResourceLimits(t *testing.T) {
 	type testCase struct {
 		in      string

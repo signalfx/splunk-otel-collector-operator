@@ -33,7 +33,7 @@ import (
 // Agents reconciles the Splunk Otel Agent required for the instance in the current context.
 func Agents(ctx context.Context, params Params) error {
 	desired := []appsv1.DaemonSet{}
-	if !params.Instance.Spec.Agent.Disabled {
+	if params.Instance.Spec.Agent.Enabled == nil || *params.Instance.Spec.Agent.Enabled {
 		// TODO(splunk): pass params.Instance.Spec.Agent instead of params.Instance
 		desired = append(desired, collector.Agent(params.Log, params.Instance))
 	}

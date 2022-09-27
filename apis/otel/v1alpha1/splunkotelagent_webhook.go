@@ -142,7 +142,7 @@ func (r *Agent) validateCRDClusterReceiverSpec() error {
 func (r *Agent) validateCRDGatewaySpec() error {
 	spec := r.Spec.Gateway
 
-	if !r.Spec.Gateway.Disabled {
+	if r.Spec.Gateway.Enabled != nil && *r.Spec.Gateway.Enabled {
 		return fmt.Errorf("gateway is not supported at the moment")
 	}
 
@@ -162,6 +162,11 @@ func (r *Agent) defaultInstrumentation() {
 func (r *Agent) defaultAgent() {
 	spec := &r.Spec.Agent
 	spec.HostNetwork = true
+
+	// The agent is enabled by default
+	if spec.Enabled == nil {
+		spec.Enabled = &[]bool{true}[0]
+	}
 
 	if spec.Volumes == nil {
 		spec.Volumes = []v1.Volume{
@@ -224,6 +229,11 @@ func (r *Agent) defaultClusterReceiver() {
 	spec := &r.Spec.ClusterReceiver
 	spec.HostNetwork = false
 
+	// The cluster receiver is enabled by default
+	if spec.Enabled == nil {
+		spec.Enabled = &[]bool{true}[0]
+	}
+
 	setDefaultResources(spec, defaultClusterReceiverCPU,
 		defaultClusterReceiverMemory)
 	setDefaultEnvVars(spec, r.Spec.Realm, r.Spec.ClusterName)
@@ -240,8 +250,14 @@ func (r *Agent) defaultClusterReceiver() {
 func (r *Agent) defaultGateway() {
 	spec := &r.Spec.Gateway
 	// TODO(splunk): forcibly disable gateway until we add support for it.
-	spec.Disabled = true
+	spec.Enabled = &[]bool{false}[0]
 	spec.HostNetwork = false
+
+	// The gateway is not enabled by default
+	if spec.Enabled == nil {
+		s := false
+		spec.Enabled = &s
+	}
 
 	setDefaultResources(spec, defaultGatewayCPU, defaultGatewayMemory)
 	setDefaultEnvVars(spec, r.Spec.Realm, r.Spec.ClusterName)

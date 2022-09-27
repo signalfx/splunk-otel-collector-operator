@@ -34,8 +34,8 @@ import (
 // ClusterReceiver reconciles the Splunk Cluster Receiver required for the instance in the current context.
 func ClusterReceivers(ctx context.Context, params Params) error {
 	desired := []appsv1.Deployment{}
-	if !params.Instance.Spec.ClusterReceiver.Disabled {
-		// TODO(splunk): pass params.Instance.Spec.Gateway instead of params.Instance
+	if params.Instance.Spec.ClusterReceiver.Enabled == nil || *params.Instance.Spec.ClusterReceiver.Enabled {
+		// TODO(splunk): pass params.Instance.Spec.ClusterReceiver instead of params.Instance
 		desired = append(desired, collector.ClusterReceiver(params.Log, params.Instance))
 	}
 

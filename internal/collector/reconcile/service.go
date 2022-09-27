@@ -38,7 +38,7 @@ import (
 func Services(ctx context.Context, params Params) error {
 	desired := []corev1.Service{}
 
-	if !params.Instance.Spec.Gateway.Disabled {
+	if params.Instance.Spec.Gateway.Enabled != nil && !*params.Instance.Spec.Gateway.Enabled {
 		type builder func(context.Context, Params) *corev1.Service
 		for _, builder := range []builder{desiredService, headless, monitoringService} {
 			// TODO(splunk): pass in params.Instance.Spec.Gateway instead of params

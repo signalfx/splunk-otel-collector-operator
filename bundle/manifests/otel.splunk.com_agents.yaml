@@ -72,8 +72,8 @@ spec:
                       operator. User provided config always overrides the default
                       config.
                     type: string
-                  disabled:
-                    description: Disabled determines whether this spec will be depoyed
+                  enabled:
+                    description: Enabled determines whether this spec will be deployed
                       or not.
                     type: boolean
                   env:
@@ -2158,8 +2158,8 @@ spec:
                       operator. User provided config always overrides the default
                       config.
                     type: string
-                  disabled:
-                    description: Disabled determines whether this spec will be depoyed
+                  enabled:
+                    description: Enabled determines whether this spec will be deployed
                       or not.
                     type: boolean
                   env:
@@ -4240,8 +4240,8 @@ spec:
                       operator. User provided config always overrides the default
                       config.
                     type: string
-                  disabled:
-                    description: Disabled determines whether this spec will be depoyed
+                  enabled:
+                    description: Enabled determines whether this spec will be deployed
                       or not.
                     type: boolean
                   env:
