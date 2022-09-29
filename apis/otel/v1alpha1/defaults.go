@@ -74,14 +74,14 @@ receivers:
   hostmetrics:
     collection_interval: 10s
     scrapers:
-      cpu: null
-      disk: null
-      filesystem: null
-      load: null
-      memory: null
-      network: null
-      paging: null
-      processes: null
+      cpu: 
+      disk: 
+      filesystem: 
+      load: 
+      memory: 
+      network: 
+      paging: 
+      processes: 
   kubeletstats:
     auth_type: serviceAccount
     collection_interval: 10s
@@ -93,7 +93,7 @@ receivers:
       - pod
       - node
   receiver_creator:
-    receivers: null
+    receivers: 
     watch_observers:
       - k8s_observer
   prometheus/self:
@@ -116,7 +116,7 @@ exporters:
   splunk_hec:
     token: '${SPLUNK_ACCESS_TOKEN}'
     endpoint: 'https://ingest.${SPLUNK_REALM}.signalfx.com/v1/log'
-  logging: null
+  logging: 
   logging/debug:
     loglevel: debug
 processors:
@@ -129,7 +129,7 @@ processors:
         - k8s.pod.uid
     filter:
       node: '${MY_NODE_NAME}'
-  batch: null
+  batch: 
   memory_limiter:
     check_interval: 2s
     limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
@@ -233,11 +233,11 @@ exporters:
     api_url: 'https://api.${SPLUNK_REALM}.signalfx.com'
     ingest_url: 'https://ingest.${SPLUNK_REALM}.signalfx.com'
     timeout: 10s
-  logging: null
+  logging: 
   logging/debug:
     loglevel: debug
 processors:
-  batch: null
+  batch: 
   memory_limiter:
     check_interval: 2s
     limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
@@ -327,11 +327,11 @@ exporters:
     api_url: 'https://api.${SPLUNK_REALM}.signalfx.com'
     ingest_url: 'https://ingest.${SPLUNK_REALM}.signalfx.com'
     timeout: 10s
-  logging: null
+  logging: 
   logging/debug:
     loglevel: debug
 processors:
-  batch: null
+  batch: 
   memory_limiter:
     check_interval: 2s
     limit_mib: '${SPLUNK_MEMORY_LIMIT_MIB}'
@@ -407,15 +407,15 @@ service:
         api_url: https://api.${SPLUNK_REALM}.signalfx.com
         ingest_url: https://ingest.${SPLUNK_REALM}.signalfx.com
     extensions:
-      health_check: null
+      health_check:
       http_forwarder:
         egress:
           endpoint: https://api.${SPLUNK_REALM}.signalfx.com
       memory_ballast:
         size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
-      zpages: null
+      zpages: 
     processors:
-      batch: null
+      batch: 
       filter/logs:
         logs:
           exclude:

@@ -98,19 +98,65 @@ func params() Params {
 				Namespace: "default",
 				UID:       instanceUID,
 			},
-			Spec: v1alpha1.AgentSpec{Agent: v1alpha1.CollectorSpec{
-				Ports: []v1.ServicePort{{
-					Name: "web",
-					Port: 80,
-					TargetPort: intstr.IntOrString{
-						Type:   intstr.Int,
-						IntVal: 80,
+			Spec: v1alpha1.AgentSpec{
+				Agent: v1alpha1.CollectorSpec{
+					Ports: []v1.ServicePort{{
+						Name: "web",
+						Port: 80,
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.Int,
+							IntVal: 80,
+						},
+						NodePort: 0,
+					}},
+					Replicas: &replicas,
+					Config:   string(configYAML),
+				},
+				Gateway: v1alpha1.CollectorSpec{
+					Enabled: &[]bool{true}[0],
+					Ports: []v1.ServicePort{
+						{
+							Name:     "otlp",
+							Protocol: "TCP",
+							Port:     4317,
+						},
+						{
+							Name:     "otlp-http",
+							Protocol: "TCP",
+							Port:     4318,
+						},
+						{
+							Protocol: "TCP",
+							Port:     55681,
+						},
+						{
+							Name:     "jaeger-thrift",
+							Protocol: "TCP",
+							Port:     14268,
+						},
+						{
+							Name:     "jaeger-grpc",
+							Protocol: "TCP",
+							Port:     14250,
+						},
+						{
+							Name:     "zipkin",
+							Protocol: "TCP",
+							Port:     9411,
+						},
+						{
+							Name:     "signalfx",
+							Protocol: "TCP",
+							Port:     9943,
+						},
+						{
+							Name:     "http-forwarder",
+							Protocol: "TCP",
+							Port:     6060,
+						},
 					},
-					NodePort: 0,
-				}},
-				Replicas: &replicas,
-				Config:   string(configYAML),
-			}},
+				},
+			},
 		},
 		Scheme:   testScheme,
 		Log:      logger,
