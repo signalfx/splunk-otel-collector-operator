@@ -378,8 +378,8 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: splunk-otel-operator-acccount
-      serviceAccountName: splunk-otel-operator-acccount
+      serviceAccount: splunk-otel-operator-account
+      serviceAccountName: splunk-otel-operator-account
       terminationGracePeriodSeconds: 30
       volumes:
       - configMap:
@@ -499,8 +499,8 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: splunk-otel-operator-acccount
-      serviceAccountName: splunk-otel-operator-acccount
+      serviceAccount: splunk-otel-operator-account
+      serviceAccountName: splunk-otel-operator-account
       terminationGracePeriodSeconds: 30
       tolerations:
       - effect: NoSchedule

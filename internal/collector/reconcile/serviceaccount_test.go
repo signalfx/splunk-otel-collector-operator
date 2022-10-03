@@ -33,7 +33,7 @@ func TestExpectedServiceAccounts(t *testing.T) {
 		err := expectedServiceAccounts(context.Background(), params(), []v1.ServiceAccount{desired})
 		assert.NoError(t, err)
 
-		exists, err := populateObjectIfExists(t, &v1.ServiceAccount{}, types.NamespacedName{Namespace: "default", Name: "splunk-otel-operator-acccount"})
+		exists, err := populateObjectIfExists(t, &v1.ServiceAccount{}, types.NamespacedName{Namespace: "default", Name: "splunk-otel-operator-account"})
 		assert.NoError(t, err)
 		assert.True(t, exists)
 	})
