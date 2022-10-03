@@ -25,7 +25,7 @@ import (
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
-// ClusterReceiver builds the Splunk Cluster Receiver instance (deployment) for the given instance.
+// ClusterReceiver builds the Splunk Otel Collector ClusterReceiver deployment for the given instance.
 func ClusterReceiver(logger logr.Logger, otelcol v1alpha1.Agent) appsv1.Deployment {
 	labels := Labels(otelcol)
 	labels["app.kubernetes.io/name"] = naming.ClusterReceiver(otelcol)

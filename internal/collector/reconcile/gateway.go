@@ -29,30 +29,30 @@ import (
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
-// +kubebuilder:rbac:groups="apps",resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="apps",resources=deployments,verbs=get;list;watch;create;update;patch;delete
 
-// Agents reconciles the Splunk Otel Agent required for the instance in the current context.
-func Agents(ctx context.Context, params Params) error {
-	desired := []appsv1.DaemonSet{}
-	if params.Instance.Spec.Agent.Enabled == nil || *params.Instance.Spec.Agent.Enabled {
-		// TODO(splunk): pass params.Instance.Spec.Agent instead of params.Instance
-		desired = append(desired, collector.Agent(params.Log, params.Instance))
+// Gateway reconciles the Splunk Otel Gateway required for the instance in the current context.
+func Gateways(ctx context.Context, params Params) error {
+	desired := []appsv1.Deployment{}
+	if params.Instance.Spec.Gateway.Enabled != nil && *params.Instance.Spec.Gateway.Enabled {
+		// TODO(splunk): pass params.Instance.Spec.Gateway instead of params.Instance
+		desired = append(desired, collector.Gateway(params.Log, params.Instance))
 	}
 
 	// first, handle the create/update parts
-	if err := expectedAgents(ctx, params, desired); err != nil {
-		return fmt.Errorf("failed to reconcile the expected daemon sets: %w", err)
+	if err := expectedGateways(ctx, params, desired); err != nil {
+		return fmt.Errorf("failed to reconcile the expected deployments: %w", err)
 	}
 
 	// then, delete the extra objects
-	if err := deleteAgents(ctx, params, desired); err != nil {
-		return fmt.Errorf("failed to reconcile the daemon sets to be deleted: %w", err)
+	if err := deleteGateways(ctx, params, desired); err != nil {
+		return fmt.Errorf("failed to reconcile the deployments to be deleted: %w", err)
 	}
 
 	return nil
 }
 
-func expectedAgents(ctx context.Context, params Params, expected []appsv1.DaemonSet) error {
+func expectedGateways(ctx context.Context, params Params, expected []appsv1.Deployment) error {
 	for _, obj := range expected {
 		desired := obj
 
@@ -60,25 +60,14 @@ func expectedAgents(ctx context.Context, params Params, expected []appsv1.Daemon
 			return fmt.Errorf("failed to set controller reference: %w", err)
 		}
 
-		existing := &appsv1.DaemonSet{}
+		existing := &appsv1.Deployment{}
 		nns := types.NamespacedName{Namespace: desired.Namespace, Name: desired.Name}
-
 		err := params.Client.Get(ctx, nns, existing)
 		if err != nil && k8serrors.IsNotFound(err) {
 			if err = params.Client.Create(ctx, &desired); err != nil {
 				return fmt.Errorf("failed to create: %w", err)
 			}
-			params.Log.V(2).Info("created", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)
-			continue
-		} else if err != nil {
-			return fmt.Errorf("failed to get: %w", err)
-		}
-
-		if err := params.Client.Get(ctx, nns, existing); err != nil && k8serrors.IsNotFound(err) {
-			if err = params.Client.Create(ctx, &desired); err != nil {
-				return fmt.Errorf("failed to create: %w", err)
-			}
-			params.Log.V(2).Info("created", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)
+			params.Log.V(2).Info("created", "deployment.name", desired.Name, "deployment.namespace", desired.Namespace)
 			continue
 		} else if err != nil {
 			return fmt.Errorf("failed to get: %w", err)
@@ -104,26 +93,27 @@ func expectedAgents(ctx context.Context, params Params, expected []appsv1.Daemon
 		}
 
 		patch := client.MergeFrom(existing)
+
 		if err := params.Client.Patch(ctx, updated, patch); err != nil {
 			return fmt.Errorf("failed to apply changes: %w", err)
 		}
 
-		params.Log.V(2).Info("applied", "daemonset.name", desired.Name, "daemonset.namespace", desired.Namespace)
+		params.Log.V(2).Info("applied", "deployment.name", desired.Name, "deployment.namespace", desired.Namespace)
 	}
 
 	return nil
 }
 
-func deleteAgents(ctx context.Context, params Params, expected []appsv1.DaemonSet) error {
+func deleteGateways(ctx context.Context, params Params, expected []appsv1.Deployment) error {
 	opts := []client.ListOption{
 		client.InNamespace(params.Instance.Namespace),
 		client.MatchingLabels(map[string]string{
 			"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", params.Instance.Namespace, params.Instance.Name),
 			"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
-			"app.kubernetes.io/name":       naming.Agent(params.Instance),
+			"app.kubernetes.io/name":       naming.Gateway(params.Instance),
 		}),
 	}
-	list := &appsv1.DaemonSetList{}
+	list := &appsv1.DeploymentList{}
 	if err := params.Client.List(ctx, list, opts...); err != nil {
 		return fmt.Errorf("failed to list: %w", err)
 	}
@@ -141,7 +131,7 @@ func deleteAgents(ctx context.Context, params Params, expected []appsv1.DaemonSe
 			if err := params.Client.Delete(ctx, &existing); err != nil {
 				return fmt.Errorf("failed to delete: %w", err)
 			}
-			params.Log.V(2).Info("deleted", "daemonset.name", existing.Name, "daemonset.namespace", existing.Namespace)
+			params.Log.V(2).Info("deleted", "deployment.name", existing.Name, "deployment.namespace", existing.Namespace)
 		}
 	}
 

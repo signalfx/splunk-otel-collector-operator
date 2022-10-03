@@ -29,45 +29,46 @@ import (
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
-func TestExpectedDaemonsets(t *testing.T) {
+func TestExpectedGateways(t *testing.T) {
 	param := params()
-	expectedDs := collector.Agent(logger, param.Instance)
+	expectedDeploy := collector.Gateway(logger, param.Instance)
 
-	t.Run("should create Daemonset", func(t *testing.T) {
-		err := expectedAgents(context.Background(), param, []v1.DaemonSet{expectedDs})
+	t.Run("should create collector deployment", func(t *testing.T) {
+		err := expectedGateways(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		exists, err := populateObjectIfExists(t, &v1.DaemonSet{}, types.NamespacedName{Namespace: "default", Name: "test-agent"})
+		exists, err := populateObjectIfExists(t, &v1.Deployment{}, types.NamespacedName{Namespace: "default", Name: "test-gateway"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
 
 	})
-	t.Run("should update Daemonset", func(t *testing.T) {
-		createObjectIfNotExists(t, "test-agent", &expectedDs)
-		err := expectedAgents(context.Background(), param, []v1.DaemonSet{expectedDs})
+
+	t.Run("should update deployment", func(t *testing.T) {
+		createObjectIfNotExists(t, "test-gateway", &expectedDeploy)
+		err := expectedGateways(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		actual := v1.DaemonSet{}
-		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-agent"})
+		actual := v1.Deployment{}
+		exists, err := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "test-gateway"})
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
 		assert.Equal(t, instanceUID, actual.OwnerReferences[0].UID)
+		assert.Equal(t, int32(1), *actual.Spec.Replicas)
 	})
 
-	t.Run("should delete daemonset", func(t *testing.T) {
-
+	t.Run("should delete deployment", func(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
 			"app.kubernetes.io/managed-by": "splunk-otel-collector-operator",
-			"app.kubernetes.io/name":       naming.Agent(param.Instance),
+			"app.kubernetes.io/name":       naming.Gateway(param.Instance),
 		}
-		ds := v1.DaemonSet{}
-		ds.Name = "dummy-cluster-receiver"
-		ds.Namespace = "default"
-		ds.Labels = labels
-		ds.Spec = v1.DaemonSetSpec{
+		deploy := v1.Deployment{}
+		deploy.Name = "dummy-gateway"
+		deploy.Namespace = "default"
+		deploy.Labels = labels
+		deploy.Spec = v1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -77,37 +78,34 @@ func TestExpectedDaemonsets(t *testing.T) {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Name:  "dummy-cluster-receiver",
+						Name:  "dummy-gateway",
 						Image: "busybox",
 					}},
 				},
 			},
 		}
+		createObjectIfNotExists(t, "dummy-gateway", &deploy)
 
-		createObjectIfNotExists(t, "dummy-cluster-receiver", &ds)
-
-		err := deleteAgents(context.Background(), param, []v1.DaemonSet{expectedDs})
+		err := deleteGateways(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		actual := v1.DaemonSet{}
-		exists, _ := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "dummy-cluster-receiver"})
+		actual := v1.Deployment{}
+		exists, _ := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "dummy-gateway"})
 
 		assert.False(t, exists)
 
 	})
 
-	t.Run("should not delete daemonset", func(t *testing.T) {
-
+	t.Run("should not delete deployment", func(t *testing.T) {
 		labels := map[string]string{
 			"app.kubernetes.io/instance":   "default.test",
 			"app.kubernetes.io/managed-by": "helm-splunk-otel-collector-operator",
-			"app.kubernetes.io/name":       naming.Agent(param.Instance),
+			"app.kubernetes.io/name":       naming.Gateway(param.Instance),
 		}
-		ds := v1.DaemonSet{}
-		ds.Name = "dummy-cluster-receiver"
-		ds.Namespace = "default"
-		ds.Labels = labels
-		ds.Spec = v1.DaemonSetSpec{
+		deploy := v1.Deployment{}
+		deploy.Name = "dummy-gateway"
+		deploy.Namespace = "default"
+		deploy.Spec = v1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -117,20 +115,19 @@ func TestExpectedDaemonsets(t *testing.T) {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Name:  "dummy-cluster-receiver",
+						Name:  "dummy-gateway",
 						Image: "busybox",
 					}},
 				},
 			},
 		}
+		createObjectIfNotExists(t, "dummy-gateway", &deploy)
 
-		createObjectIfNotExists(t, "dummy-cluster-receiver", &ds)
-
-		err := deleteAgents(context.Background(), param, []v1.DaemonSet{expectedDs})
+		err := deleteGateways(context.Background(), param, []v1.Deployment{expectedDeploy})
 		assert.NoError(t, err)
 
-		actual := v1.DaemonSet{}
-		exists, _ := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "dummy-cluster-receiver"})
+		actual := v1.Deployment{}
+		exists, _ := populateObjectIfExists(t, &actual, types.NamespacedName{Namespace: "default", Name: "dummy-gateway"})
 
 		assert.True(t, exists)
 

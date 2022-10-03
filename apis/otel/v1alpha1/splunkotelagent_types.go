@@ -156,7 +156,7 @@ type AgentSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	ClusterReceiver CollectorSpec `json:"clusterReceiver,omitempty"`
 
-	// ClusterReceiver is a Splunk OpenTelemetry Collector deployment used to export data to Splunk APM.
+	// Gateway is a Splunk OpenTelemetry Collector deployment used to export data to Splunk APM.
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	Gateway CollectorSpec `json:"gateway,omitempty"`
@@ -187,7 +187,7 @@ type Agent struct {
 	Status AgentStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // AgentList contains a list of SplunkOtelAgent.
 type AgentList struct {

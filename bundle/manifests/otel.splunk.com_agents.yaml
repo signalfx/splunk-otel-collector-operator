@@ -4222,7 +4222,7 @@ spec:
                     x-kubernetes-list-type: atomic
                 type: object
               gateway:
-                description: ClusterReceiver is a Splunk OpenTelemetry Collector deployment
+                description: Gateway is a Splunk OpenTelemetry Collector deployment
                   used to export data to Splunk APM.
                 properties:
                   args:

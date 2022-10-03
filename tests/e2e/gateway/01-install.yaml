@@ -1,0 +1,22 @@
+apiVersion: otel.splunk.com/v1alpha1
+kind: Agent
+metadata:
+  name: test-gateway-only
+spec:
+  clusterName: test-cluster-gateway-only
+  realm: my-splunk-realm
+  agent:
+    enabled: false
+  clusterReceiver:
+    enabled: false
+  gateway:
+    enabled: true
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200Mi
+      requests:
+        memory: 100Mi
+        cpu: 100m
+    replicas:
+      1

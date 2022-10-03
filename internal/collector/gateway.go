@@ -25,21 +25,22 @@ import (
 	"github.com/signalfx/splunk-otel-collector-operator/internal/naming"
 )
 
-// Agent builds the  Splunk Otel Collector  Agent daemonset for the given instance.
-func Agent(logger logr.Logger, otelcol v1alpha1.Agent) appsv1.DaemonSet {
+// Gateway builds the Splunk Otel Collector Gateway deployment for the given instance.
+func Gateway(logger logr.Logger, otelcol v1alpha1.Agent) appsv1.Deployment {
 	labels := Labels(otelcol)
-	labels["app.kubernetes.io/name"] = naming.Agent(otelcol)
+	labels["app.kubernetes.io/name"] = naming.Gateway(otelcol)
 
 	annotations := Annotations(otelcol)
 
-	return appsv1.DaemonSet{
+	return appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        naming.Agent(otelcol),
+			Name:        naming.Gateway(otelcol),
 			Namespace:   otelcol.Namespace,
 			Labels:      labels,
 			Annotations: annotations,
 		},
-		Spec: appsv1.DaemonSetSpec{
+		Spec: appsv1.DeploymentSpec{
+			Replicas: otelcol.Spec.Gateway.Replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
@@ -50,10 +51,9 @@ func Agent(logger logr.Logger, otelcol v1alpha1.Agent) appsv1.DaemonSet {
 				},
 				Spec: corev1.PodSpec{
 					ServiceAccountName: ServiceAccountName(otelcol),
-					Containers:         []corev1.Container{Container(logger, otelcol.Spec.Agent)},
-					Volumes:            Volumes(otelcol.Spec.Agent, naming.ConfigMap(otelcol, "agent")),
-					Tolerations:        otelcol.Spec.Agent.Tolerations,
-					HostNetwork:        otelcol.Spec.Agent.HostNetwork,
+					Containers:         []corev1.Container{Container(logger, otelcol.Spec.Gateway)},
+					Volumes:            Volumes(otelcol.Spec.Gateway, naming.ConfigMap(otelcol, "gateway")),
+					Tolerations:        otelcol.Spec.Gateway.Tolerations,
 				},
 			},
 		},

@@ -397,7 +397,181 @@ service:
 
 	defaultGatewayCPU    = "4"
 	defaultGatewayMemory = "8Gi"
-
+	defaultGatewayConfig = `
+    exporters:
+      sapm:
+        access_token: ${SPLUNK_ACCESS_TOKEN}
+        endpoint: https://ingest.${SPLUNK_REALM}.signalfx.com/v2/trace
+      signalfx:
+        access_token: ${SPLUNK_ACCESS_TOKEN}
+        api_url: https://api.${SPLUNK_REALM}.signalfx.com
+        ingest_url: https://ingest.${SPLUNK_REALM}.signalfx.com
+    extensions:
+      health_check: null
+      http_forwarder:
+        egress:
+          endpoint: https://api.${SPLUNK_REALM}.signalfx.com
+      memory_ballast:
+        size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
+      zpages: null
+    processors:
+      batch: null
+      filter/logs:
+        logs:
+          exclude:
+            match_type: strict
+            resource_attributes:
+            - key: splunk.com/exclude
+              value: "true"
+      k8sattributes:
+        extract:
+          annotations:
+          - from: pod
+            key: splunk.com/sourcetype
+          - from: namespace
+            key: splunk.com/exclude
+            tag_name: splunk.com/exclude
+          - from: pod
+            key: splunk.com/exclude
+            tag_name: splunk.com/exclude
+          - from: namespace
+            key: splunk.com/index
+            tag_name: com.splunk.index
+          - from: pod
+            key: splunk.com/index
+            tag_name: com.splunk.index
+          labels:
+          - key: app
+          metadata:
+          - k8s.namespace.name
+          - k8s.node.name
+          - k8s.pod.name
+          - k8s.pod.uid
+        pod_association:
+        - from: resource_attribute
+          name: k8s.pod.uid
+        - from: resource_attribute
+          name: k8s.pod.ip
+        - from: resource_attribute
+          name: ip
+        - from: connection
+        - from: resource_attribute
+          name: host.name
+      memory_limiter:
+        check_interval: 2s
+        limit_mib: ${SPLUNK_MEMORY_LIMIT_MIB}
+      resource/add_cluster_name:
+        attributes:
+        - action: upsert
+          key: k8s.cluster.name
+          value: ${MY_CLUSTER_NAME}
+      resource/add_collector_k8s:
+        attributes:
+        - action: insert
+          key: k8s.node.name
+          value: ${K8S_NODE_NAME}
+        - action: insert
+          key: k8s.pod.name
+          value: ${K8S_POD_NAME}
+        - action: insert
+          key: k8s.pod.uid
+          value: ${K8S_POD_UID}
+        - action: insert
+          key: k8s.namespace.name
+          value: ${K8S_NAMESPACE}
+      resource/logs:
+        attributes:
+        - action: upsert
+          from_attribute: k8s.pod.annotations.splunk.com/sourcetype
+          key: com.splunk.sourcetype
+        - action: delete
+          key: k8s.pod.annotations.splunk.com/sourcetype
+        - action: delete
+          key: splunk.com/exclude
+      resourcedetection:
+        detectors:
+        - env
+        - system
+        override: true
+        timeout: 10s
+    receivers:
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      prometheus/collector:
+        config:
+          scrape_configs:
+          - job_name: otel-collector
+            scrape_interval: 10s
+            static_configs:
+            - targets:
+              - ${K8S_POD_IP}:8889
+      signalfx:
+        access_token_passthrough: true
+        endpoint: 0.0.0.0:9943
+      zipkin:
+        endpoint: 0.0.0.0:9411
+    service:
+      extensions:
+      - health_check
+      - memory_ballast
+      - zpages
+      - http_forwarder
+      pipelines:
+        logs/signalfx-events:
+          exporters:
+          - signalfx
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - signalfx
+        metrics:
+          exporters:
+          - signalfx
+          processors:
+          - memory_limiter
+          - batch
+          - resource/add_cluster_name
+          receivers:
+          - otlp
+          - signalfx
+        metrics/collector:
+          exporters:
+          - signalfx
+          processors:
+          - memory_limiter
+          - batch
+          - resource/add_collector_k8s
+          - resourcedetection
+          - resource/add_cluster_name
+          receivers:
+          - prometheus/collector
+        traces:
+          exporters:
+          - sapm
+          processors:
+          - memory_limiter
+          - batch
+          - k8sattributes
+          - resource/add_cluster_name
+          receivers:
+          - otlp
+          - jaeger
+          - zipkin
+      telemetry:
+        metrics:
+          address: 0.0.0.0:8889
+`
 	// the javaagent version is managed by the update-javaagent-version.sh script.
 	defaultJavaAgentVersion = "v1.14.1"
 	defaultJavaAgentImage   = "quay.io/signalfx/splunk-otel-instrumentation-java:" + defaultJavaAgentVersion
