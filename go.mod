@@ -8,7 +8,7 @@ require (
 	github.com/golangci/golangci-lint v1.49.0
 	github.com/stretchr/testify v1.8.0
 	go.opentelemetry.io/collector/semconv v0.59.0
-	go.opentelemetry.io/otel v1.10.0
+	go.opentelemetry.io/otel v1.11.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.25.2
 	k8s.io/apimachinery v0.25.2
