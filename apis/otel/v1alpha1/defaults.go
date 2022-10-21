@@ -136,9 +136,9 @@ processors:
       - from: pod
         key: splunk.com/index
         tag_name: com.splunk.index
-    labels:
+      labels:
       - key: app
-	metadata:
+      metadata:
       - k8s.namespace.name
       - k8s.node.name
       - k8s.pod.name

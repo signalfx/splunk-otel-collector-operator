@@ -5,3 +5,11 @@ metadata:
 spec:
   clusterName: test-cluster
   realm: my-splunk-realm
+  agent:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200Mi
+      requests:
+        memory: 100Mi
+        cpu: 100m

@@ -7,6 +7,13 @@ spec:
   realm: my-splunk-realm
   agent:
     enabled: true
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200Mi
+      requests:
+        memory: 100Mi
+        cpu: 100m
   clusterReceiver:
     enabled: false
   gateway:

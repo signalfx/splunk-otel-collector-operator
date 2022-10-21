@@ -143,6 +143,7 @@ The Splunk OpenTelemetry Collector Operator *might* work on versions outside of 
 |------------|----------------------|
 | v0.0.3     | v1.20 to v1.23       |
 | v0.0.4     | v1.23 to v1.25       |
+| v0.0.5     | v1.23 to v1.25       |
 
 ## License
 
