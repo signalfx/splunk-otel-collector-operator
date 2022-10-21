@@ -17,7 +17,7 @@ metadata:
     operators.operatorframework.io/builder: operator-sdk-v1.23.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: splunk-otel-collector-operator.v0.0.4
-  namespace: placeholder
+  namespace: splunk-otel-operator-system
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -419,13 +419,18 @@ spec:
                   periodSeconds: 10
                 resources:
                   limits:
-                    cpu: 100m
-                    memory: 30Mi
+                    cpu: 200m
+                    memory: 256Mi
                   requests:
                     cpu: 100m
-                    memory: 20Mi
+                    memory: 64Mi
                 securityContext:
                   allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
                 volumeMounts:
                 - mountPath: /tmp/k8s-webhook-server/serving-certs
                   name: cert
