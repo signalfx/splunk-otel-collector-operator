@@ -72,7 +72,7 @@ func ServiceAccount(otelcol v1alpha1.Agent) string {
 	// TODO(splunk): create separate accounts for agent, clusterreceiver
 	// and gateway.
 	// return fmt.Sprintf("%s-account", otelcol.Name)
-	return "splunk-otel-operator-acccount"
+	return "splunk-otel-operator-account"
 }
 
 // Namespace builds the namespace name based on the instance.

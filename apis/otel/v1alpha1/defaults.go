@@ -76,7 +76,6 @@ receivers:
     scrapers:
       cpu: null
       disk: null
-      filesystem: null
       load: null
       memory: null
       network: null
@@ -120,13 +119,33 @@ exporters:
   logging/debug:
     loglevel: debug
 processors:
-  k8s_tagger:
+  k8sattributes:
     extract:
-      metadata:
-        - k8s.namespace.name
-        - k8s.node.name
-        - k8s.pod.name
-        - k8s.pod.uid
+      annotations:
+      - from: pod
+        key: splunk.com/sourcetype
+      - from: namespace
+        key: splunk.com/exclude
+        tag_name: splunk.com/exclude
+      - from: pod
+        key: splunk.com/exclude
+        tag_name: splunk.com/exclude
+      - from: namespace
+        key: splunk.com/index
+        tag_name: com.splunk.index
+      - from: pod
+        key: splunk.com/index
+        tag_name: com.splunk.index
+    labels:
+      - key: app
+	metadata:
+      - k8s.namespace.name
+      - k8s.node.name
+      - k8s.pod.name
+      - k8s.pod.uid
+      - container.id
+      - container.image.name
+      - container.image.tag
     filter:
       node: '${MY_NODE_NAME}'
   batch: null
@@ -175,7 +194,7 @@ service:
         - jaeger
         - zipkin
       processors:
-        - k8s_tagger
+        - k8sattributes
         - batch
         - resource
         - resourcedetection

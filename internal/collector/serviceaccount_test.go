@@ -37,7 +37,7 @@ func TestServiceAccountNewDefault(t *testing.T) {
 	sa := ServiceAccountName(otelcol)
 
 	// verify
-	assert.Equal(t, "splunk-otel-operator-acccount", sa)
+	assert.Equal(t, "splunk-otel-operator-account", sa)
 }
 
 func TestServiceAccountOverride(t *testing.T) {
