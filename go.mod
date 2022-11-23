@@ -6,8 +6,8 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/go-logr/logr v1.2.3
 	github.com/golangci/golangci-lint v1.49.0
-	github.com/stretchr/testify v1.8.0
-	go.opentelemetry.io/collector/semconv v0.59.0
+	github.com/stretchr/testify v1.8.1
+	go.opentelemetry.io/collector/semconv v0.66.0
 	go.opentelemetry.io/otel v1.10.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.25.2
@@ -185,7 +185,7 @@ require (
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/sylvia7788/contextcheck v1.0.6 // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
