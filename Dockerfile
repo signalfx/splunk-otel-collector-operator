@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.19.0 as builder
+FROM golang:1.19.4 as builder
 
 ARG VERSION 
 ARG VERSION_PKG 
