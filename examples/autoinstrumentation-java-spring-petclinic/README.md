@@ -67,11 +67,11 @@ wavefront-proxy-84b7d4d6f4-snpz4     1/1     Running   0             15m
 #### 3.1 Add the inject-java annotation to the spring-petclinic pods patching the related deployments
 
 ```
-kubectl patch deployment api-gateway -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }'
-kubectl patch deployment customers-service -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }'
-kubectl patch deployment vets-service -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }'
-kubectl patch deployment visits-service -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }'
-kubectl patch deployment wavefront-proxy -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }'
+kubectl patch deployment api-gateway -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' -n spring-petclinic
+kubectl patch deployment customers-service -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' -n spring-petclinic
+kubectl patch deployment vets-service -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' -n spring-petclinic
+kubectl patch deployment visits-service -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' -n spring-petclinic
+kubectl patch deployment wavefront-proxy -p '{"spec": {"template":{"metadata":{"annotations":{"otel.splunk.com/inject-java":"true"}}}} }' -n spring-petclinic
 ```
 
 #### 3.2 Verify the spring-petclinic pods are instrumented
