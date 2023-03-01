@@ -7,7 +7,7 @@ require (
 	github.com/go-logr/logr v1.2.3
 	github.com/golangci/golangci-lint v1.49.0
 	github.com/stretchr/testify v1.8.2
-	go.opentelemetry.io/collector/semconv v0.59.0
+	go.opentelemetry.io/collector/semconv v0.72.0
 	go.opentelemetry.io/otel v1.14.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.25.2
