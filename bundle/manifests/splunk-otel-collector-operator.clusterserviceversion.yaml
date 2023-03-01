@@ -14,9 +14,10 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.23.0
+    createdAt: "2023-03-02T16:20:56Z"
+    operators.operatorframework.io/builder: operator-sdk-v1.27.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-  name: splunk-otel-collector-operator.v0.0.5
+  name: splunk-otel-collector-operator.v0.0.6
   namespace: splunk-otel-operator-system
 spec:
   apiservicedefinitions: {}
@@ -399,7 +400,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: jvsplk/splunk-otel-collector-operator:v0.0.5
+                image: jvsplk/splunk-otel-collector-operator:v0.0.6
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -506,7 +507,7 @@ spec:
   provider:
     name: Splunk Inc
     url: github.com/signalfx/splunk-otel-collector-operator
-  version: 0.0.5
+  version: 0.0.6
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
