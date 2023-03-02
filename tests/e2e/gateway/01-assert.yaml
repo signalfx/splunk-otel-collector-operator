@@ -283,7 +283,6 @@ spec:
                   fieldPath: metadata.namespace
             - name: SPLUNK_MEMORY_TOTAL_MIB
               value: "200"
-          image: quay.io/signalfx/splunk-otel-collector:0.61.0
           imagePullPolicy: IfNotPresent
           name: otc-container
           resources:

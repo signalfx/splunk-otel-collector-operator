@@ -38,7 +38,7 @@ jobs:
 
     - uses: jpkrohling/setup-operator-sdk@v1.1.0
       with:
-        operator-sdk-version: v1.23.0
+        operator-sdk-version: v1.27.0
 
     - name: ${{ matrix.target }}
       run: make ${{ matrix.target }}
