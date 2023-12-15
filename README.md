@@ -1,8 +1,9 @@
-  
-## **⚠ WARNING: This project is Alpha.**  
-### Please do not use in production. Things will break without notice.
-  
-  
+> # :warning: Project Deprecated (As of December 2023)
+> **Notice:** The [Splunk Otel Collector Operator](https://github.com/signalfx/splunk-otel-collector-operator) repository is now deprecated.
+>
+> We recommend users migrate to using the operator provided by the [`splunk-otel-collector-chart`](https://github.com/signalfx/splunk-otel-collector-chart/blob/main/docs/auto-instrumentation-introduction.md) for an updated OpenTelemetry Operator experience.
+> For comprehensive instructions on using this operator, please refer to the [Splunk Observability documentation](https://docs.splunk.com/observability/en/gdi/opentelemetry/install-k8s.html#use-the-kubernetes-operator-in-opentelemetry).
+
 ---------
   
 # Splunk OpenTelemetry Collector Operator for Kubernetes
