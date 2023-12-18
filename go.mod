@@ -3,7 +3,7 @@ module github.com/signalfx/splunk-otel-collector-operator
 go 1.19
 
 require (
-	github.com/Masterminds/semver/v3 v3.1.1
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/go-logr/logr v1.2.3
 	github.com/golangci/golangci-lint v1.49.0
 	github.com/stretchr/testify v1.8.2
