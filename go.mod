@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/go-logr/logr v1.2.3
+	github.com/go-logr/logr v1.4.1
 	github.com/golangci/golangci-lint v1.49.0
 	github.com/stretchr/testify v1.8.2
 	go.opentelemetry.io/collector/semconv v0.72.0
