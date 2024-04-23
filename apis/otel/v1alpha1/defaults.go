@@ -592,6 +592,6 @@ service:
           address: 0.0.0.0:8889
 `
 	// the javaagent version is managed by the update-javaagent-version.sh script.
-	defaultJavaAgentVersion = "v1.20.0"
+	defaultJavaAgentVersion = "v1.32.0"
 	defaultJavaAgentImage   = "quay.io/signalfx/splunk-otel-instrumentation-java:" + defaultJavaAgentVersion
 )
