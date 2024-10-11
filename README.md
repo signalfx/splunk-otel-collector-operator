@@ -1,4 +1,6 @@
-  
+⚠ This project is no longer in use. Please consult this [documentation](https://docs.splunk.com/observability/en/gdi/opentelemetry/collector-kubernetes/collector-kubernetes-intro.html) for more information. ⚠ 
+
+
 ## **⚠ WARNING: This project is Alpha.**  
 ### Please do not use in production. Things will break without notice.
   
